@@ -78,7 +78,8 @@
 <p>另外一开始使用vs2017编译时会报错，换成vs2019就行了…</p>
 <h1 id="测试的php代码"><a href="#测试的php代码" class="headerlink" title="测试的php代码"></a>测试的php代码</h1><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">$replacement = <span class="string">&lt;&lt;&lt;EOT</span></span><br><span class="line"><span class="string">\'</span></span><br><span class="line"><span class="string">EOT;</span></span><br><span class="line">$replacement = addslashes($replacement);</span><br><span class="line"><span class="keyword">echo</span> preg_replace(<span class="string">'/aaa/'</span>,$replacement,<span class="string">"bbbaaab"</span>); <span class="comment">//bbb\\'b</span></span><br></pre></td></tr></table></figure>
 
-<h1 id="preg-replace实现"><a href="#preg-replace实现" class="headerlink" title="preg_replace实现"></a>preg_replace实现</h1><p>先不贴代码，说下<code>preg_replace</code>的工作流程：</p>
+<h1 id="preg-replace实现"><a href="#preg-replace实现" class="headerlink" title="preg_replace实现"></a>preg_replace实现</h1><p><code>preg_replace</code>代码位于ext/pcre/php_pcre.c中的<code>php_pcre_replace_impl</code></p>
+<p>先不贴代码，说下<code>preg_replace</code>的工作流程：</p>
 <ul>
 <li>把<code>bbbaaab</code>拆成<code>bbbaaa</code>和<code>b</code></li>
 <li>把<code>bbbaaa</code>变成<code>bbb\\&#39;</code>（我们关心的部分）</li>
