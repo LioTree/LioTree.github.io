@@ -541,9 +541,9 @@
       <category term="web安全" scheme="https://liotree.github.io/categories/web%E5%AE%89%E5%85%A8/"/>
     
     
-      <category term="sql注入" scheme="https://liotree.github.io/tags/sql%E6%B3%A8%E5%85%A5/"/>
-    
       <category term="漏洞分析" scheme="https://liotree.github.io/tags/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"/>
+    
+      <category term="sql注入" scheme="https://liotree.github.io/tags/sql%E6%B3%A8%E5%85%A5/"/>
     
   </entry>
   
