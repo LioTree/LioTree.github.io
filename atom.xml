@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://liotree.github.io/"/>
-  <updated>2020-06-20T16:35:00.474Z</updated>
+  <updated>2020-06-20T16:38:52.237Z</updated>
   <id>https://liotree.github.io/</id>
   
   <author>
@@ -21,9 +21,9 @@
     <link href="https://liotree.github.io/2020/06/21/%E7%AE%80%E5%8D%95%E7%9A%84CTFd%E5%8A%A8%E6%80%81%E9%9D%B6%E6%9C%BA%E9%83%A8%E7%BD%B2%E6%8F%92%E4%BB%B6/"/>
     <id>https://liotree.github.io/2020/06/21/%E7%AE%80%E5%8D%95%E7%9A%84CTFd%E5%8A%A8%E6%80%81%E9%9D%B6%E6%9C%BA%E9%83%A8%E7%BD%B2%E6%8F%92%E4%BB%B6/</id>
     <published>2020-06-20T16:31:06.000Z</published>
-    <updated>2020-06-20T16:35:00.474Z</updated>
+    <updated>2020-06-20T16:38:52.237Z</updated>
     
-    <content type="html"><![CDATA[<h1 id="CTFd-Fish"><a href="#CTFd-Fish" class="headerlink" title="CTFd-Fish"></a>CTFd-Fish</h1><p><a href="https://github.com/LioTree/CTFd-Fish" target="_blank" rel="noopener">https://github.com/LioTree/CTFd-Fish</a></p><p>一个简单的CTFd插件，有两个功能：</p><ul><li>动态部署靶机</li><li>writeup上传</li></ul><h2 id="动态部署靶机"><a href="#动态部署靶机" class="headerlink" title="动态部署靶机"></a>动态部署靶机</h2><p>修改了SernRounder的<a href="https://github.com/SernRounder/CTF_Machine_Deployer" target="_blank" rel="noopener">CTF_Machine_Deployer</a>，然后和CTFd结合起来</p><p>相比赵总的<a href="https://github.com/glzjin/CTFd-Whale" target="_blank" rel="noopener">CTFd-Whale</a>自然是非常简陋的…既然赵总的叫Whale我这个就叫Fish吧…</p><p>简单的部署指南：</p><ul><li>将CTF_Machine_Deployer/deployer.py放到服务器上，修改以下变量</li></ul><p><img src="/images/deployer.JPG" alt="deployer"></p><p>一道题目对应一个deployer.py，多个题目就需要弄多个deployer.py…</p><ul><li><p>启动deployer，比如<code>nohup python3 deployer.py &gt; log.txt 2&gt;&amp;1 &amp;</code>，然后记录log.txt中随机生成的passcode<br><img src="/images/passcode.png" alt="passcode"></p></li><li><p>在CTFd上新建challenge，选择CTFd-Fish类型，填入相关信息<br><img src="/images/challenge.JPG" alt="challenge"></p></li></ul><p>可以使用Test Connection测试连接</p><ul><li>启动靶机</li></ul><p><img src="/images/start1.JPG" alt="start1"><br><img src="/images/start2.JPG" alt="start2"></p><p>一个用户只能同时启动一台靶机</p><h2 id="writeup上传"><a href="#writeup上传" class="headerlink" title="writeup上传"></a>writeup上传</h2><p>和我之前写的<a href="https://github.com/LioTree/dynamic_challenges_wp" target="_blank" rel="noopener">dynamic_challenges_wp</a>是一样的，上传的wp存放于CTFd根目录下的writeup文件夹内</p>]]></content>
+    <content type="html"><![CDATA[<h1 id="CTFd-Fish"><a href="#CTFd-Fish" class="headerlink" title="CTFd-Fish"></a>CTFd-Fish</h1><p><a href="https://github.com/LioTree/CTFd-Fish" target="_blank" rel="noopener">https://github.com/LioTree/CTFd-Fish</a></p><p>一个简单的CTFd插件，有两个功能：</p><ul><li>动态部署靶机</li><li>writeup上传</li></ul><h2 id="动态部署靶机"><a href="#动态部署靶机" class="headerlink" title="动态部署靶机"></a>动态部署靶机</h2><p>修改了SernRounder的<a href="https://github.com/SernRounder/CTF_Machine_Deployer" target="_blank" rel="noopener">CTF_Machine_Deployer</a>，然后和CTFd结合起来</p><p>相比赵总的<a href="https://github.com/glzjin/CTFd-Whale" target="_blank" rel="noopener">CTFd-Whale</a>自然是非常简陋的…既然赵总的叫Whale我这个就叫Fish吧…</p><p>简单的部署指南：</p><ul><li>将CTF_Machine_Deployer/deployer.py放到服务器上，修改以下变量</li></ul><p><img src="/images/deployer.JPG" alt="deployer"></p><p>一道题目对应一个deployer.py，多个题目就需要弄多个deployer.py…</p><ul><li><p>启动deployer，比如<code>nohup python3 deployer.py &gt; log.txt 2&gt;&amp;1 &amp;</code>，然后记录log.txt中随机生成的passcode<br><img src="/images/passcode.png" alt="passcode"></p></li><li><p>在CTFd上新建challenge，选择CTFd-Fish类型，填入相关信息<br><img src="/images/challenge.JPG" alt="challenge"></p></li></ul><p>可以使用Test Connection测试连接</p><ul><li>启动靶机</li></ul><p><img src="/images/start1.JPG" alt="start1"><br><img src="/images/start2.JPG" alt="start2"></p><p>一个用户只能同时启动一台靶机</p><h2 id="writeup上传"><a href="#writeup上传" class="headerlink" title="writeup上传"></a>writeup上传</h2><p>和我之前写的<a href="https://github.com/LioTree/dynamic_challenges_wp" target="_blank" rel="noopener">dynamic_challenges_wp</a>是一样的，上传的wp存放于CTFd根目录下的writeup文件夹内</p><p>求求各位大佬顺手给个star吧2333</p>]]></content>
     
     <summary type="html">
     
@@ -58,8 +58,6 @@
     
     </summary>
     
-    
-      <category term="reverse" scheme="https://liotree.github.io/categories/reverse/"/>
     
     
       <category term="writeup" scheme="https://liotree.github.io/tags/writeup/"/>
