@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://liotree.github.io/"/>
-  <updated>2020-06-20T16:38:52.237Z</updated>
+  <updated>2020-06-27T03:28:01.624Z</updated>
   <id>https://liotree.github.io/</id>
   
   <author>
@@ -15,6 +15,33 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>第五空间2020 nop</title>
+    <link href="https://liotree.github.io/2020/06/27/%E7%AC%AC%E4%BA%94%E7%A9%BA%E9%97%B42020-nop/"/>
+    <id>https://liotree.github.io/2020/06/27/%E7%AC%AC%E4%BA%94%E7%A9%BA%E9%97%B42020-nop/</id>
+    <published>2020-06-27T03:25:08.000Z</published>
+    <updated>2020-06-27T03:28:01.624Z</updated>
+    
+    <content type="html"><![CDATA[<p>萌新第一次在比赛里玩逆向…最后当然没做出来啦…</p><h3 id="反调试"><a href="#反调试" class="headerlink" title="反调试"></a>反调试</h3><p>有5个反调试，直接<code>nop</code>掉就好<br><img src="/images/nop1.JPG" alt=""><br><img src="/images/nop2.JPG" alt=""><br><img src="/images/nop3.JPG" alt=""><br><img src="/images/nop4.JPG" alt=""><br><img src="/images/nop5.JPG" alt=""></p><h3 id="程序逻辑"><a href="#程序逻辑" class="headerlink" title="程序逻辑"></a>程序逻辑</h3><ul><li>先是对用户输入的整数进行几个运算<br><img src="/images/nop6.JPG" alt=""><br><img src="/images/nop7.JPG" alt=""><br><img src="/images/nop8.JPG" alt=""><br><img src="/images/nop9.JPG" alt=""><br><img src="/images/nop10.JPG" alt=""></li></ul><p>总结一下就是input=input+3+0xCCCCCCCC</p><ul><li><p>之后没有判断对错，直接就<code>jmp     short loc_8048779</code>跳到了wrong的分支<br><img src="/images/nop11.JPG" alt=""></p></li><li><p>看一下上方的两个<code>call    sub_8048691</code><br><img src="/images/nop12.JPG" alt=""><br>这里会将input指向的地址设为90h，也就是<code>nop</code>，执行两次则将两个字节设为<code>nop</code></p></li></ul><p>因此只需要让此时的input等于下方<code>jmp     short loc_8048779</code>（正好2个字节）的地址，将其改成两个<code>nop</code>即可进入Right分支</p><p>也就是让input+3+0xCCCCCCCC=0x08048765</p><p>0xCCCCCCCC是-858993460的补码，因此可以算出flag=input=0x08048765+858993460-3=993507990</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;萌新第一次在比赛里玩逆向…最后当然没做出来啦…&lt;/p&gt;
+&lt;h3 id=&quot;反调试&quot;&gt;&lt;a href=&quot;#反调试&quot; class=&quot;headerlink&quot; title=&quot;反调试&quot;&gt;&lt;/a&gt;反调试&lt;/h3&gt;&lt;p&gt;有5个反调试，直接&lt;code&gt;nop&lt;/code&gt;掉就好&lt;br&gt;&lt;im
+      
+    
+    </summary>
+    
+    
+      <category term="reverse" scheme="https://liotree.github.io/categories/reverse/"/>
+    
+    
+      <category term="writeup" scheme="https://liotree.github.io/tags/writeup/"/>
+    
+  </entry>
   
   <entry>
     <title>简单的CTFd动态靶机部署插件</title>
@@ -564,36 +591,6 @@
     
     
       <category term="sql注入" scheme="https://liotree.github.io/tags/sql%E6%B3%A8%E5%85%A5/"/>
-    
-      <category term="漏洞分析" scheme="https://liotree.github.io/tags/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Anchor-CMS-0-9-2-XSS分析</title>
-    <link href="https://liotree.github.io/2019/11/29/Anchor-CMS-0-9-2-XSS%E5%88%86%E6%9E%90/"/>
-    <id>https://liotree.github.io/2019/11/29/Anchor-CMS-0-9-2-XSS%E5%88%86%E6%9E%90/</id>
-    <published>2019-11-29T14:02:44.000Z</published>
-    <updated>2019-11-29T14:16:46.487Z</updated>
-    
-    <content type="html"><![CDATA[<p>对<a href="https://github.com/hongriSec/PHP-Audit-Labs" target="_blank" rel="noopener">PHP-Audit-Labs</a> Day2 示例的简单分析</p><ul><li><p>漏洞位于themes/default/404.php</p><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span> theme_include(<span class="string">'header'</span>); <span class="meta">?&gt;</span></span><br><span class="line"></span><br><span class="line">&lt;section class="content wrap"&gt;</span><br><span class="line">&lt;h1&gt;Page not found&lt;/h1&gt;</span><br><span class="line"></span><br><span class="line">&lt;p&gt;Unfortunately, the page &lt;code&gt;/<span class="meta">&lt;?php</span> <span class="keyword">echo</span> current_url(); <span class="meta">?&gt;</span>&lt;/code&gt; could not be found. Your best bet is either to <span class="keyword">try</span> the &lt;a href=<span class="string">"&lt;?php echo base_url(); ?&gt;"</span>&gt;homepage&lt;/a&gt;, <span class="keyword">try</span> &lt;a href=<span class="string">"#search"</span>&gt;searching&lt;/a&gt;, <span class="keyword">or</span> go <span class="keyword">and</span> cry in a corner (although I don’t recommend the latter).&lt;/p&gt;</span><br><span class="line">&lt;/section&gt;</span><br><span class="line"></span><br><span class="line"><span class="meta">&lt;?php</span> theme_include(<span class="string">'footer'</span>); <span class="meta">?&gt;</span> was not found</span><br></pre></td></tr></table></figure></li><li><p>Anchor 使用了路由，如果访问的url不存在则会执行404.php<br>比如访问/admin/xxx,会返回</p><blockquote><p>404<br>The page admin/xxx was not found.<br>Try the homepage</p></blockquote></li><li><p>其中xxx用户可控，处理不好就可能造成xss</p></li><li><p>可以看到404.php中调用了base_url()获取用户访问的url</p><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">current_url</span><span class="params">()</span> </span>&#123;</span><br><span class="line"><span class="keyword">return</span> Uri::current();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li><li><p>跟进Uri类的current静态方法</p><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="function"><span class="keyword">function</span> <span class="title">current</span><span class="params">()</span> </span>&#123;</span><br><span class="line"><span class="keyword">if</span>(is_null(<span class="keyword">static</span>::$current)) <span class="keyword">static</span>::$current = <span class="keyword">static</span>::detect();</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> <span class="keyword">static</span>::$current;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li><li><p>跟进detect静态方法</p><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Try and detect the current uri</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> string</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="function"><span class="keyword">function</span> <span class="title">detect</span><span class="params">()</span> </span>&#123;</span><br><span class="line"><span class="comment">// create a server object from global</span></span><br><span class="line">$server = <span class="keyword">new</span> Server($_SERVER);</span><br><span class="line"></span><br><span class="line">$try = <span class="keyword">array</span>(<span class="string">'REQUEST_URI'</span>, <span class="string">'PATH_INFO'</span>, <span class="string">'ORIG_PATH_INFO'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">foreach</span>($try <span class="keyword">as</span> $method) &#123;</span><br><span class="line"></span><br><span class="line"><span class="comment">// make sure the server var exists and is not empty</span></span><br><span class="line"><span class="keyword">if</span>($server-&gt;has($method) <span class="keyword">and</span> $uri = $server-&gt;get($method)) &#123;</span><br><span class="line"></span><br><span class="line"><span class="comment">// apply a string filter and make sure we still have somthing left</span></span><br><span class="line"><span class="keyword">if</span>($uri = filter_var($uri, FILTER_SANITIZE_URL)) &#123;</span><br><span class="line"></span><br><span class="line"><span class="comment">// make sure the uri is not malformed and return the pathname</span></span><br><span class="line"><span class="keyword">if</span>($uri = parse_url($uri, PHP_URL_PATH)) &#123;</span><br><span class="line"><span class="keyword">return</span> <span class="keyword">static</span>::format($uri, $server);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// woah jackie, we found a bad'n</span></span><br><span class="line"><span class="keyword">throw</span> <span class="keyword">new</span> ErrorException(<span class="string">'Malformed URI'</span>);</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">throw</span> <span class="keyword">new</span> OverflowException(<span class="string">'Uri was not detected. Make sure the REQUEST_URI is set.'</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li><li><p>先通过$server-&gt;get($method) 依次获得 $_SERVER的’REQUEST_URI’ ,’PATH_INFO’和’ORIG_PATH_INFO’键值，存储在$uri中</p></li><li><p>如果filter_var($uri, FILTER_SANITIZE_URL) 和 parse_url($uri, PHP_URL_PATH) 都为真的话就将其返回,否则抛出一个错误</p></li><li><p>其中FILTER_SANITIZE_URL过滤器的作用如下</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">FILTER_SANITIZE_URL 过滤器删除字符串中所有非法的 URL 字符。</span><br><span class="line">该过滤器允许所有的字符、数字以及 $-_.+!*&#39;(),&#123;&#125;|\\^~[]&#96;&quot;&gt;&lt;#%;&#x2F;?:@&amp;&#x3D;。</span><br></pre></td></tr></table></figure><p>该过滤器不会过滤&lt;&gt;/，直接可以插入</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;scirpt&gt;&lt;&#x2F;scirpt&gt;</span><br></pre></td></tr></table></figure><p>标签</p></li><li><p>只有严重不合格的url，parse_url才会返回false</p><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">php &gt; print_r(parse_url(<span class="string">'/admin/&lt;script&gt;alert(1)&lt;/script&gt;'</span>));</span><br><span class="line"><span class="keyword">Array</span></span><br><span class="line">(</span><br><span class="line">    [path] =&gt; /admin/&lt;script&gt;alert(<span class="number">1</span>)&lt;/script&gt;</span><br><span class="line">)</span><br></pre></td></tr></table></figure></li><li><p>因此最后的payload</p><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/admin/<span class="xml"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="undefined">alert(1)</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br></pre></td></tr></table></figure></li></ul>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;p&gt;对&lt;a href=&quot;https://github.com/hongriSec/PHP-Audit-Labs&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;PHP-Audit-Labs&lt;/a&gt; Day2 示例的简单分析&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;漏洞位
-      
-    
-    </summary>
-    
-    
-      <category term="web安全" scheme="https://liotree.github.io/categories/web%E5%AE%89%E5%85%A8/"/>
-    
-    
-      <category term="xss" scheme="https://liotree.github.io/tags/xss/"/>
     
       <category term="漏洞分析" scheme="https://liotree.github.io/tags/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"/>
     
