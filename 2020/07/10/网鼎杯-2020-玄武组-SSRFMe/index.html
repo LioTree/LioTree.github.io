@@ -73,7 +73,10 @@
 <li>防御了xip.io这类利用dns解析的绕过方法</li>
 </ul>
 </li>
-<li>使用<code>ip2long</code>将ip地址转为整数，判断是否为内网网段</li>
+<li>使用<code>ip2long</code>将ip地址转为整数，判断是否为内网网段<ul>
+<li>防御了127.0.0.1/8</li>
+</ul>
+</li>
 </ul>
 <p>另外在发送请求后还对重定向的情况做了处理</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ($result_info[<span class="string">'redirect_url'</span>])</span><br><span class="line">&#123;</span><br><span class="line">    safe_request_url($result_info[<span class="string">'redirect_url'</span>]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
