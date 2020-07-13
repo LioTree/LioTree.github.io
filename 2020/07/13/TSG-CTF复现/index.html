@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>TSG CTF复现 - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=writeup>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">TSG CTF复现</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#web"><span class="toc-text">web</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Beginner’s-Web"><span class="toc-text">Beginner’s Web</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#解法"><span class="toc-text">解法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#原理"><span class="toc-text">原理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Object-prototype-defineSetter"><span class="toc-text">Object.prototype.__defineSetter__()</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#await-new-Promise"><span class="toc-text">await new Promise</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#javascript容错性"><span class="toc-text">javascript容错性</span></a></li></ol></li></ol></li></ol></li></ol>
+
+  <div class="post-content">
+    <p>又双叒叕爆零…学到了一个新词：beginner…惨惨</p>
+<h1 id="web"><a href="#web" class="headerlink" title="web"></a>web</h1><h2 id="Beginner’s-Web"><a href="#Beginner’s-Web" class="headerlink" title="Beginner’s Web"></a>Beginner’s Web</h2><p>好一个beginner…不过这题还是很有意思的</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> fastify = <span class="built_in">require</span>(<span class="string">'fastify'</span>);</span><br><span class="line"><span class="keyword">const</span> nunjucks = <span class="built_in">require</span>(<span class="string">'nunjucks'</span>);</span><br><span class="line"><span class="keyword">const</span> crypto = <span class="built_in">require</span>(<span class="string">'crypto'</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> converters = &#123;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> flagConverter = <span class="function">(<span class="params">input, callback</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> flag = <span class="string">'*** CENSORED ***'</span>;</span><br><span class="line">  callback(<span class="literal">null</span>, flag);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> base64Converter = <span class="function">(<span class="params">input, callback</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> result = Buffer.from(input).toString(<span class="string">'base64'</span>);</span><br><span class="line">    callback(<span class="literal">null</span>, result)</span><br><span class="line">  &#125; <span class="keyword">catch</span> (error) &#123;</span><br><span class="line">    callback(error);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> scryptConverter = <span class="function">(<span class="params">input, callback</span>) =&gt;</span> &#123;</span><br><span class="line">  crypto.scrypt(input, <span class="string">'I like sugar'</span>, <span class="number">64</span>, (error, key) =&gt; &#123;</span><br><span class="line">    <span class="keyword">if</span> (error) &#123;</span><br><span class="line">      callback(error);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      callback(<span class="literal">null</span>, key.toString(<span class="string">'hex'</span>));</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> app = fastify();</span><br><span class="line">app.register(<span class="built_in">require</span>(<span class="string">'point-of-view'</span>), &#123;<span class="attr">engine</span>: &#123;nunjucks&#125;&#125;);</span><br><span class="line">app.register(<span class="built_in">require</span>(<span class="string">'fastify-formbody'</span>));</span><br><span class="line">app.register(<span class="built_in">require</span>(<span class="string">'fastify-cookie'</span>));</span><br><span class="line">app.register(<span class="built_in">require</span>(<span class="string">'fastify-session'</span>), &#123;<span class="attr">secret</span>: <span class="built_in">Math</span>.random().toString(<span class="number">2</span>), <span class="attr">cookie</span>: &#123;<span class="attr">secure</span>: <span class="literal">false</span>&#125;&#125;);</span><br><span class="line"></span><br><span class="line">app.get(<span class="string">'/'</span>, <span class="keyword">async</span> (request, reply) =&gt; &#123;</span><br><span class="line">  reply.view(<span class="string">'index.html'</span>, &#123;<span class="attr">sessionId</span>: request.session.sessionId&#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.post(<span class="string">'/'</span>, <span class="keyword">async</span> (request, reply) =&gt; &#123;</span><br><span class="line">  <span class="keyword">if</span> (request.body.converter.match(<span class="regexp">/[FLAG]/</span>)) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">"Don't be evil :)"</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (request.body.input.length &lt; <span class="number">10</span>) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'Too short :('</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  converters[<span class="string">'base64'</span>] = base64Converter;</span><br><span class="line">  converters[<span class="string">'scrypt'</span>] = scryptConverter;</span><br><span class="line">  converters[<span class="string">`FLAG_<span class="subst">$&#123;request.session.sessionId&#125;</span>`</span>] = flagConverter;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> result = <span class="keyword">await</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    converters[request.body.converter](request.body.input, (error, result) =&gt; &#123;</span><br><span class="line">      <span class="keyword">if</span> (error) &#123;</span><br><span class="line">        reject(error);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        resolve(result);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  reply.view(<span class="string">'index.html'</span>, &#123;</span><br><span class="line">    input: request.body.input,</span><br><span class="line">    result,</span><br><span class="line">    sessionId: request.session.sessionId,</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.setErrorHandler(<span class="function">(<span class="params">error, request, reply</span>) =&gt;</span> &#123;</span><br><span class="line">  reply.view(<span class="string">'index.html'</span>, &#123;error, <span class="attr">sessionId</span>: request.session.sessionId&#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.listen(<span class="number">59101</span>, <span class="string">'0.0.0.0'</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="解法"><a href="#解法" class="headerlink" title="解法"></a>解法</h3><p>先说下解法</p>
+<ul>
+<li>发送post请求(<code>FLAG_l4KILh2scJrJ4zF_Yd8Uu6HODdfZeNEP</code>要按照不同的session id来)</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">input=FLAG_l4KILh2scJrJ4zF_Yd8Uu6HODdfZeNEP&amp;converter=__defineSetter__</span><br></pre></td></tr></table></figure>
+
+<p>这时页面会卡在那里</p>
+<ul>
+<li>另外再开一个页面，随便发一个post请求，比如</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">input=aaaaaaaaaaaaa&amp;converter=base64</span><br></pre></td></tr></table></figure>
+
+<p>这时原来那个卡住的页面就会报错显示<code>flagConverter</code>的代码，其中就包含了flag</p>
+<h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>主要是3个js的点：</p>
+<h4 id="Object-prototype-defineSetter"><a href="#Object-prototype-defineSetter" class="headerlink" title="Object.prototype.__defineSetter__()"></a><code>Object.prototype.__defineSetter__()</code></h4><p>参考<a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/__defineSetter__" target="_blank" rel="noopener">MDN文档</a></p>
+<blockquote>
+<p><strong>defineSetter</strong> 方法可以将一个函数绑定在当前对象的指定属性上，当那个属性被赋值时，你所绑定的函数就会被调用</p>
+</blockquote>
+<p>因此当我们传入</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">input=FLAG_l4KILh2scJrJ4zF_Yd8Uu6HODdfZeNEP&amp;converter=__defineSetter__</span><br></pre></td></tr></table></figure>
+
+<p>会将</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">(error, result) =&gt; &#123;</span><br><span class="line">      <span class="keyword">if</span> (error) &#123;</span><br><span class="line">        reject(error);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        resolve(result);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>绑定到<code>converter[FLAG_l4KILh2scJrJ4zF_Yd8Uu6HODdfZeNEP]</code></p>
+<h4 id="await-new-Promise"><a href="#await-new-Promise" class="headerlink" title="await new Promise"></a><code>await new Promise</code></h4><p><code>Promise</code>代表了一个异步操作的最终完成或者失败，而<code>await new Promise</code>会暂停当前 <code>async function</code> 的执行，等待 Promise 处理完成</p>
+<p>那么为什么第一个请求发出后会卡住呢？</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> result = <span class="keyword">await</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    converters[request.body.converter](request.body.input, (error, result) =&gt; &#123;</span><br><span class="line">      <span class="keyword">if</span> (error) &#123;</span><br><span class="line">        reject(error);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        resolve(result);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br></pre></td></tr></table></figure>
+
+<p>只有执行了<code>reject(error)</code>或者<code>resolve(result)</code>后<code>Promise</code>才会返回，但</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">(error, result) =&gt; &#123;</span><br><span class="line">      <span class="keyword">if</span> (error) &#123;</span><br><span class="line">        reject(error);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        resolve(result);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>需要在<code>base64Converter</code>或者<code>scryptConverter</code>调用，因此第一个请求发出后就一直开在了<code>await new Promise</code>这里</p>
+<h4 id="javascript容错性"><a href="#javascript容错性" class="headerlink" title="javascript容错性"></a>javascript容错性</h4><p>javascript和php这样的语言可以接受比形参个数少的实参，比如</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> f = <span class="function"><span class="keyword">function</span>(<span class="params">a,b</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(a,b)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">f(<span class="string">'a'</span>); <span class="comment">//a undefined</span></span><br></pre></td></tr></table></figure>
+
+<p>当第二个请求发送过来时，因为在<code>converter[FLAG_l4KILh2scJrJ4zF_Yd8Uu6HODdfZeNEP]</code>上设置了<code>Setter</code>,<br><code>converters[`FLAG_${request.session.sessionId}`] = flagConverter;</code>会调用</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">(error, result) =&gt; &#123;</span><br><span class="line">      <span class="keyword">if</span> (error) &#123;</span><br><span class="line">        reject(error);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        resolve(result);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>传入的参数只有一个，所以</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">error=flagConverter</span><br><span class="line">result=<span class="literal">undefined</span></span><br></pre></td></tr></table></figure>
+
+<p>然后<code>reject(error);</code>使第一个请求的<code>Promise</code>返回，同时抛出一个<code>rejectionhandled</code>错误，该错误被<code>error handler</code>捕获</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">app.setErrorHandler(<span class="function">(<span class="params">error, request, reply</span>) =&gt;</span> &#123;</span><br><span class="line">  reply.view(<span class="string">'index.html'</span>, &#123;error, <span class="attr">sessionId</span>: request.session.sessionId&#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>这时将<code>flagConverter</code>的代码作为<code>error</code>渲染返回</p>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2020-07-13</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2020
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>
