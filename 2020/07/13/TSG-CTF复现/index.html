@@ -110,7 +110,7 @@
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">app.setErrorHandler(<span class="function">(<span class="params">error, request, reply</span>) =&gt;</span> &#123;</span><br><span class="line">  reply.view(<span class="string">'index.html'</span>, &#123;error, <span class="attr">sessionId</span>: request.session.sessionId&#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
 
 <p>这时将<code>flagConverter</code>作为<code>error</code>渲染</p>
-<h4 id="Function-prototype-toString"><a href="#Function-prototype-toString" class="headerlink" title="Function.prototype.toString()"></a><code>Function.prototype.toString()</code></h4><p>为什么将函数渲染会返回源代码呢？</p>
+<h4 id="Function-prototype-toString"><a href="#Function-prototype-toString" class="headerlink" title="Function.prototype.toString()"></a><code>Function.prototype.toString()</code></h4><p>为什么将函数渲染会返回其源代码呢？</p>
 <ul>
 <li>首先要看模板渲染的原理。模板渲染时会动态生成一段js代码</li>
 </ul>
