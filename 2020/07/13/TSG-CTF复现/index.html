@@ -58,7 +58,7 @@
   </div>
 
   <!-- 文章目录 -->
-  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#web"><span class="toc-text">web</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Beginner’s-Web"><span class="toc-text">Beginner’s Web</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#解法"><span class="toc-text">解法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#原理"><span class="toc-text">原理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Object-prototype-defineSetter"><span class="toc-text">Object.prototype.__defineSetter__()</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#await-new-Promise"><span class="toc-text">await new Promise</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#javascript容错性"><span class="toc-text">javascript容错性</span></a></li></ol></li></ol></li></ol></li></ol>
+  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#web"><span class="toc-text">web</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Beginner’s-Web"><span class="toc-text">Beginner’s Web</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#解法"><span class="toc-text">解法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#原理"><span class="toc-text">原理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Object-prototype-defineSetter"><span class="toc-text">Object.prototype.__defineSetter__()</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#await-new-Promise"><span class="toc-text">await new Promise</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#javascript容错性"><span class="toc-text">javascript容错性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Function-prototype-toString"><span class="toc-text">Function.prototype.toString()</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol></li></ol></li></ol>
 
   <div class="post-content">
     <p>又双叒叕爆零…学到了一个新词：beginner…惨惨</p>
@@ -78,8 +78,7 @@
 <figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">input=aaaaaaaaaaaaa&amp;converter=base64</span><br></pre></td></tr></table></figure>
 
 <p>这时原来那个卡住的页面就会报错显示<code>flagConverter</code>的代码，其中就包含了flag</p>
-<h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>主要是3个js的点：</p>
-<h4 id="Object-prototype-defineSetter"><a href="#Object-prototype-defineSetter" class="headerlink" title="Object.prototype.__defineSetter__()"></a><code>Object.prototype.__defineSetter__()</code></h4><p>参考<a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/__defineSetter__" target="_blank" rel="noopener">MDN文档</a></p>
+<h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><h4 id="Object-prototype-defineSetter"><a href="#Object-prototype-defineSetter" class="headerlink" title="Object.prototype.__defineSetter__()"></a><code>Object.prototype.__defineSetter__()</code></h4><p>参考<a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/__defineSetter__" target="_blank" rel="noopener">MDN文档</a></p>
 <blockquote>
 <p><strong>defineSetter</strong> 方法可以将一个函数绑定在当前对象的指定属性上，当那个属性被赋值时，你所绑定的函数就会被调用</p>
 </blockquote>
@@ -110,7 +109,21 @@
 <p>然后<code>reject(error);</code>使第一个请求的<code>Promise</code>返回，同时抛出一个<code>rejectionhandled</code>错误，该错误被<code>error handler</code>捕获</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">app.setErrorHandler(<span class="function">(<span class="params">error, request, reply</span>) =&gt;</span> &#123;</span><br><span class="line">  reply.view(<span class="string">'index.html'</span>, &#123;error, <span class="attr">sessionId</span>: request.session.sessionId&#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
 
-<p>这时将<code>flagConverter</code>的代码作为<code>error</code>渲染返回</p>
+<p>这时将<code>flagConverter</code>作为<code>error</code>渲染</p>
+<h4 id="Function-prototype-toString"><a href="#Function-prototype-toString" class="headerlink" title="Function.prototype.toString()"></a><code>Function.prototype.toString()</code></h4><p>为什么将函数渲染会返回源代码呢？</p>
+<ul>
+<li>首先要看模板渲染的原理。模板渲染时会动态生成一段js代码</li>
+</ul>
+<p><img src="/images/nodejs%E6%A8%A1%E6%9D%BF%E6%B8%B2%E6%9F%93.JPG" alt=""></p>
+<p>实际上是把模板文件中的html拆分开，和用户传入的变量进行字符串拼接</p>
+<ul>
+<li>javascript是弱类型语言，并且万物皆对象</li>
+</ul>
+<p>因此当把函数和字符串进行拼接时，会调用<a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function/toString" target="_blank" rel="noopener">Function.prototype.toString()</a>将函数转为字符串，该方法会返回一个表示函数源代码的字符串</p>
+<p>一个简单的示例</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> f = <span class="function"><span class="keyword">function</span> (<span class="params">a, b</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(a, b)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'aaaaa'</span>+f);</span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">aaaaafunction (a, b) &#123;</span></span><br><span class="line"><span class="comment">    console.log(a, b)</span></span><br><span class="line"><span class="comment">&#125;</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>javascript是世界上最好的语言（确信</p>
 
   </div>
   <div class="post-meta">
