@@ -106,7 +106,7 @@
 <p>传入的参数只有一个，所以</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">error=flagConverter</span><br><span class="line">result=<span class="literal">undefined</span></span><br></pre></td></tr></table></figure>
 
-<p>然后<code>reject(error);</code>使第一个请求的<code>Promise</code>返回，同时抛出一个<code>rejectionhandled</code>错误，该错误被<code>error handler</code>捕获</p>
+<p>然后<code>reject(error);</code>使第一个请求的<code>Promise</code>返回（因为nodejs是<strong>单线程，异步非阻塞I/O</strong>的，所以第二个请求能够影响到第一个请求），同时抛出一个<code>rejectionhandled</code>错误，该错误被<code>error handler</code>捕获</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">app.setErrorHandler(<span class="function">(<span class="params">error, request, reply</span>) =&gt;</span> &#123;</span><br><span class="line">  reply.view(<span class="string">'index.html'</span>, &#123;error, <span class="attr">sessionId</span>: request.session.sessionId&#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
 
 <p>这时将<code>flagConverter</code>作为<code>error</code>渲染</p>
@@ -126,6 +126,7 @@
 <h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
 <li>对js内置方法的运用:<code>Object.prototype.__defineSetter__()</code>和<code>Function.prototype.toString()</code></li>
 <li>对<code>Promise</code>异步的了解</li>
+<li>nodejs的单线程，异步非阻塞I/O特性</li>
 <li>js的容错性和弱类型转换</li>
 <li>javascript是世界上最好的语言（确信</li>
 </ul>
