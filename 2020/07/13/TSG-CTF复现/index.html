@@ -173,7 +173,7 @@
 </ul>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">regex = <span class="string">"((((.*)*)*)*)*saltfwefwefewfwfekorewp"</span>;</span><br><span class="line"><span class="keyword">const</span> re = <span class="keyword">new</span> <span class="built_in">RegExp</span>(regex);</span><br><span class="line"><span class="string">'abcdefghijklmnopq'</span>.match(re); <span class="comment">//会卡在这</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'finish'</span>)</span><br></pre></td></tr></table></figure>
 
-<p>详细的理论可以参见<a href="https://zhuanlan.zhihu.com/p/46294360，虽然我没看懂" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/46294360，虽然我没看懂</a>…</p>
+<p>详细的理论可以参见<a href="https://zhuanlan.zhihu.com/p/46294360" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/46294360</a>，虽然我没看懂…</p>
 <ul>
 <li><code>^(?={some regexp here})</code> 正向肯定预查<ul>
 <li>如果目标字符串无法匹配<code>some regexp here</code>的话就直接返回匹配失败，这样就不会运行后面的<code>((((.*)*)*)*)*salt</code>，也就不会有延时</li>
