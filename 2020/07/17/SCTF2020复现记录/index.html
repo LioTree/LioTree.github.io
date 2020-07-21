@@ -58,7 +58,7 @@
   </div>
 
   <!-- 文章目录 -->
-  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Web"><span class="toc-text">Web</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#BestLanguage"><span class="toc-text">BestLanguage</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#预期"><span class="toc-text">预期</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#nginx特性"><span class="toc-text">nginx特性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#trick1-写文件"><span class="toc-text">trick1 写文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#trick2-移动文件"><span class="toc-text">trick2 移动文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#laravel-session反序列化"><span class="toc-text">laravel session反序列化</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#非预期"><span class="toc-text">非预期</span></a></li></ol></li></ol></li></ol>
+  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Web"><span class="toc-text">Web</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#BestLanguage"><span class="toc-text">BestLanguage</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#预期"><span class="toc-text">预期</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#nginx特性"><span class="toc-text">nginx特性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#trick1-写文件"><span class="toc-text">trick1 写文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#trick2-移动文件"><span class="toc-text">trick2 移动文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#laravel-session反序列化"><span class="toc-text">laravel session反序列化</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#非预期"><span class="toc-text">非预期</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#非预期2"><span class="toc-text">非预期2</span></a></li></ol></li></ol></li></ol>
 
   <div class="post-content">
     <p>比赛的时候忙着最优化，做了个CloudDisk就溜了，不过打了也是丢人…</p>
@@ -136,6 +136,10 @@
 </ul>
 <p><img src="/images/bestlanguage_result.JPG" alt=""></p>
 <h3 id="非预期"><a href="#非预期" class="headerlink" title="非预期"></a>非预期</h3><p>CVE-2018-15133直接打</p>
+<h3 id="非预期2"><a href="#非预期2" class="headerlink" title="非预期2"></a>非预期2</h3><p>在<a href="http://phoebe233.cn/index.php/archives/53/#bestlanguage" target="_blank" rel="noopener">http://phoebe233.cn/index.php/archives/53/#bestlanguage</a>看到的</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/index.php/tmp/../../flag</span><br></pre></td></tr></table></figure>
+
+<p>多加一个<code>index.php</code>就能绕过nginx的特性了…</p>
 
   </div>
   <div class="post-meta">
