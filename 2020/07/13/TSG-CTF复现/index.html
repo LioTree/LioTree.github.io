@@ -89,14 +89,14 @@
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">(error, result) =&gt; &#123;</span><br><span class="line">      <span class="keyword">if</span> (error) &#123;</span><br><span class="line">        reject(error);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        resolve(result);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 
 <p>绑定到<code>converter[FLAG_l4KILh2scJrJ4zF_Yd8Uu6HODdfZeNEP]</code></p>
-<h4 id="await-new-Promise"><a href="#await-new-Promise" class="headerlink" title="await new Promise"></a><code>await new Promise</code></h4><p><code>Promise</code>代表了一个异步操作的最终完成或者失败，而<code>await new Promise</code>会暂停当前 <code>async function</code> 的执行，等待 Promise 处理完成</p>
+<h4 id="await-new-Promise"><a href="#await-new-Promise" class="headerlink" title="await new Promise"></a><code>await new Promise</code></h4><p><code>Promise</code>代表了一个异步操作的最终完成或者失败，而<code>await new Promise</code>会暂停当前 <code>async function</code> 的执行，让主线程先去执行<code>async function</code>外的代码，等待<code>Promise</code>的返回</p>
 <p>那么为什么第一个请求发出后会卡住呢？</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> result = <span class="keyword">await</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    converters[request.body.converter](request.body.input, (error, result) =&gt; &#123;</span><br><span class="line">      <span class="keyword">if</span> (error) &#123;</span><br><span class="line">        reject(error);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        resolve(result);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br></pre></td></tr></table></figure>
 
 <p>只有执行了<code>reject(error)</code>或者<code>resolve(result)</code>后<code>Promise</code>才会返回，但</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">(error, result) =&gt; &#123;</span><br><span class="line">      <span class="keyword">if</span> (error) &#123;</span><br><span class="line">        reject(error);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        resolve(result);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 
-<p>需要在<code>base64Converter</code>或者<code>scryptConverter</code>调用，因此第一个请求发出后就一直开在了<code>await new Promise</code>这里</p>
+<p>需要在<code>base64Converter</code>或者<code>scryptConverter</code>调用，因此第一个请求发出后就一直卡在了<code>await new Promise</code>这里</p>
 <h4 id="javascript容错性"><a href="#javascript容错性" class="headerlink" title="javascript容错性"></a>javascript容错性</h4><p>javascript和php这样的语言可以接受比形参个数少的实参，比如</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> f = <span class="function"><span class="keyword">function</span>(<span class="params">a,b</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(a,b)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">f(<span class="string">'a'</span>); <span class="comment">//a undefined</span></span><br></pre></td></tr></table></figure>
 
@@ -106,7 +106,7 @@
 <p>传入的参数只有一个，所以</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">error=flagConverter</span><br><span class="line">result=<span class="literal">undefined</span></span><br></pre></td></tr></table></figure>
 
-<p>然后<code>reject(error);</code>使第一个请求的<code>Promise</code>返回（因为nodejs是<strong>单线程，异步非阻塞I/O</strong>的，所以第二个请求能够影响到第一个请求），同时抛出一个<code>rejectionhandled</code>错误，该错误被<code>error handler</code>捕获</p>
+<p>然后<code>reject(error);</code>使第一个请求的<code>Promise</code>返回（因为nodejs是<strong>单线程</strong>的，所以第二个请求能够影响到第一个请求），同时抛出一个<code>rejectionhandled</code>错误，该错误被<code>error handler</code>捕获</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">app.setErrorHandler(<span class="function">(<span class="params">error, request, reply</span>) =&gt;</span> &#123;</span><br><span class="line">  reply.view(<span class="string">'index.html'</span>, &#123;error, <span class="attr">sessionId</span>: request.session.sessionId&#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
 
 <p>这时将<code>flagConverter</code>作为<code>error</code>渲染</p>
@@ -125,8 +125,7 @@
 
 <h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
 <li>对js内置方法的运用:<code>Object.prototype.__defineSetter__()</code>和<code>Function.prototype.toString()</code></li>
-<li>对<code>Promise</code>异步的了解</li>
-<li>nodejs的单线程，异步非阻塞I/O特性</li>
+<li>对js异步编程的了解</li>
 <li>js的容错性和弱类型转换</li>
 <li>javascript是世界上最好的语言（确信</li>
 </ul>
