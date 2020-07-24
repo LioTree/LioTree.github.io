@@ -122,6 +122,14 @@
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;[::1]&#x2F; &gt;&gt;&gt; http:&#x2F;&#x2F;127.0.0.1&#x2F;</span><br><span class="line">http:&#x2F;&#x2F;[::]&#x2F;  &gt;&gt;&gt;  http:&#x2F;&#x2F;0.0.0.0&#x2F;</span><br></pre></td></tr></table></figure>
 
+<ul>
+<li><code>http:///127.0.0.1/hint.php</code><ul>
+<li>这个trick也非常有意思，之前一直以为只有浏览器才会解析这样host为空的畸形url，结果翻p牛小密圈旧帖的时候发现Li4n0师傅提到curl和git也会按照浏览器的方式解析，测试以下发现直接用curl会卡在那，但是php的libcurl就可以…</li>
+<li>用<code>parse_url</code>解析这样的畸形url会返回<code>false</code>，然后<code>$hostname=$url_parse[&#39;host&#39;];</code>会返回<code>null</code>（神奇的php)。</li>
+<li>接着又是一个windows和linux下php的差异，windows下<code>gethostbyname(nulll);</code>会返回本机ip，导致后面无法绕过ip检测。然而linux下并没有这样的特性，<code>gethostbyname</code>会返回<code>null</code>，绕过ip检测</li>
+</ul>
+</li>
+</ul>
 <p>感觉写的有点乱…总结一下buu上环境能用的有：</p>
 <ul>
 <li><p><code>http://0.0.0.0/hint.php</code></p>
@@ -131,6 +139,9 @@
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?url&#x3D;gopher:&#x2F;&#x2F;0177.0.0x0001:80&#x2F;_%2547%2545%2554%2520%252f%2568%2569%256e%2574%252e%2570%2568%2570%2520%2548%2554%2554%2550%252f%2531%252e%2531%250d%250a%2548%256f%2573%2574%253a%2520%2531%2532%2537%252e%2530%252e%2530%252e%2531%250d%250a%2555%2573%2565%2572%252d%2541%2567%2565%256e%2574%253a%2520%2563%2575%2572%256c%252f%2537%252e%2536%2535%252e%2533%250d%250a%2541%2563%2563%2565%2570%2574%253a%2520%252a%252f%252a%250d%250a%250d%250a</span><br></pre></td></tr></table></figure>
 
+<ul>
+<li><code>http:///127.0.0.1/hint.php</code></li>
+</ul>
 <h1 id="redis主从复制rce"><a href="#redis主从复制rce" class="headerlink" title="redis主从复制rce"></a>redis主从复制rce</h1><p>hint.php内容：</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">if</span>($_SERVER[<span class="string">'REMOTE_ADDR'</span>]===<span class="string">"127.0.0.1"</span>)&#123;</span><br><span class="line">  highlight_file(<span class="keyword">__FILE__</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>($_POST[<span class="string">'file'</span>]))&#123;</span><br><span class="line">  file_put_contents($_POST[<span class="string">'file'</span>],<span class="string">"&lt;?php echo 'redispass is root';exit();"</span>.$_POST[<span class="string">'file'</span>]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
