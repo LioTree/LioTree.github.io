@@ -117,7 +117,7 @@
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (!preg_match(<span class="string">'#(?=^([ %()*+\-./]+|\d+|M_PI|M_E|log|rand|sqrt|a?(sin|cos|tan)h?)+$)^([^()]*|([^()]*\((?&gt;[^()]+|(?4))*\)[^()]*)*)$#s'</span>, $field)) &#123;</span><br><span class="line">        $value = <span class="string">"BAD"</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 
 <p>既然无法引入php标签，那么就直接利用<code>&lt;script&gt;var preloadValue = &lt;?=json_encode((string)($field))?&gt;;&lt;/script&gt;\n</code>中的<code>&lt;?=</code></p>
-<p>测试下可以发现上面的正则允许出现<code>/*</code>，这样就可以让<code>$filed</code>为<code>/*</code>，将<code>))?&gt;;&lt;/script&gt;\n</code>以及inc/calclib.html的内存全部注释掉。</p>
+<p>测试下可以发现上面的正则允许出现<code>/*</code>，这样就可以让<code>$filed</code>为<code>/*</code>，将<code>))?&gt;;&lt;/script&gt;\n</code>以及inc/calclib.html的内容全部注释掉。</p>
 <p>在自建模板的开头则加上<code>*/));system(&#39;cat /flag&#39;);?&gt;</code>闭合注释，执行任意php代码</p>
 
   </div>
