@@ -74,7 +74,7 @@
 </ul>
 </li>
 <li>使用<code>ip2long</code>将ip地址转为整数，判断是否为内网网段<ul>
-<li>防御了127.0.0.1/8</li>
+<li>防御了<code>127.0.0.1/8</code></li>
 </ul>
 </li>
 </ul>
@@ -91,13 +91,10 @@
 </li>
 <li><p><code>http://foo@127.0.0.1:80@www.google.com/hint.php</code></p>
 <ul>
-<li>orange的<a href="https://www.blackhat.com/docs/us-17/thursday/us-17-Tsai-A-New-Era-Of-SSRF-Exploiting-URL-Parser-In-Trending-Programming-Languages.pdf" target="_blank" rel="noopener">A New Era of SSRF -Exploiting URL Parser in Trending Programming Languages!</a>中提到的方法，利用的是curl和其他库解析url的差异性</li>
+<li>orange的<a href="https://www.blackhat.com/docs/us-17/thursday/us-17-Tsai-A-New-Era-Of-SSRF-Exploiting-URL-Parser-In-Trending-Programming-Languages.pdf" target="_blank" rel="noopener">A New Era of SSRF -Exploiting URL Parser in Trending Programming Languages!</a>中提到的方法，利用的是curl和其他库解析url的差异性<br><img src="/images/ssrf_curl.JPG" alt=""></li>
+<li>不过这个方法在curl较新的版本里被修掉了，buu上的环境也无法使用</li>
 </ul>
 </li>
-</ul>
-<p><img src="/images/ssrf_curl.JPG" alt=""></p>
-<p>不过这个方法在curl较新的版本里被修掉了，buu上的环境也无法使用</p>
-<ul>
 <li><p>DNS Rebinding</p>
 <ul>
 <li>感觉这是最难防御的ssrf绕过方法了，不过对环境也有一定的限制，懒狗还没测试…</li>
