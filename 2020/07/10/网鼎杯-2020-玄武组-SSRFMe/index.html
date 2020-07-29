@@ -108,8 +108,8 @@
 <li><p><code>http://127.1/hint.php</code></p>
 <ul>
 <li><code>ip2long(&#39;127.1&#39;)</code>会返回<code>false</code>，这里可以绕过过滤</li>
-<li>但是<code>gethostbyname</code>在linux下会把127.1变为127.0.0.1，所以这题是无法使用的。不过windows下经过<code>gethostbyname</code>后依然是127.1</li>
-<li>curl是支持127.1这样的写法的，但这样发出去的http请求是有问题的。因为http包中的host头被设为了127.1，apache会返回一个400 Bad Request<br><img src="/images/127.1.JPG" alt=""></li>
+<li>但是<code>gethostbyname</code>在linux下会把<code>127.1</code>变为<code>127.0.0.1</code>，所以这题是无法使用的。不过windows下经过<code>gethostbyname</code>后依然是<code>127.1</code></li>
+<li>curl是支持<code>127.1</code>这样的写法的，但这样发出去的http请求是有问题的。因为http包中的host头被设为了<code>127.1</code>，apache会返回一个400 Bad Request<br><img src="/images/127.1.JPG" alt=""></li>
 <li>既然是http包的问题，那么用gopher协议构造一个正常的http请求即可。不过这因为<code>gethostbyname</code>的原因，这个方法这里用不了</li>
 </ul>
 </li>
