@@ -84,15 +84,29 @@
 <p>这样基于跳转的方法也无法使用了</p>
 <h2 id="一些绕过的方法"><a href="#一些绕过的方法" class="headerlink" title="一些绕过的方法"></a>一些绕过的方法</h2><p>虽然dns解析和重定向都无法使用了，但是ssrf的绕过方法依然有很多，逐一尝试下其他方法</p>
 <ul>
-<li><code>http://0.0.0.0/hint.php</code><br>测试了下这个方法只能在linux下使用，windows并不认识这个ip…</li>
-<li><code>http://foo@127.0.0.1:80@www.google.com/hint.php</code><br>orange的<a href="https://www.blackhat.com/docs/us-17/thursday/us-17-Tsai-A-New-Era-Of-SSRF-Exploiting-URL-Parser-In-Trending-Programming-Languages.pdf" target="_blank" rel="noopener">A New Era of SSRF -Exploiting URL Parser in Trending Programming Languages!</a>中提到的方法，利用的是curl和其他库解析url的差异性</li>
+<li><p><code>http://0.0.0.0/hint.php</code></p>
+<ul>
+<li>测试了下这个方法只能在linux下使用，windows并不认识这个ip…</li>
+</ul>
+</li>
+<li><p><code>http://foo@127.0.0.1:80@www.google.com/hint.php</code></p>
+<ul>
+<li>orange的<a href="https://www.blackhat.com/docs/us-17/thursday/us-17-Tsai-A-New-Era-Of-SSRF-Exploiting-URL-Parser-In-Trending-Programming-Languages.pdf" target="_blank" rel="noopener">A New Era of SSRF -Exploiting URL Parser in Trending Programming Languages!</a>中提到的方法，利用的是curl和其他库解析url的差异性</li>
+</ul>
+</li>
 </ul>
 <p><img src="/images/ssrf_curl.JPG" alt=""></p>
 <p>不过这个方法在curl较新的版本里被修掉了，buu上的环境也无法使用</p>
 <ul>
-<li><p>DNS Rebinding<br>感觉这是最难防御的ssrf绕过方法了，不过对环境也有一定的限制，懒狗还没测试…</p>
+<li><p>DNS Rebinding</p>
+<ul>
+<li>感觉这是最难防御的ssrf绕过方法了，不过对环境也有一定的限制，懒狗还没测试…</li>
+</ul>
 </li>
-<li><p><code>http://127。0。0。1/hint.php</code><br>这个本地倒是测试成功了，buu上就不行，可能跟curl版本有关吧</p>
+<li><p><code>http://127。0。0。1/hint.php</code></p>
+<ul>
+<li>这个本地倒是测试成功了，buu上就不行，可能跟curl版本有关吧</li>
+</ul>
 </li>
 <li><p><code>http://127.1/hint.php</code></p>
 <ul>
@@ -126,7 +140,7 @@
 <li><code>http:///127.0.0.1/hint.php</code><ul>
 <li>这个trick也非常有意思，之前一直以为只有浏览器才会解析这样host为空的畸形url，结果翻p牛小密圈旧帖的时候发现Li4n0师傅提到curl和git也会按照浏览器的方式解析，测试以下发现直接用curl会卡在那，但是php的libcurl就可以…</li>
 <li>用<code>parse_url</code>解析这样的畸形url会返回<code>false</code>，然后<code>$hostname=$url_parse[&#39;host&#39;];</code>会返回<code>null</code>（神奇的php)。</li>
-<li>接着又是一个windows和linux下php的差异，windows下<code>gethostbyname(nulll);</code>会返回本机ip，导致后面无法绕过ip检测。然而linux下并没有这样的特性，<code>gethostbyname</code>会返回<code>null</code>，绕过ip检测</li>
+<li>接着又是一个windows和linux下php的差异，windows下<code>gethostbyname(null);</code>会返回本机ip，导致后面无法绕过ip检测。然而linux下并没有这样的特性，<code>gethostbyname</code>会返回<code>null</code>，绕过ip检测</li>
 </ul>
 </li>
 </ul>
