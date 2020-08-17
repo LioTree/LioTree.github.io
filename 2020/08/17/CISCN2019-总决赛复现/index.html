@@ -62,7 +62,10 @@
 
   <div class="post-content">
     <p>去年直接就地爆炸，一年过去了还是没啥区别…</p>
-<h1 id="Homebrew-Dubbo"><a href="#Homebrew-Dubbo" class="headerlink" title="Homebrew Dubbo"></a>Homebrew Dubbo</h1><p>一个网盘的功能，上传文件会返回一个token，比如<code>eyJzaWduIjoiWlRsaFptVmpZakUxTkRBeU5ERmtaV0ZqTlRrNE5HTXhORFF3TjJObE5UQT0iLCJpZCI6IllUWmxNREE1TW1VdE9EWTFOQzAwWVdZM0xUZzFZVFl0TjJKak9ETXhORFZsTTJJeSJ9</code>，base64解码为</p>
+<h1 id="Homebrew-Dubbo"><a href="#Homebrew-Dubbo" class="headerlink" title="Homebrew Dubbo"></a>Homebrew Dubbo</h1><p>一个网盘的功能，上传文件会返回一个token，比如</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">eyJzaWduIjoiWlRsaFptVmpZakUxTkRBeU5ERmtaV0ZqTlRrNE5HTXhORFF3TjJObE5UQT0iLCJpZCI6IllUWmxNREE1TW1VdE9EWTFOQzAwWVdZM0xUZzFZVFl0TjJKak9ETXhORFZsTTJJeSJ9</span><br></pre></td></tr></table></figure>
+
+<p>base64解码为</p>
 <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="attr">"sign"</span>:<span class="string">"ZTlhZmVjYjE1NDAyNDFkZWFjNTk4NGMxNDQwN2NlNTA="</span>,<span class="attr">"id"</span>:<span class="string">"YTZlMDA5MmUtODY1NC00YWY3LTg1YTYtN2JjODMxNDVlM2Iy"</span>&#125;</span><br></pre></td></tr></table></figure>
 
 <p>可以看到分为<code>sign</code>和<code>id</code>两部分，使用token可以下载上传的文件</p>
