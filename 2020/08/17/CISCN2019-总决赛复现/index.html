@@ -142,7 +142,7 @@
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pmark_include(<span class="string">'posts/'</span>.$_GET[<span class="string">'md'</span>]);</span><br></pre></td></tr></table></figure>
 
 <p>在<code>pmarkdown.so</code>的导出函数中可以找到<code>pmark_include</code>（拓展中叫做<code>zif_pmark_include</code>）</p>
-<p><img src="images/pmarkdown_export.JPG" alt=""></p>
+<p><img src="/images/pmarkdown_export.JPG" alt=""></p>
 <p>跟进去看一下，最终跟到<code>verbose_pandoc_file</code>函数</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> __<span class="function">fastcall <span class="title">verbose_pandoc_file</span><span class="params">(<span class="keyword">char</span> *filename)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">__pid_t</span> v1; <span class="comment">// eax</span></span><br><span class="line">  <span class="keyword">__pid_t</span> v2; <span class="comment">// er12</span></span><br><span class="line">  <span class="keyword">int</span> fd[<span class="number">2</span>]; <span class="comment">// [rsp+8h] [rbp-2830h]</span></span><br><span class="line">  <span class="keyword">char</span> buf[<span class="number">10240</span>]; <span class="comment">// [rsp+10h] [rbp-2828h]</span></span><br><span class="line">  <span class="keyword">unsigned</span> __int64 v6; <span class="comment">// [rsp+2818h] [rbp-20h]</span></span><br><span class="line"></span><br><span class="line">  v6 = __readfsqword(<span class="number">0x28</span>u);</span><br><span class="line">  <span class="built_in">memset</span>(buf, <span class="number">0</span>, <span class="number">0x2800</span>uLL);</span><br><span class="line">  <span class="keyword">if</span> ( pipe(fd) &lt; <span class="number">0</span> )</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  v1 = fork();</span><br><span class="line">  v2 = v1;</span><br><span class="line">  <span class="keyword">if</span> ( v1 &lt; <span class="number">0</span> )</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  <span class="keyword">if</span> ( !v1 )</span><br><span class="line">  &#123;</span><br><span class="line">    close(fd[<span class="number">0</span>]);</span><br><span class="line">    <span class="keyword">if</span> ( fd[<span class="number">1</span>] == <span class="number">1</span> )</span><br><span class="line">      <span class="keyword">return</span> -(execl(path, <span class="string">"pandoc"</span>, filename, <span class="number">0L</span>L) == <span class="number">-1</span>);</span><br><span class="line">    <span class="keyword">if</span> ( dup2(fd[<span class="number">1</span>], <span class="number">1</span>) == <span class="number">1</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      close(fd[<span class="number">1</span>]);</span><br><span class="line">      <span class="keyword">return</span> -(execl(path, <span class="string">"pandoc"</span>, filename, <span class="number">0L</span>L) == <span class="number">-1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  close(fd[<span class="number">1</span>]);</span><br><span class="line">  <span class="keyword">while</span> ( (<span class="keyword">signed</span> <span class="keyword">int</span>)read(fd[<span class="number">0</span>], buf, <span class="number">0x2800</span>uLL) &gt; <span class="number">0</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    php_printf(<span class="string">"%s"</span>, buf);</span><br><span class="line">    <span class="built_in">memset</span>(buf, <span class="number">0</span>, <span class="number">0x2800</span>uLL);</span><br><span class="line">  &#125;</span><br><span class="line">  close(fd[<span class="number">0</span>]);</span><br><span class="line">  <span class="keyword">return</span> -(waitpid(v2, <span class="number">0L</span>L, <span class="number">0</span>) &gt; <span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -151,24 +151,24 @@
 <ul>
 <li>在ida的Exports中找到<code>pmarkdown_module_entry</code>，在里面可以找到<code>zm_activate_pmarkdown</code>函数</li>
 </ul>
-<p><img src="images/zm_activate_pmarkdown.JPG" alt=""></p>
+<p><img src="/images/zm_activate_pmarkdown.JPG" alt=""></p>
 <ul>
 <li>在<code>zm_activate_pmarkdown</code>底部调用了一个<code>unk_1850</code></li>
 </ul>
-<p><img src="images/post_debug.JPG" alt=""></p>
+<p><img src="/images/post_debug.JPG" alt=""></p>
 <ul>
 <li>跟进<code>unk_1850</code>函数就可以找到ssrf，并且通过<code>path</code>可以CRLF注入构造文件上传的包</li>
 </ul>
-<p><img src="images/pmarkdown_ssrf.JPG" alt=""></p>
+<p><img src="/images/pmarkdown_ssrf.JPG" alt=""></p>
 <p>那么接下来的问题就是如何才能控制<code>path</code>。回过头来再看<code>zm_activate_pmarkdown</code>底部的代码</p>
 <ul>
 <li>修改了变量名并添加了一些注释的c代码</li>
 </ul>
-<p><img src="images/post_debug2.JPG" alt=""></p>
+<p><img src="/images/post_debug2.JPG" alt=""></p>
 <ul>
 <li>对应的汇编：</li>
 </ul>
-<p><img src="images/post_debug3.JPG" alt=""></p>
+<p><img src="/images/post_debug3.JPG" alt=""></p>
 <p><code>zend_hash_find</code>用于获取一个哈希表中的键值，其第一个参数为指向<code>HashTable</code>的指针，第二个参数为一个<code>zend_string</code>。可以看出：</p>
 <ul>
 <li><p><code>key</code>的内容是<code>&#39;debug&#39;</code></p>
@@ -191,18 +191,18 @@
 <ul>
 <li>使用<a href="https://www.anquanke.com/post/id/204404#h2-5" target="_blank" rel="noopener">WEBPWN入门级调试讲解</a>的方法，断在<code>zm_activate_pmarkdown</code></li>
 </ul>
-<p><img src="images/vmmap.JPG" alt=""></p>
-<p><img src="images/break.JPG" alt=""></p>
+<p><img src="/images/vmmap.JPG" alt=""></p>
+<p><img src="/images/break.JPG" alt=""></p>
 <p>这里要注意下php版本的问题，一开始用的php7.4会报错：</p>
-<p><img src="images/php_extension_error.JPG" alt=""></p>
+<p><img src="/images/php_extension_error.JPG" alt=""></p>
 <p>这是因为<code>pmarkdown.so</code>是在php7.2环境下编译的(API=20170718)，与其他版本的API可能不兼容</p>
 <h2 id="调试分析"><a href="#调试分析" class="headerlink" title="调试分析"></a>调试分析</h2><p>再下一个断点，断在<code>zm_activate_pmarkdown</code>最后的<code>call    _zend_hash_find</code></p>
-<p><img src="images/zend_hash_find.jpg" alt=""></p>
+<p><img src="/images/zend_hash_find.jpg" alt=""></p>
 <p>可以看到<code>ht</code>和<code>key</code>两个参数</p>
 <ul>
 <li>先确认下<code>key</code></li>
 </ul>
-<p><img src="images/key.JPG" alt=""></p>
+<p><img src="/images/key.JPG" alt=""></p>
 <p>看着没啥问题，正好对应于<code>zend_string</code></p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> _<span class="title">zend_string</span> &#123;</span></span><br><span class="line">        zend_refcounted_h gc;</span><br><span class="line">        zend_ulong        h;</span><br><span class="line">        <span class="keyword">size_t</span>            len;</span><br><span class="line">        <span class="keyword">char</span>              val[<span class="number">1</span>];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
@@ -210,7 +210,7 @@
 <li>再来看看<code>ht</code>究竟是什么哈希表，<code>r12</code>值为<code>0x555555c13fa0</code>，也就是<code>core_globals</code>结构体起始地址为<code>0x555555c13fa0</code>，偏移<code>0x170</code>后是<code>0x555555c14110</code></li>
 </ul>
 <p>参考<a href="https://blog.csdn.net/u011660200/article/details/52150164" target="_blank" rel="noopener">gdb 显示结构体中成员的偏移量</a>中的方法，输出<code>core_globals</code>成员的偏移地址，最终找到:</p>
-<p><img src="images/http_globals.JPG" alt=""></p>
+<p><img src="/images/http_globals.JPG" alt=""></p>
 <p><code>http_globals</code>定义为<code>zval * http_globals[6];</code>，用于获取http参数，其有7个索引</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> TRACK_VARS_POST           0</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> TRACK_VARS_GET            1</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> TRACK_VARS_COOKIE         2</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> TRACK_VARS_SERVER         3</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> TRACK_VARS_ENV            4</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> TRACK_VARS_FILES          5</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> TRACK_VARS_REQUEST        6</span></span><br></pre></td></tr></table></figure>
 
