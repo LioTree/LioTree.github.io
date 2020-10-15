@@ -75,14 +75,14 @@
 </li>
 <li><p>开机后<code>CS:IP</code>会被设为<code>0xFFFF:0x0000</code>，也就是执行<code>0xFFFF0</code>处的指令。该区域存放的是ROM BIOS的映射区</p>
 </li>
-<li><p>ROM BIOS会检查硬件是否正常，然后将磁盘0磁道0扇区的内容（512MB）读入<code>0x7c00</code>。接着将<code>CS:IP</code>设为<code>0x07c0:0x0000</code>跳转过去执行</p>
+<li><p>ROM BIOS会检查硬件是否正常，然后将磁盘0磁道0扇区的内容（512字节）读入<code>0x7c00</code>。接着将<code>CS:IP</code>设为<code>0x07c0:0x0000</code>跳转过去执行</p>
 <ul>
 <li>为什么放到<code>0x7c00</code>？因为前面的内存需要存放一些其他的数据，比如中断向量表</li>
 </ul>
 </li>
 </ul>
 <h1 id="boot-bootsect-s"><a href="#boot-bootsect-s" class="headerlink" title="boot/bootsect.s"></a>boot/bootsect.s</h1><ul>
-<li><p>磁盘0磁道0扇区上的512MB是<code>boot/bootsect.s</code>编译后的机器码，负责磁盘的引导工作，类似于现在的<code>MBR</code>。它的主要工作其实就是把操作系统读到内存里</p>
+<li><p>磁盘0磁道0扇区上的512字节是<code>boot/bootsect.s</code>编译后的机器码，负责磁盘的引导工作，类似于现在的<code>MBR</code>。它的主要工作其实就是把操作系统读到内存里</p>
 </li>
 <li><p><code>bootsect</code>做的第一件事是把自己移到<code>0x9000:0x0000</code>，然后跳转过去执行</p>
 <ul>
@@ -122,7 +122,7 @@
 <figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">! after that (everyting loaded), we jump to</span><br><span class="line">! the setup-routine loaded directly after</span><br><span class="line">! the bootblock:</span><br><span class="line"></span><br><span class="line">	jmpi	<span class="number">0</span>,SETUPSEG</span><br></pre></td></tr></table></figure>
 
 <ul>
-<li>代码最后还有一个<code>.org</code>指令，用于填充字节，保证<code>bootsect</code>一定是<code>512MB</code></li>
+<li>代码最后还有一个<code>.org</code>指令，用于填充字节，保证<code>bootsect</code>一定是512字节</li>
 </ul>
 <figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">.org</span> <span class="number">508</span></span><br><span class="line"><span class="symbol">root_dev:</span></span><br><span class="line"><span class="meta">	.word</span> ROOT_DEV</span><br><span class="line"><span class="symbol">boot_flag:</span></span><br><span class="line"><span class="meta">	.word</span> <span class="number">0xAA55</span></span><br></pre></td></tr></table></figure>
 
