@@ -163,13 +163,7 @@
 <p><img src="/images/GDT.JPG" alt=""></p>
 <p>把段基址的三个部分合起来就是<code>0x00000000</code>，<code>ip</code>代表的偏移还是<code>0x0</code>，<code>0x00000000+0x0</code>合起来还是0地址，也就是<code>system</code>模块的起始代码<code>head.s</code></p>
 <h1 id="boot-head-s"><a href="#boot-head-s" class="headerlink" title="boot/head.s"></a>boot/head.s</h1><ul>
-<li><p>前面<code>setup</code>似乎做了一些初始化的工作，但实际上还有大把事情没做。比如：</p>
-<ul>
-<li><code>idt</code>表还是空的</li>
-<li><code>gdt</code>表就只有两项</li>
-</ul>
-</li>
-<li><p>这些剩下来的事情都得由<code>head</code>来做，其负责进入操作系统后的初始化工作</p>
+<li><p>前面<code>setup</code>似乎做了一些初始化的工作，但实际上还有很多事情没做，比如<code>idt</code>表还是空的。因此需要<code>head</code>来做一些进入操作系统后的初始化工作</p>
 </li>
 <li><p><code>head.s</code>工作在保护模式之下，所以换成了32位的<code>AT&amp;T</code>语法</p>
 </li>
