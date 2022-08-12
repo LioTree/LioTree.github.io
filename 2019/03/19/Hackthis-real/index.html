@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>Hackthis-real - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=writeup>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">Hackthis-real</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#level-1"><span class="toc-text">level 1</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level-2"><span class="toc-text">level 2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level-3"><span class="toc-text">level 3</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level-4"><span class="toc-text">level 4</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level-5"><span class="toc-text">level 5</span></a></li></ol>
+
+  <div class="post-content">
+    <h2 id="level-1"><a href="#level-1" class="headerlink" title="level 1"></a>level 1</h2><p>进去一个邮箱，收件箱里有一个登录的链接，垃圾箱里有别人发给他的密码-_-</p>
+<p>直接使用该密码即可</p>
+<h2 id="level-2"><a href="#level-2" class="headerlink" title="level 2"></a>level 2</h2><p>查看登陆界面的源代码可以看到这个</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> username= <span class="built_in">document</span>.getElementById(<span class="string">'username'</span>).value;</span><br><span class="line"><span class="keyword">var</span> password= <span class="built_in">document</span>.getElementById(<span class="string">'password'</span>).value;</span><br><span class="line">URL= <span class="string">"members/"</span> + username + <span class="string">" "</span> + password + <span class="string">".htm"</span>;</span><br><span class="line">path = URL;</span><br><span class="line"><span class="built_in">document</span>.getElementById(<span class="string">"status"</span>).innerHTML = <span class="string">'Checking details...'</span>;</span><br></pre></td></tr></table></figure>
+<p>也就是说它是通过访问<a href="https://www.hackthis.co.uk/levels/extras/real/2/members/username" target="_blank" rel="noopener">https://www.hackthis.co.uk/levels/extras/real/2/members/username</a> password.htm<br>的方式看看用户名和密码是否正确，这里可以想到，如果我们只访问<a href="https://www.hackthis.co.uk/levels/extras/real/2/members/" target="_blank" rel="noopener">https://www.hackthis.co.uk/levels/extras/real/2/members/</a><br>会发生什么呢？</p>
+<p>答案是会把members目录下的文件爆出来，每个htm文件即代表了一个用户，从中试出管理员的账户即可</p>
+<h2 id="level-3"><a href="#level-3" class="headerlink" title="level 3"></a>level 3</h2><p>查看登陆界面源代码可以看到该网页把登陆的验证放在了前端，将用户输入的用户名和密码转为hash后与login.js里的hash值进行对比，如果正确的话就跳转至正确的页面。也就是说我们的目的是找出login.js里hash对应的明文</p>
+<p>按照题目提示，把js代码拿去搜了一下，找到了这个<br><a href="http://www.otherplaceforum.com/viewtopic.php?t=3228" target="_blank" rel="noopener">http://www.otherplaceforum.com/viewtopic.php?t=3228</a><br>在这之中找到了<br><a href="https://jsbin.com/dehekaxopu/edit?js,output" target="_blank" rel="noopener">https://jsbin.com/dehekaxopu/edit?js,output</a><br>这个脚本可以用于破解makehash函数，可得到的用户名和密码虽然可以通过验证但跳转到的url显示Error accessing resource。这是因为不同的明文可以对应同一个hash，而我们的脚本只能找出一个值。</p>
+<p>之后看到代码中有</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Login version 4.2 june 2000 Copyright D10n...</span></span><br></pre></td></tr></table></figure>
+<p>这样一行注释，拿去搜索找到了<br><a href="http://tnecessary.tripod.com/version42.htm" target="_blank" rel="noopener">http://tnecessary.tripod.com/version42.htm</a><br>也就是题目登陆代码的生成器，在该生成器的帮助<br><a href="http://tnecessary.tripod.com/howtouse.htm" target="_blank" rel="noopener">http://tnecessary.tripod.com/howtouse.htm</a><br>中找到了这样的信息</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">members.js - List of Members, Passwords and Destinations.</span><br><span class="line">You can create this file in a text editor or by using the LIST button in the version3.htm page. The format for the member list is:</span><br><span class="line">m[m.length]&#x3D;new Array(&quot;Member Name&quot;,&quot;Password&quot;,&quot;Title1&quot;,&quot;dest1&quot;,&quot;Title2&quot;,&quot;dest2&quot;);</span><br><span class="line">m[m.length]&#x3D;new Array(&quot;Mike Black&quot;,&quot;romeo&quot;,&quot;yahoo&quot;,&quot;http:&#x2F;&#x2F;www.yahoo.com&quot;);</span><br></pre></td></tr></table></figure>
+<p>于是访问<a href="https://www.hackthis.co.uk/levels/extras/real/3/members.js，得到用户名密码" target="_blank" rel="noopener">https://www.hackthis.co.uk/levels/extras/real/3/members.js，得到用户名密码</a></p>
+<h2 id="level-4"><a href="#level-4" class="headerlink" title="level 4"></a>level 4</h2><p>首先通过题目给的top 10 passwords中的asdfg可以进入planetbid的admin账户，可以查看到Members db和Bids db<br>然后通过safetransfer的找回密码可以找出骗子的用户名和邮箱是nemisis和<a href="mailto:jfelliot@mail.com">jfelliot@mail.com</a>，并往<a href="mailto:jfelliot@mail.com">jfelliot@mail.com</a>发送找回密码的邮件</p>
+<p>下一步比较难相想，把Members db的url <a href="https://www.hackthis.co.uk/levels/extras/real/4/planetbid/view.php?members&amp;1=user&amp;2=email" target="_blank" rel="noopener">https://www.hackthis.co.uk/levels/extras/real/4/planetbid/view.php?members&amp;1=user&amp;2=email</a><br>改成<a href="https://www.hackthis.co.uk/levels/extras/real/4/planetbid/view.php?members&amp;1=user&amp;2=pass" target="_blank" rel="noopener">https://www.hackthis.co.uk/levels/extras/real/4/planetbid/view.php?members&amp;1=user&amp;2=pass</a><br>得到密码的md5值，nemisis的密码解出来是chicken.</p>
+<p>接着用jfelliot和chicken登录进邮箱，可以得到safetransfer的密码，登录进去可以找到转钱的地方，在Bids db那可以看到委托人的序号是31，卖的东西是Dr Pepper 3ltr RARE，价值1.35英镑。清除了planetbid的日志后，给委托人的账户转1.35英镑即可</p>
+<h2 id="level-5"><a href="#level-5" class="headerlink" title="level 5"></a>level 5</h2><p>看到url中有个?p=index,随手改成<br><a href="https://www.hackthis.co.uk/levels/extras/real/5/?p=%27" target="_blank" rel="noopener">https://www.hackthis.co.uk/levels/extras/real/5/?p=%27</a><br>爆出错误</p>
+<blockquote>
+<p>Warning: file_get_contents(‘.html) [function.file-get-contents]: failed to open stream: No such file or directory in pages on line 22</p>
+</blockquote>
+<p>可以看到这里用了php的file_get_contents读取文件的内容，通过控制get参数p的值就可以访问xx.html文件<br>而通过%00截断可以不受后面.html的限制，读取任意文件<br>于是读取登录界面<a href="https://www.hackthis.co.uk/levels/extras/real/5/?p=../admin.php%00" target="_blank" rel="noopener">https://www.hackthis.co.uk/levels/extras/real/5/?p=../admin.php%00</a><br>可以看到出现了登陆的输入框，查看此时的网页源代码可以看到</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">	<span class="meta">&lt;?php</span></span><br><span class="line">	<span class="keyword">if</span>(<span class="keyword">isset</span>($_GET[<span class="string">'password'</span>]) )&#123;</span><br><span class="line">		<span class="keyword">if</span>( $_GET[<span class="string">'password'</span>] == <span class="string">'princesslovetoast'</span> )&#123;</span><br><span class="line">			header(<span class="string">"Location: /levels/real/5?p=princesslovetoast"</span>);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">?&gt;</span></span><br><span class="line">&lt;form&gt;</span><br></pre></td></tr></table></figure>
+<p>从而得到密码</p>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2019-03-19</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2022
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

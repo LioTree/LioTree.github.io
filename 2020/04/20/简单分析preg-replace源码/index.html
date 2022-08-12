@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>简单分析preg_replace源码 - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=php>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">简单分析preg_replace源码</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#环境搭建"><span class="toc-text">环境搭建</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#测试的php代码"><span class="toc-text">测试的php代码</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#preg-replace实现"><span class="toc-text">preg_replace实现</span></a></li></ol>
+
+  <div class="post-content">
+    <p>前几天在p神的文章<a href="https://www.leavesongs.com/PENETRATION/thinking-about-config-file-arbitrary-write.html#0x07-define" target="_blank" rel="noopener">经典写配置漏洞与几种变形</a>中看到了一个<code>preg_replace</code>的trick</p>
+<p><img src="/images/define%E5%8D%95%E8%A1%8C%E7%89%88.PNG" alt=""></p>
+<p>看了下这个解法的提出者<a href="https://www.cnblogs.com/iamstudy/articles/config_file_write_vue.html#_label1" target="_blank" rel="noopener">l3m0n师傅</a>也没有给出具体的原理，只是猜测<code>preg_replace</code>做了转义的处理</p>
+<p>但是<code>preg_replace</code>为什么要转义呢？翻看<code>preg_replace</code>的文档可以看到<code>preg_replace</code>的第二个参数<code>replacement</code>有两个特性:</p>
+<blockquote>
+<p>replacement中可以包含后向引用<code>\\n</code> 或<code>$n</code>，语法上首选后者。 每个 这样的引用将被匹配到的第n个捕获子组捕获到的文本替换。 n 可以是0-99，<code>\\0</code>和<code>$0</code>代表完整的模式匹配文本。 捕获子组的序号计数方式为：代表捕获子组的左括号从左到右， 从1开始数</p>
+</blockquote>
+<blockquote>
+<p>如果要在replacement 中使用反斜线，必须使用4个(“<code>\\\\</code>“，译注：因为这首先是php的字符串，经过转义后，是两个，再经过 正则表达式引擎后才被认为是一个原文反斜线)</p>
+</blockquote>
+<p>猜测这个trick与<code>preg_replace</code>的这两个特性有关，具体的原因还需要看看源码</p>
+<h1 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h1><p>windows下调试php需要用到<a href="https://github.com/Microsoft/php-sdk-binary-tools" target="_blank" rel="noopener">php-sdk-binary-tools</a>，具体操作可以参见<a href="https://wiki.php.net/internals/windows/stepbystepbuild_sdk_2" target="_blank" rel="noopener">官方文档</a></p>
+<p>编译的时候需要将文档中的<code>configure --disable-all --enable-cli --enable-$remains</code>换为<code>configure --enable-debug --enable-phpdbg</code></p>
+<p>使用vscode调试编译好的php可以参见<a href="https://cloud.tencent.com/developer/news/286157" target="_blank" rel="noopener">PHP源码调试分析</a></p>
+<p>另外一开始使用vs2017编译时会报错，换成vs2019就行了…</p>
+<h1 id="测试的php代码"><a href="#测试的php代码" class="headerlink" title="测试的php代码"></a>测试的php代码</h1><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">$replacement = <span class="string">&lt;&lt;&lt;EOT</span></span><br><span class="line"><span class="string">\'</span></span><br><span class="line"><span class="string">EOT;</span></span><br><span class="line">$replacement = addslashes($replacement);</span><br><span class="line"><span class="keyword">echo</span> preg_replace(<span class="string">'/aaa/'</span>,$replacement,<span class="string">"bbbaaab"</span>); <span class="comment">//bbb\\'b</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="preg-replace实现"><a href="#preg-replace实现" class="headerlink" title="preg_replace实现"></a>preg_replace实现</h1><p><code>preg_replace</code>代码位于ext/pcre/php_pcre.c中的<code>php_pcre_replace_impl</code></p>
+<p>先不贴代码，说下<code>preg_replace</code>的工作流程：</p>
+<ul>
+<li>把<code>bbbaaab</code>拆成<code>bbbaaa</code>和<code>b</code></li>
+<li>把<code>bbbaaa</code>变成<code>bbb\\&#39;</code>（我们关心的部分）</li>
+<li>在<code>bbb\\&#39;</code>后面加上<code>b</code></li>
+</ul>
+<p>第二部分分为两步，主要是两个及其相似的while循环</p>
+<ul>
+<li>计算替换后原有字符串的长度，比如这里<code>bbbaaa</code>变成<code>bbb\\&#39;</code>，<code>new_len</code>就会是6<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> (walk &lt; replace_end)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="string">'\\'</span> == *walk || <span class="string">'$'</span> == *walk)</span><br><span class="line">    &#123;</span><br><span class="line">        simple_string = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">if</span> (walk_last == <span class="string">'\\'</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            walk++;</span><br><span class="line">            walk_last = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (preg_get_backref(&amp;walk, &amp;backref))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (backref &lt; count)</span><br><span class="line">                new_len += offsets[(backref &lt;&lt; <span class="number">1</span>) + <span class="number">1</span>] - offsets[backref &lt;&lt; <span class="number">1</span>];</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    new_len++;</span><br><span class="line">    walk++;</span><br><span class="line">    walk_last = walk[<span class="number">-1</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>真正的替换<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> (walk &lt; replace_end)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="string">'\\'</span> == *walk || <span class="string">'$'</span> == *walk)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (walk_last == <span class="string">'\\'</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            *(walkbuf - <span class="number">1</span>) = *walk++;</span><br><span class="line">            walk_last = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (preg_get_backref(&amp;walk, &amp;backref))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (backref &lt; count)</span><br><span class="line">            &#123;</span><br><span class="line">                match_len = offsets[(backref &lt;&lt; <span class="number">1</span>) + <span class="number">1</span>] - offsets[backref &lt;&lt; <span class="number">1</span>];</span><br><span class="line">                <span class="built_in">memcpy</span>(walkbuf, subject + offsets[backref &lt;&lt; <span class="number">1</span>], match_len);</span><br><span class="line">                walkbuf += match_len;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    *walkbuf++ = *walk++;</span><br><span class="line">    walk_last = walk[<span class="number">-1</span>];</span><br><span class="line">&#125;</span><br><span class="line">*walkbuf = <span class="string">'\0'</span>;</span><br><span class="line"><span class="comment">/* increment the result length by how much we've added to the string */</span></span><br><span class="line">result_len += (walkbuf - (ZSTR_VAL(result) + result_len));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>答案也很明显了，以第二个<code>while</code>循环为例：</p>
+<ul>
+<li><code>walk</code>用于遍历replacement</li>
+<li><code>walk_last</code>记录当前字符的上一个字符</li>
+<li>当<code>walk</code>是<code>&#39;\\&#39;</code>或<code>&#39;$&#39;</code>时会触发反向引用<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//反向引用</span></span><br><span class="line"><span class="keyword">if</span> (preg_get_backref(&amp;walk, &amp;backref))</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (backref &lt; count)</span><br><span class="line">    &#123;</span><br><span class="line">        match_len = offsets[(backref &lt;&lt; <span class="number">1</span>) + <span class="number">1</span>] - offsets[backref &lt;&lt; <span class="number">1</span>];</span><br><span class="line">        <span class="built_in">memcpy</span>(walkbuf, subject + offsets[backref &lt;&lt; <span class="number">1</span>], match_len);</span><br><span class="line">        walkbuf += match_len;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">continue</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>连续两个<code>\\</code>就会吞掉一个<code>\\</code>，并且把<code>walk_last</code>置为<code>&#39;\0&#39;</code><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="string">'\\'</span> == *walk || <span class="string">'$'</span> == *walk)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (walk_last == <span class="string">'\\'</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        *(walkbuf - <span class="number">1</span>) = *walk++;</span><br><span class="line">        walk_last = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">continue</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+测试代码中的<code>$replacement</code>经过<code>addslashes</code>后用c字符串表示是<code>&quot;\\\\\\&#39;&quot;</code>,第二个<code>\\</code>会被<code>continue</code>掉，因为这时<code>walk_last</code>变为了<code>&#39;\0&#39;</code>所以第三个<code>\\</code>就被保留了下来。直接输出或者写入到配置文件中就变成了<code>\\&#39;</code>，逃逸出了一个单引号</li>
+</ul>
+<p>之所以有这样的特性就是为了区分反斜线和反向引用，也可以算是一种转义，所以l3m0n师傅的猜测可以说是正确的</p>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2020-04-20</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/php/" rel="tag">php</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2022
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

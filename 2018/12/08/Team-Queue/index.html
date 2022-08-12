@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>Team Queue - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=STL>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">Team Queue</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  
+
+  <div class="post-content">
+    <pre>
+题目描述
+Queues and Priority Queues are data structures which are known to most
+computer scientists. The Team Queue, however, is not so well known, though
+it occurs often in everyday life. At lunch time the queue in front of the
+Mensa is a team queue, for example.
+In a team queue each element belongs to a team. If an element enters the
+queue, it first searches the queue from head to tail to check if some of
+its teammates (elements of the same team) are already in the queue. If
+yes, it enters the queue right behind them. If not, it enters the queue
+at the tail and becomes the new last element (bad luck). Dequeuing is done
+like in normal queues: elements are processed from head to tail in the
+order they appear in the team queue.
+Your task is to write a program that simulates such a team queue.
+输入
+The input file will contain one or more test cases. Each test case begins with the number of teams t
+(1<=t<=1000). Then t team descriptions follow, each one consisting of the number of elements
+belonging to the team and the elements themselves. Elements are integers in the range 0 - 999999.
+A team may consist of up to 1000 elements.
+Finally, a list of commands follows. There are three different kinds of
+commands:
+• ENQUEUE x - enter element x into the team queue
+• DEQUEUE - process the first element and remove it from the queue
+• STOP - end of test case
+
+The input will be terminated by a value of 0 for t.
+
+Warning: A test case may contain up to 200000 (two hundred thousand)
+commands, so the implementation of the team queue should be efficient:
+both enqueing and dequeuing of an element should only take constant time.
+输出
+For each test case, first print a line saying "Scenario #k", where k is the number of the test case.
+Then, for each DEQUEUE command, print the element which is dequeued on a single line. Print a
+blank line after each test case, even after the last one.
+样例输入
+
+2
+3 101 102 103
+3 201 202 203
+ENQUEUE 101
+ENQUEUE 201
+ENQUEUE 102
+ENQUEUE 202
+ENQUEUE 103
+ENQUEUE 203
+DEQUEUE
+DEQUEUE
+DEQUEUE
+DEQUEUE
+DEQUEUE
+DEQUEUE
+STOP
+2
+5 259001 259002 259003 259004 259005
+6 260001 260002 260003 260004 260005 260006
+ENQUEUE 259001
+ENQUEUE 260001
+ENQUEUE 259002
+ENQUEUE 259003
+ENQUEUE 259004
+ENQUEUE 259005
+DEQUEUE
+DEQUEUE
+ENQUEUE 260002
+ENQUEUE 260003
+DEQUEUE
+DEQUEUE
+DEQUEUE
+DEQUEUE
+STOP
+
+0
+
+样例输出
+
+Scenario #1
+101
+102
+103
+201
+202
+203
+Scenario #2
+259001
+259002
+259003
+259004
+259005
+260001
+</pre>
+
+<p>我的代码</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;queue&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;map&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="built_in">queue</span>&lt;<span class="keyword">int</span>&gt; li;</span><br><span class="line"><span class="built_in">map</span>&lt;<span class="keyword">int</span>,<span class="built_in">queue</span>&lt;<span class="keyword">int</span>&gt;&gt; team;</span><br><span class="line"><span class="built_in">map</span>&lt;<span class="keyword">int</span>,<span class="keyword">int</span>&gt;id_team;<span class="comment">//通过成员找到组</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">enqueue</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> o;</span><br><span class="line">    <span class="built_in">cin</span>&gt;&gt;o;</span><br><span class="line">    <span class="keyword">if</span>(team[id_team[o]].empty())</span><br><span class="line">    &#123;</span><br><span class="line">        li.push(id_team[o]);</span><br><span class="line">        team[id_team[o]].push(o);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        team[id_team[o]].push(o);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">clear</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">while</span>(!li.empty())</span><br><span class="line">        li.pop();</span><br><span class="line">    team.<span class="built_in">clear</span>();</span><br><span class="line">    id_team.<span class="built_in">clear</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">dequeue</span><span class="params">(<span class="keyword">int</span> x)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">cout</span>&lt;&lt;team[li.front()].front()&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    team[li.front()].pop();</span><br><span class="line">    <span class="keyword">if</span>(team[li.front()].empty())</span><br><span class="line">        li.pop();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> t;</span><br><span class="line">    <span class="built_in">string</span> command;</span><br><span class="line">    <span class="keyword">int</span> o;</span><br><span class="line">    <span class="keyword">int</span> x=<span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span>(<span class="built_in">cin</span>&gt;&gt;t)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span>(t==<span class="number">0</span>)</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="built_in">clear</span>();</span><br><span class="line">        x++;</span><br><span class="line">        <span class="keyword">int</span> temp;</span><br><span class="line">        <span class="keyword">int</span> n;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;t;i++)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">queue</span>&lt;<span class="keyword">int</span>&gt; temp_queue;</span><br><span class="line">            team.insert(pair&lt;<span class="keyword">int</span>,<span class="built_in">queue</span>&lt;<span class="keyword">int</span>&gt;&gt;(i,temp_queue));</span><br><span class="line">            <span class="built_in">cin</span>&gt;&gt;n;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">0</span>;j&lt;n;j++) &#123;</span><br><span class="line">                <span class="built_in">cin</span> &gt;&gt; temp;</span><br><span class="line">                id_team.insert(pair&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt;(temp, i));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;<span class="string">"Scenario #"</span>&lt;&lt;x&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">        <span class="keyword">while</span>(<span class="built_in">cin</span>&gt;&gt;command)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(command==<span class="string">"STOP"</span>)</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(command==<span class="string">"ENQUEUE"</span>) &#123;</span><br><span class="line">                enqueue();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(command==<span class="string">"DEQUEUE"</span>)</span><br><span class="line">                dequeue(x);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2018-12-08</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/STL/" rel="tag">STL</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2022
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

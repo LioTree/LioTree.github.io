@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>java核心技术笔记1 - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=java>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">java核心技术笔记1</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#基础数据类型"><span class="toc-text">基础数据类型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#整型"><span class="toc-text">整型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#浮点类型"><span class="toc-text">浮点类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#char类型"><span class="toc-text">char类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#boolean类型"><span class="toc-text">boolean类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#常量"><span class="toc-text">常量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#字符串"><span class="toc-text">字符串</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#数组"><span class="toc-text">数组</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-基础的用法"><span class="toc-text">1.基础的用法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-多维数组"><span class="toc-text">2.多维数组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-不规则数组"><span class="toc-text">3.不规则数组</span></a></li></ol></li></ol>
+
+  <div class="post-content">
+    <p>考试周了，忙着复习(预习)高数和大物，忽然发现后面还有个java课设要做。。而我一学期java课就去了1节。。<br>只好抓紧时间速成一波java了</p>
+<h2 id="基础数据类型"><a href="#基础数据类型" class="headerlink" title="基础数据类型"></a>基础数据类型</h2><h3 id="整型"><a href="#整型" class="headerlink" title="整型"></a>整型</h3><p>c和c++中并没有明确规定整型具体时多少，在不同的机器上整型的范围可能是不同的。<br>而java整型的范围是和运行java代码的机器无关的，整型乃至各种数据类型的取值范围都是固定的<br><img src="images/java%E6%95%B4%E5%9E%8B.PNG" alt=""></p>
+<h3 id="浮点类型"><a href="#浮点类型" class="headerlink" title="浮点类型"></a>浮点类型</h3><p>有三个特殊的浮点数值</p>
+<ul>
+<li>正无穷大(Double.POSITIVE_INFINITY)</li>
+<li>负无穷大(Double.NEGATIVE_INFINITY)</li>
+<li>NaN(不是一个数字)(Double.NaN)</li>
+</ul>
+<p>检测一个特定值是否等于Double.NaN</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(Double.isNaN(x))</span><br></pre></td></tr></table></figure>
+<h3 id="char类型"><a href="#char类型" class="headerlink" title="char类型"></a>char类型</h3><p>java中char类型都是16位的，使用unicode编码<br>关于unicode编码和各种编码的区别，推荐阅读<br><a href="https://www.zhihu.com/question/20209966/answer/676684648?utm_source=com.yinxiang&amp;utm_medium=social&amp;utm_oi=581602271008264192" target="_blank" rel="noopener">https://www.zhihu.com/question/20209966/answer/676684648?utm_source=com.yinxiang&amp;utm_medium=social&amp;utm_oi=581602271008264192</a></p>
+<h3 id="boolean类型"><a href="#boolean类型" class="headerlink" title="boolean类型"></a>boolean类型</h3><p>java中false并不等于0，true不相当于非0值，所以像</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(x=<span class="number">0</span>)<span class="comment">//oops...mean x==0</span></span><br></pre></td></tr></table></figure>
+<p>这样的测试是不能通过编译的，因为x=0不能转化为布尔值</p>
+<h3 id="常量"><a href="#常量" class="headerlink" title="常量"></a>常量</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="keyword">double</span> PI = <span class="number">3.14</span>;</span><br></pre></td></tr></table></figure>
+<h3 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h3><ul>
+<li><p>java的字符串是标准java类库中的一个预定义类，每个双引号括起来的字符串都是String类的一个实例</p>
+</li>
+<li><p>在java中，String类对象被称为不可变字符串，字符串”hello”永远包含字符h,e,l,l,o的代码单元序列，而不能修改其中的任何一个字符。当然，可以修改字符串变量使其引用另外一个字符串。</p>
+</li>
+<li><p>不能使用==比较两个字符串是否相等。该运算符只能确定两个字符串是否放置到在同一个位置上。这点和c++的string类有很大不同</p>
+</li>
+<li><p>空串””是长度为0的字符串，null则是表示目前没有任何对象与该变量关联</p>
+</li>
+</ul>
+<h2 id="数组"><a href="#数组" class="headerlink" title="数组"></a>数组</h2><h3 id="1-基础的用法"><a href="#1-基础的用法" class="headerlink" title="1.基础的用法"></a>1.基础的用法</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*两种声明方式皆可*/</span></span><br><span class="line"><span class="keyword">int</span>[] a;</span><br><span class="line"><span class="keyword">int</span> b[];</span><br><span class="line"><span class="keyword">int</span>[] c = <span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">100</span>];</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;c.length;i++)<span class="comment">//初始化数组 </span></span><br><span class="line">    c[i] = i;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i : c) <span class="comment">//for each循环</span></span><br><span class="line">    System.out.println(i);</span><br><span class="line"></span><br><span class="line">System.out.println(Arrays.toString(c));<span class="comment">/*返回一个包含数组元素的字符串*/</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span>[] smallPrimes = &#123;<span class="number">2</span>,<span class="number">3</span>,<span class="number">5</span>,<span class="number">7</span>,<span class="number">11</span>,<span class="number">13</span>&#125;;</span><br><span class="line">smallPrimes = <span class="keyword">new</span> <span class="keyword">int</span>[]&#123;<span class="number">17</span>,<span class="number">19</span>,<span class="number">23</span>,<span class="number">29</span>,<span class="number">31</span>,<span class="number">37</span>&#125;; <span class="comment">/*用匿名函数重新初始化数组*/</span> </span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span>[] copiedsmallPrimes = Arrays.copyOf(samllPrimes,smallPrimes.length);<span class="comment">/*拷贝数组*/</span></span><br><span class="line"></span><br><span class="line">Arrays.sort(smallPrimes); <span class="comment">//对数组排序</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-多维数组"><a href="#2-多维数组" class="headerlink" title="2.多维数组"></a>2.多维数组</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> [][] magicSquare =</span><br><span class="line">   &#123;</span><br><span class="line">    &#123;<span class="number">16</span>,<span class="number">3</span>,<span class="number">2</span>,<span class="number">14</span>&#125;,</span><br><span class="line">    &#123;<span class="number">32</span>,<span class="number">43</span>,<span class="number">53</span>,<span class="number">34</span>&#125;</span><br><span class="line">   &#125;;</span><br><span class="line"></span><br><span class="line">System.out.println(Arrays.deepToString(magicSquare));<span class="comment">//快速打印二维数组</span></span><br></pre></td></tr></table></figure>
+<h3 id="3-不规则数组"><a href="#3-不规则数组" class="headerlink" title="3.不规则数组"></a>3.不规则数组</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="keyword">int</span> NMAX = <span class="number">20</span>;</span><br><span class="line"><span class="keyword">int</span>[][] odds = <span class="keyword">new</span> <span class="keyword">int</span>[NMAX+<span class="number">1</span>][];<span class="comment">//分配一个具有所含行数的数组</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> n=<span class="number">0</span>;n&lt;=NMAX;n++)</span><br><span class="line">    odds[n] = <span class="keyword">new</span> <span class="keyword">int</span>[n+<span class="number">1</span>]; <span class="comment">//分配行</span></span><br><span class="line"><span class="comment">//访问不规则数组</span></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> n=<span class="number">0</span>;n&lt;odds.length;n++)&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> k=<span class="number">0</span>;k&lt;odds[n].length;k++)&#123;</span><br><span class="line">        odds[n][k] = k;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2019-06-28</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2022
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

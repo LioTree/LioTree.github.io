@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>easy_tornado - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=writeup,ssti>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">easy_tornado</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-初步思路"><span class="toc-text">1.初步思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-利用tornado框架"><span class="toc-text">2.利用tornado框架</span></a></li></ol>
+
+  <div class="post-content">
+    <h2 id="1-初步思路"><a href="#1-初步思路" class="headerlink" title="1.初步思路"></a>1.初步思路</h2><p>题目给出了一下信息:</p>
+<ul>
+<li>flag在/fllllllllllag</li>
+<li>访问文件需要/file?filename=文件名&amp;filehash=文件签名</li>
+<li>文件签名长32位，规则为md5(cookie_secret+md5(filename)),看了下cookie发现本地没有cookie_secret，因此可以猜测cookie_secret是存储在服务端的</li>
+<li>题目名字为easy_tornado,tornado是一个python的框架。/welcome.txt内容为render，render是一个用来渲染模板的函数。两者结合可以猜测是利用tornado框架的ssti模板注入去获取cookie_secret</li>
+</ul>
+<p>把filename更改会跳出一个错误页面/error?msg=Error,可以发现msg参数存在一个ssti，下一步有两个思路:</p>
+<ol>
+<li>从python语言的角度进行攻击，也就是python沙盒逃逸,但这里会发现很多特殊字符都被过滤了，比如<blockquote>
+<p>“%’()*-/=[]_|+</p>
+</blockquote>
+</li>
+</ol>
+<p>_被过滤意味着没有办法去调用python的魔术方法，很难去沙盒逃逸<br>2. 从tornado框架的角度进行攻击<br>_被过滤也很难调用tornado的方法，应该是去读一个变量</p>
+<h2 id="2-利用tornado框架"><a href="#2-利用tornado框架" class="headerlink" title="2.利用tornado框架"></a>2.利用tornado框架</h2><p>在tornado的文档上搜索cookie_secret可以发现它是tornado.web.Application类的属性settings字典的一个键值,在<br>“tornado.web — RequestHandler 和 Application 类”这一章中:</p>
+<blockquote>
+<p>cookie_secret: 被 RequestHandler.get_secure_cookie 使用, set_secure_cookie 用来给cookies签名.</p>
+</blockquote>
+<p>接下来就是要找到方法去访问tornado.web.Application.settings[‘cookie_secret’]<br>查看tornado文档中模板的部分<br><img src="/images/tornado%E6%A8%A1%E6%9D%BF.PNG" alt=""></p>
+<p>发现没有办法访问到Application<br>在”tornado.web — RequestHandler 和 Application 类”中搜索settings发现了这一条</p>
+<blockquote>
+<p>RequestHandler.settings<br>self.application.settings 的别名.</p>
+</blockquote>
+<p>而我们可以在模板中可以通过handler访问当前的 RequestHandler 对象<br>于是用?msg=就可以得到cookie_secret<br>然后计算出/fllllllllllllag的文件签名就可以得到flag</p>
+<p>还有一个方法是不看文档，直接下载tornado的源码去搜索cookie_secret,可以参见<br><a href="https://www.k0rz3n.com/2018/11/12/%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0%E5%B8%A6%E4%BD%A0%E7%90%86%E8%A7%A3%E6%BC%8F%E6%B4%9E%E4%B9%8BSSTI%E6%BC%8F%E6%B4%9E/#3-Tornado" target="_blank" rel="noopener">https://www.k0rz3n.com/2018/11/12/%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0%E5%B8%A6%E4%BD%A0%E7%90%86%E8%A7%A3%E6%BC%8F%E6%B4%9E%E4%B9%8BSSTI%E6%BC%8F%E6%B4%9E/#3-Tornado</a></p>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2019-08-19</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/ssti/" rel="tag">ssti</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2022
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

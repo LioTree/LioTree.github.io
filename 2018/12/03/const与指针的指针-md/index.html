@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>const与指针的指针 - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=c/c++>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">const与指针的指针</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  
+
+  <div class="post-content">
+    <p>先让我们来看const与指针的情况</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">#include&lt;stdio.h&gt;</span><br><span class="line"></span><br><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">    int apple &#x3D; 3;</span><br><span class="line">    const int *p1&#x3D;&amp;apple;&#x2F;*p1是一个指向int型常量的指针,虽然apple不是常量，但傻乎乎的p1以为它是个常量,因此不能通过p1修改apple的值*&#x2F;</span><br><span class="line">    int const *p2&#x3D;&amp;apple;&#x2F;*和上面的没有区别,const在int的左右都一样*&#x2F;</span><br><span class="line">    int  * const p3 &#x3D; &amp;apple;&#x2F;*这里的p3是一个常量指针,也就是说不能修改p3的值，但我们可以通过p3修改apple的值*&#x2F;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然而，当const碰到多重指针的时候，情况就会变得复杂起来，我们可能会有</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">const int ** p1 &#x3D; &amp;p;</span><br><span class="line">int const ** pp2 &#x3D; &amp;p;</span><br><span class="line">int *const* pp3 &#x3D; &amp;p;</span><br><span class="line">int **const pp4 &#x3D; &amp;p;</span><br></pre></td></tr></table></figure>
+<p>这四种情况 , 看起来很恶心，其实也不难</p>
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">const int ** pp1 &#x3D; &amp;p;</span><br><span class="line">int const ** pp2 &#x3D; &amp;p;</span><br></pre></td></tr></table></figure>
+<p>依然是相同的,他们表示pp指向一个指向int型常量的int型指针(即c++ primer中所说的底层指针),比如</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">#include&lt;stdio.h&gt;</span><br><span class="line"></span><br><span class="line">int main(void)</span><br><span class="line">&#123;</span><br><span class="line">	int apple&#x3D;3;</span><br><span class="line">    const int * p &#x3D; &amp;apple;</span><br><span class="line">    &#x2F;*如果p的定义为 int * p &#x3D; &amp;apple,则下面两句就会报错 *&#x2F;</span><br><span class="line">	const int ** pp1 &#x3D; &amp;p;</span><br><span class="line">    int const ** pp2 &#x3D; &amp;p;</span><br><span class="line">    &#x2F;&#x2F;*(*pp1) &#x3D; 5;这句会报错</span><br><span class="line">	return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int *const* pp3 &#x3D; &amp;p;</span><br></pre></td></tr></table></figure>
+<p>表示pp3指向一个常量指针(即c++ primer 中说的顶层指针),比如</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">#include&lt;stdio.h&gt;</span><br><span class="line">int main(void)</span><br><span class="line">&#123;</span><br><span class="line">	int apple&#x3D;3;</span><br><span class="line">	int banana &#x3D; 2;</span><br><span class="line">	int * const p &#x3D; &amp;apple;</span><br><span class="line">	int *const* pp3 &#x3D; &amp;p;</span><br><span class="line">	&#x2F;&#x2F;*(*pp3) &#x3D; &amp;banana;这句会报错</span><br><span class="line">	return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int **const pp4 &#x3D; &amp;p;</span><br></pre></td></tr></table></figure>
+<p>则表示pp4本身是一个常量,比如</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">int main(void)</span><br><span class="line">&#123;</span><br><span class="line">	int apple&#x3D;3;</span><br><span class="line">	int * p1 &#x3D; &amp;apple;</span><br><span class="line">	int * p2 &#x3D; &amp;apple;</span><br><span class="line">	int ** const pp4 &#x3D; &amp;p1;</span><br><span class="line">	&#x2F;&#x2F;pp4 &#x3D; &amp;p2;这句会报错</span><br><span class="line">	return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2018-12-03</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/c-c/" rel="tag">c/c++</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2022
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

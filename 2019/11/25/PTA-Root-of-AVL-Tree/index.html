@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>PTA-Root-of-AVL-Tree - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=树,PTA>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">PTA-Root-of-AVL-Tree</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#题目描述"><span class="toc-text">题目描述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分析"><span class="toc-text">分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码"><span class="toc-text">代码</span></a></li></ol>
+
+  <div class="post-content">
+    <h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><blockquote>
+<p>An AVL tree is a self-balancing binary search tree. In an AVL tree, the heights of the two child subtrees of any node differ by at most one; if at any time they differ by more than one, rebalancing is done to restore this property. Figures 1-4 illustrate the rotation rules.</p>
+</blockquote>
+<p><img src="/images/Root_of_AVL_Tree.png" alt="avatar"></p>
+<blockquote>
+<p>Now given a sequence of insertions, you are supposed to tell the root of the resulting AVL tree.<br>Input Specification:<br>Each input file contains one test case. For each case, the first line contains a positive integer N (≤20) which is the total number of keys to be inserted. Then N distinct integer keys are given in the next line. All the numbers in a line are separated by a space.</p>
+</blockquote>
+<blockquote>
+<p>Output Specification:<br>For each test case, print the root of the resulting AVL tree in one line.</p>
+</blockquote>
+<blockquote>
+<p>Sample Input 1:<br>5<br>88 70 61 96 120<br>Sample Output 1:<br>70<br>Sample Input 2:<br>7<br>88 70 61 96 120 90 65<br>Sample Output 2:<br>88</p>
+</blockquote>
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><ul>
+<li>构造平衡二叉树即可</li>
+</ul>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><p>很多地方直接copy了浙大数据结构mooc的代码-_-</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ElementType int</span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">AVLNode</span> * <span class="title">Position</span>;</span></span><br><span class="line"><span class="keyword">typedef</span> Position AVLTree;<span class="comment">/* AVL树类型 */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">AVLNode</span> &#123;</span></span><br><span class="line">	ElementType Data;</span><br><span class="line">	AVLTree Left;</span><br><span class="line">	AVLTree Right;</span><br><span class="line">	<span class="keyword">int</span> Height;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">Max</span><span class="params">(<span class="keyword">int</span> a, <span class="keyword">int</span> b)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">return</span> a &gt; b ? a : b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">GetHeight</span><span class="params">(AVLTree A)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(A)</span><br><span class="line">		<span class="keyword">return</span> Max(GetHeight(A-&gt;Left), GetHeight(A-&gt;Right)) + <span class="number">1</span>;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">AVLTree <span class="title">SingleLeftRotation</span><span class="params">(AVLTree A)</span></span>&#123;</span><br><span class="line">  <span class="comment">/* 注意：A必须有一个左子结点B */</span></span><br><span class="line">  <span class="comment">/* 将A与B做左单旋，更新A与B的高度，返回新的根结点B */</span></span><br><span class="line"></span><br><span class="line">	AVLTree B = A-&gt;Left;</span><br><span class="line">	A-&gt;Left = B-&gt;Right;</span><br><span class="line">	B-&gt;Right = A;</span><br><span class="line">	A-&gt;Height = Max(GetHeight(A-&gt;Left), GetHeight(A-&gt;Right)) + <span class="number">1</span>;</span><br><span class="line">	B-&gt;Height = Max(GetHeight(B-&gt;Left), A-&gt;Height) + <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> B;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">AVLTree <span class="title">SingleRightRotation</span><span class="params">(AVLTree A)</span> </span>&#123;</span><br><span class="line">	AVLTree B = A-&gt;Right;</span><br><span class="line">	A-&gt;Right = B-&gt;Left;</span><br><span class="line">	B-&gt;Left = A;</span><br><span class="line">	A-&gt;Height = Max(GetHeight(A-&gt;Left), GetHeight(A-&gt;Right)) + <span class="number">1</span>;</span><br><span class="line">	B-&gt;Height = Max(GetHeight(B-&gt;Right), A-&gt;Height) + <span class="number">1</span>;</span><br><span class="line">	<span class="keyword">return</span> B;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">AVLTree <span class="title">DoubleLeftRightRotation</span><span class="params">(AVLTree A)</span> </span>&#123;</span><br><span class="line">	<span class="comment">/* 注意：A必须有一个左子结点B，且B必须有一个右子结点C */</span></span><br><span class="line"> <span class="comment">/* 将A、B与C做两次单旋，返回新的根结点C */</span></span><br><span class="line"></span><br><span class="line">   <span class="comment">/* 将B与C做右单旋，C被返回 */</span></span><br><span class="line">	A-&gt;Left = SingleRightRotation(A-&gt;Left);</span><br><span class="line">	<span class="comment">/* 将A与C做左单旋，C被返回 */</span></span><br><span class="line">	<span class="keyword">return</span> SingleLeftRotation(A);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">AVLTree <span class="title">DoubleRightLeftRotation</span><span class="params">(AVLTree A)</span> </span>&#123;</span><br><span class="line">	A-&gt;Right = SingleLeftRotation(A-&gt;Right);</span><br><span class="line">	<span class="keyword">return</span> SingleRightRotation(A);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">AVLTree <span class="title">Insert</span><span class="params">(AVLTree T, ElementType X)</span></span>&#123; </span><br><span class="line">	<span class="comment">/* 将X插入AVL树T中，并且返回调整后的AVL树 */</span></span><br><span class="line">	<span class="keyword">if</span> (!T) &#123; <span class="comment">/* 若插入空树，则新建包含一个结点的树 */</span></span><br><span class="line">		T = (AVLTree)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(struct AVLNode));</span><br><span class="line">		T-&gt;Data = X;</span><br><span class="line">		T-&gt;Height = <span class="number">0</span>;</span><br><span class="line">		T-&gt;Left = T-&gt;Right = <span class="literal">NULL</span>;</span><br><span class="line">	&#125; <span class="comment">/* if (插入空树) 结束 */</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">else</span> <span class="keyword">if</span> (X &lt; T-&gt;Data) &#123;</span><br><span class="line">		<span class="comment">/* 插入T的左子树 */</span></span><br><span class="line">		T-&gt;Left = Insert(T-&gt;Left, X);</span><br><span class="line">		<span class="comment">/* 如果需要左旋 */</span></span><br><span class="line">		<span class="keyword">if</span> (GetHeight(T-&gt;Left) - GetHeight(T-&gt;Right) == <span class="number">2</span>)</span><br><span class="line">			<span class="keyword">if</span> (X &lt; T-&gt;Left-&gt;Data)</span><br><span class="line">				T = SingleLeftRotation(T);      <span class="comment">/* 左单旋 */</span></span><br><span class="line">			<span class="keyword">else</span></span><br><span class="line">				T = DoubleLeftRightRotation(T); <span class="comment">/* 左-右双旋 */</span></span><br><span class="line">	&#125; <span class="comment">/* else if (插入左子树) 结束 */</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">else</span> <span class="keyword">if</span> (X &gt; T-&gt;Data) &#123;</span><br><span class="line">		<span class="comment">/* 插入T的右子树 */</span></span><br><span class="line">		T-&gt;Right = Insert(T-&gt;Right, X);</span><br><span class="line">		<span class="comment">/* 如果需要右旋 */</span></span><br><span class="line">		<span class="keyword">if</span> (GetHeight(T-&gt;Left) - GetHeight(T-&gt;Right) == <span class="number">-2</span>)</span><br><span class="line">			<span class="keyword">if</span> (X &gt; T-&gt;Right-&gt;Data)</span><br><span class="line">				T = SingleRightRotation(T);     <span class="comment">/* 右单旋 */</span></span><br><span class="line">			<span class="keyword">else</span></span><br><span class="line">				T = DoubleRightLeftRotation(T); <span class="comment">/* 右-左双旋 */</span></span><br><span class="line">	&#125; <span class="comment">/* else if (插入右子树) 结束 */</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">/* else X == T-&gt;Data，无须插入 */</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">/* 别忘了更新树高 */</span></span><br><span class="line">	T-&gt;Height = Max(GetHeight(T-&gt;Left), GetHeight(T-&gt;Right)) + <span class="number">1</span>;</span><br><span class="line">	<span class="keyword">return</span> T;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="keyword">int</span> N;</span><br><span class="line">	ElementType X;</span><br><span class="line">	AVLTree root=<span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">cin</span> &gt;&gt; N;</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; N; i++) &#123;</span><br><span class="line">		<span class="built_in">cin</span> &gt;&gt; X;</span><br><span class="line">		root = Insert(root, X);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">cout</span> &lt;&lt; root-&gt;Data;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2019-11-25</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/PTA/" rel="tag">PTA</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E6%A0%91/" rel="tag">树</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2022
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

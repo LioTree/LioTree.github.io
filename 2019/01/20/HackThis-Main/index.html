@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>HackThis Main - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=writeup>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">HackThis Main</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  
+
+  <div class="post-content">
+    <ul>
+<li>attempts 1<br>翻网页源代码可以在注释里看到用户名和密码</li>
+<li>attempts 2<br>翻代码可以看到<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;span style=<span class="string">"color: #000000"</span>&gt;resu&lt;<span class="regexp">/span&gt;和</span></span><br><span class="line"><span class="regexp">&lt;span style="color: #000000"&gt;ssap&lt;/</span>span&gt;</span><br></pre></td></tr></table></figure>
+其实他就是用color: #000000把用户名密码藏起来了，左键反选就可以看见</li>
+<li>attempts 3<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;script type=<span class="string">'text/javascript'</span>&gt; $(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123; $(<span class="string">'.level-form'</span>).submit(<span class="function"><span class="keyword">function</span>(<span class="params">e</span>)</span>&#123; <span class="keyword">if</span>(<span class="built_in">document</span>.getElementById(<span class="string">'user'</span>).value == <span class="string">'heaven'</span> &amp;&amp; <span class="built_in">document</span>.getElementById(<span class="string">'pass'</span>).value == <span class="string">'hell'</span>) &#123; &#125; <span class="keyword">else</span> &#123; e.preventDefault(); alert(<span class="string">'Incorrect login'</span>) &#125; &#125;)&#125;)&lt;<span class="regexp">/script&gt;</span></span><br></pre></td></tr></table></figure>
+这段js代码就是说如果用户名是heaven并且密码是hell的就过了……<ul>
+<li>attempts 4<br>日常翻代码<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;input type=<span class="string">"hidden"</span> name=<span class="string">"passwordfile"</span> value=<span class="string">"../../extras/ssap.xml"</span>&gt;</span><br></pre></td></tr></table></figure>
+于是访问<a href="https://www.hackthis.co.uk/levels/extras/ssap.xml" target="_blank" rel="noopener">https://www.hackthis.co.uk/levels/extras/ssap.xml</a></li>
+<li>attempts 5<br>一打开弹出一个框要我们输密码，先不管他然后日常看代码<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;script language=<span class="string">"JavaScript"</span> type=<span class="string">"text/javascript"</span>&gt;</span><br><span class="line">          <span class="keyword">var</span> pass;</span><br><span class="line">          pass=prompt(<span class="string">"Password"</span>,<span class="string">""</span>);</span><br><span class="line">          <span class="keyword">if</span> (pass==<span class="string">"9286jas"</span>) &#123;</span><br><span class="line">              <span class="built_in">window</span>.location.href=<span class="string">"/levels/main/5?pass=9286jas"</span>;</span><br><span class="line">          &#125;</span><br><span class="line">      &lt;<span class="regexp">/script&gt;</span></span><br></pre></td></tr></table></figure></li>
+<li>attempts 6<br>用burpsuite或者firefox自带工具改post参数</li>
+</ul>
+</li>
+<li>attempts 7<br>hint说<blockquote>
+<p>The password is again stored in a txt file. This time however it is not as straight forward as viewing the source.<br>You wouldn’t even find the page by using a search engine as search bots have been excluded.</p>
+</blockquote>
+</li>
+</ul>
+<p>由</p>
+<blockquote>
+<p>search engine as search bots have been excluded.</p>
+</blockquote>
+<p>我们可以想到找robots.txt;<br>于是google site:<a href="http://www.hackthis.co.uk" target="_blank" rel="noopener">www.hackthis.co.uk</a>  robots.txt<br>成功找到</p>
+<ul>
+<li><p>attempts 8<br>这题的提示几乎直接把解法告诉我们了…<br>在代码里找到/extras/secret.txt,然后把二进制转成十六进制，再换成大写</p>
+</li>
+<li><p>attempts 9<br>这题略坑…<br>点开Request details可以看到要求我们输入一个邮箱，然后看代码或者用burpsuite啥的都可以看到有一个隐藏的表单email2,它的值被设为<a href="mailto:admin@hackthis.co.uk">admin@hackthis.co.uk</a>,如果email1和email2的值有一个不是<a href="mailto:admin@hackthis.co.uk">admin@hackthis.co.uk</a>就会说Incorrect email address (然而其实不是这样…),两个都是<a href="mailto:admin@hackthis.co.uk">admin@hackthis.co.uk</a>则显示Email sent, but to the wrong address 。一开始我的猜测是email2是发送者的邮箱，因此要想办法把email1设成我们自己的邮箱，于是测试了各种绕过…最后发现其实email1和email2相同就可以了…</p>
+</li>
+<li><p>attempts 10<br>看hint就可以猜到是破md5之类的,在html代码中可以找到</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"hidden"</span> <span class="attr">name</span>=<span class="string">"passwordfile"</span> <span class="attr">value</span>=<span class="string">"level10pass.txt"</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>于是尝试去找level10pass.txt，试了一下没有找到，于是google hacker</p>
+<blockquote>
+<p>site:<a href="http://www.hackthis.co.uk" target="_blank" rel="noopener">www.hackthis.co.uk</a> inurl:level10pass.txt</p>
+</blockquote>
+<p>找到level10pass.txt,里面给了一大串东西，可以看出是两个密码，扔到<a href="https://www.cmd5.com/可以知道是两个sha256密码，解出来就ok" target="_blank" rel="noopener">https://www.cmd5.com/可以知道是两个sha256密码，解出来就ok</a></p>
+</li>
+</ul>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2019-01-20</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2022
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

