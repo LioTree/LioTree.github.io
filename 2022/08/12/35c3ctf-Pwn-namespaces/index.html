@@ -166,7 +166,7 @@
 <p>这里的攻击思路非常巧妙，问题还是出在<code>run_elf</code>加入沙盒<code>namespaces</code>的过程。<code>run_elf</code>在加入了<code>/proc/xxx/pid</code>后会立刻<code>fork</code>出子进程从而真正加入<code>pid namespaces</code>，在加入了所有的命名空间后才进行了降权操作。而在加入<code>pid namespaces</code>的时候，<code>start_sandbox</code>中的进程就已经能够观察到未降权的<code>run_elf</code>进程，此时如果能在<code>run_elf</code>进程降权之前用<code>ptrace</code>控制<code>run_elf</code>中的进程，就能够以nsjail中root用户的身份去读取<code>/flag</code></p>
 <p>接下来的问题就是如何才能在<code>start_sandbox</code>进程中拥有<code>ptrace</code>的权限, 这里先要了解下Linux的capabilities机制。</p>
 <p>在过去Linux中我们可以通过<code>sudo</code>或<code>suid</code>机制来让普通用户以root权限执行文件，而这两种方式都会使普通用户获取到完整的root权限，很显然这是极不安全的。因此Linux在内核2.2后引入了capabilities机制，对root的权限进行了更加细粒度的划分，例如nginx需要监听端口，那么只需要给nginx可执行文件赋予<code>CAP_NET_BIND_SERVICE</code>这一项capability，使其能够以普通用户的身份监听端口。</p>
-<p>具体capabilities机制比较复杂，可以看看相关的参考文章，这里只需要知道：</p>
+<p>具体capabilities机制比较复杂，可以看看文档或相关的文章，这里只需要知道：</p>
 <ul>
 <li><p>root用户拥有所有的capabilities，普通用户默认状态下没有capabilities</p>
 </li>
