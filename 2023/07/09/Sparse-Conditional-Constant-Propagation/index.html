@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>Sparse Conditional Constant Propagation - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=软件分析>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">Sparse Conditional Constant Propagation</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#What-are-the-meanings-of-FlowWL-and-SSAWL"><span class="toc-text">What are the meanings of FlowWL and SSAWL?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#When-dealing-with-unexecuted-flow-edges-why-does-this-algorithm-only-invoke-VisitInst-E-gt-sink-during-the-initial-visit-to-E-gt-sink-via-flow-edges-whereas-it-calls-VisitPhi-φ-∀-φ-∈-E-gt-sink-every-time"><span class="toc-text">When dealing with unexecuted flow edges, why does this algorithm only invoke VisitInst(E-&gt;sink) during the initial visit to E-&gt;sink via flow edges, whereas it calls VisitPhi(φ) ∀ φ ∈ E-&gt;sink every time?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Why-this-algorithm-need-this-statement"><span class="toc-text">Why this algorithm need this statement?</span></a></li></ol>
+
+  <div class="post-content">
+    <p>Here are some notes on learning this algorithm, to practice my English writing skills I write them in English.</p>
+<p>This algorithm is not a fixed point iteration method, actually it is a symbolic execution technique rather than a dataflow analysis approach. So it took me a lot of time to understand it.</p>
+<p>The Pseudocode of this algorithm is in <a href="https://piazza.com/class_profile/get_resource/hzkq9i9o1ec222/i0iiojubk971th" target="_blank" rel="noopener">CS 426 Topic 5: SSA and the SSA Construction Algorithm</a>. It closely resembles the algorithm described in the original paper <em>Constant Propagation with Conditional Branches</em>.</p>
+<p><img src="/images/SCCP1.png" alt=""></p>
+<p><img src="/images/SCCP2.png" alt=""></p>
+<p>Here are some of the questions I have pondered: </p>
+<h3 id="What-are-the-meanings-of-FlowWL-and-SSAWL"><a href="#What-are-the-meanings-of-FlowWL-and-SSAWL" class="headerlink" title="What are the meanings of FlowWL and SSAWL?"></a>What are the meanings of <code>FlowWL</code> and <code>SSAWL</code>?</h3><p><code>FlowWL</code> simply adds all SSA edges to <code>SSAWL</code>, and that’s why every flow edge within it is only be executed once.</p>
+<p><code>SSAWL</code> means updating the constant information once a change is detected in a variable’s lattice. Due to the properties of SSA , there is no need for two separate product lattices(<code>INPUT</code> and <code>OUTPUT</code>) for each instruction. Instead, we only require a single lattice for each variable.</p>
+<h3 id="When-dealing-with-unexecuted-flow-edges-why-does-this-algorithm-only-invoke-VisitInst-E-gt-sink-during-the-initial-visit-to-E-gt-sink-via-flow-edges-whereas-it-calls-VisitPhi-φ-∀-φ-∈-E-gt-sink-every-time"><a href="#When-dealing-with-unexecuted-flow-edges-why-does-this-algorithm-only-invoke-VisitInst-E-gt-sink-during-the-initial-visit-to-E-gt-sink-via-flow-edges-whereas-it-calls-VisitPhi-φ-∀-φ-∈-E-gt-sink-every-time" class="headerlink" title="When dealing with unexecuted flow edges, why does this algorithm only invoke VisitInst(E-&gt;sink) during the initial visit to E-&gt;sink via flow edges, whereas it calls VisitPhi(φ) ∀ φ ∈ E-&gt;sink every time?"></a>When dealing with unexecuted flow edges, why does this algorithm only invoke <code>VisitInst(E-&gt;sink)</code> during the initial visit to <code>E-&gt;sink</code> via flow edges, whereas it calls <code>VisitPhi(φ) ∀ φ ∈ E-&gt;sink</code> every time?</h3><p><img src="/images/SCCP3.png" alt=""></p>
+<p>considering such a situation:</p>
+<p><img src="/images/SCCP4.png" alt=""></p>
+<p>When this algorithm handles flow edge 2, there is no need to reconsider <code>b = c</code> again since it is impossible to observe any new changes(This is ensured by the feature of SSA). However, <code>a3 = phi(a1, a2)</code> needs to be reevaluated because of the impact of <code>a2</code>.</p>
+<h3 id="Why-this-algorithm-need-this-statement"><a href="#Why-this-algorithm-need-this-statement" class="headerlink" title="Why this algorithm need this statement?"></a>Why this algorithm need this statement?</h3><p><img src="/images/SCCP5.png" alt=""></p>
+<p>One thing that needs to be noted is that the algorithm presented in this slide assumes that every basic block has only one instruction for convenience, which implies that all instructions, except for conditional branches, behave as if they were unconditional branches. This statement fetches the next instruction in the case of all instructions except conditional branches.</p>
+<p>However, if this algorithm is designed to work in typical situations, it can be replaced by an iteration over the instructions within a basic block and a special process of unconditional branches in <code>visitInst</code>.</p>
+<p>Actually the original paper does not explicitly mention “basic blocks”. Instead, it discusses a flow graph consisting of individual statements. This topic is further explained in section 12.6 of the book <em>Advanced Compiler Design and Implementation</em>. </p>
+<p><img src="/images/SCCP6.png" alt=""></p>
+<p><img src="/images/SCCP7.png" alt=""></p>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2023-07-09</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E8%BD%AF%E4%BB%B6%E5%88%86%E6%9E%90/" rel="tag">软件分析</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2023
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>
