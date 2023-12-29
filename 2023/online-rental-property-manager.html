@@ -366,7 +366,7 @@ code {
     });
   </script>
 <p>vendor: <a href="https://github.com/bigprof-software/online-rental-property-manager">online-rental-property-manager</a></p>
-<p>version: &lt;= 7.1</p>
+<p>version: &lt;= 7.1, fix in <a href="https://github.com/bigprof-software/online-rental-property-manager/commit/edb404c4e31966338762de3022d0e6cfac63ca2b">edb404c4e31966338762de3022d0e6cfac63ca2b</a></p>
 <p>php version: 7.x</p>
 <h1 id="vulnerability-description">Vulnerability description</h1>
 <p>An XSS vulnerability (Cross site Scripting) (CWE-79) is in <code>app/hooks/applicants_and_tenants_filter.php</code>. At line 93, The <code>$FilterValue[1]</code> is inserted into javascript string represented using single quotes and is escaped by <code>htmlspecialchars</code>. However, <code>htmlspecialchars</code> doesn't escape <code>'</code> without the <code>ENT_QUOTES</code> flag. Therefore, an attacker can still exploit this by using <code>'</code> to break out of the javascript string and inject malicious Javascript code. This allows attackers to obtain cookies of administrator and other users and fake their login using obtained cookies.</p>
