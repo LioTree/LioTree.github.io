@@ -365,7 +365,7 @@ code {
           : 'default'
     });
   </script>
-<p>vendor: <a href="https://github.com/kirilkirkov/Ecommerce-CodeIgniter-Bootstrap/tree/cfff7c1acb65e21606ef4dfb28daabf19b35a7e7">kirilkirkov/Ecommerce-CodeIgniter-Bootstrap at cfff7c1acb65e21606ef4dfb28daabf19b35a7e7 (github.com)</a></p>
+<p>vendor: <a href="https://github.com/kirilkirkov/Ecommerce-CodeIgniter-Bootstrap/">kirilkirkov/Ecommerce-CodeIgniter-Bootstrap (github.com)</a></p>
 <p>version: before <a href="https://github.com/kirilkirkov/Ecommerce-CodeIgniter-Bootstrap/commit/d22b54e8915f167a135046ceb857caaf8479c4da">Vulnerability fixes from Lion Tree · kirilkirkov/Ecommerce-CodeIgniter-Bootstrap@d22b54e (github.com)</a></p>
 <h1 id="code-injection">Code Injection</h1>
 <p>A code injection(CWE-94) vulnerability is in <code>application/modules/admin/controllers/advanced_settings/Languages.php</code>. In the <code>saveLanguageFiles</code> method, the element of <code>$_POST['php_keys']</code> is escaped by <code>htmlentities</code> and enclosed in two single quotes as the key of <code>$lang</code>. However, <code>htmlentities</code> doesn't escape <code>'</code> , which allows the attacker to escape from single quotes and inject malicious PHP code, leading to authenticated remote code execution.</p>
