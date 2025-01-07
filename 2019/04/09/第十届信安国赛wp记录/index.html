@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>第十届信安国赛wp记录 - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=writeup,php>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">第十届信安国赛wp记录</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#php列目录"><span class="toc-text">php列目录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#php读文件"><span class="toc-text">php读文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用dvcs-ripper恢复svn文件"><span class="toc-text">使用dvcs-ripper恢复svn文件</span></a></li></ol>
+
+  <div class="post-content">
+    <h2 id="php列目录"><a href="#php列目录" class="headerlink" title="php列目录"></a>php列目录</h2><ul>
+<li>利用glob函数<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">foreach</span> (glob(<span class="string">"./*"</span>) <span class="keyword">as</span> $filename) &#123;  <span class="keyword">echo</span> $filename.<span class="string">"&lt;br&gt;"</span>; &#125;</span><br></pre></td></tr></table></figure>
+The glob() function searches for all the pathnames matching pattern according to the rules used by the libc glob() function, which is similar to the rules used by common shells.</li>
+<li>利用DirectoryIterator对象<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$d=<span class="keyword">new</span> DirectoryIterator(<span class="string">"glob:///var/www/html/f*"</span>);var_dump($d);</span><br></pre></td></tr></table></figure></li>
+<li>使用scandir()<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$dir=<span class="string">"./"</span>;$file=scandir($dir);print_r($file);</span><br></pre></td></tr></table></figure>
+<h2 id="php读文件"><a href="#php读文件" class="headerlink" title="php读文件"></a>php读文件</h2></li>
+<li>highlight_file()<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$a = highlight_file(<span class="string">'flag'</span>);</span><br><span class="line"><span class="keyword">echo</span> $a;</span><br></pre></td></tr></table></figure></li>
+<li>show_source()<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show_source(<span class="string">"flag.txt"</span>);</span><br></pre></td></tr></table></figure>
+<h2 id="使用dvcs-ripper恢复svn文件"><a href="#使用dvcs-ripper恢复svn文件" class="headerlink" title="使用dvcs-ripper恢复svn文件"></a>使用dvcs-ripper恢复svn文件</h2><a href="https://github.com/kost/dvcs-ripper" target="_blank" rel="noopener">https://github.com/kost/dvcs-ripper</a></li>
+</ul>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2019-04-09</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/php/" rel="tag">php</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2025
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

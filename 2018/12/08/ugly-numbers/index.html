@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>ugly-numbers - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=STL>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">ugly-numbers</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#ugly-numbers"><span class="toc-text">ugly-numbers</span></a></li></ol>
+
+  <div class="post-content">
+    <h1 id="ugly-numbers"><a href="#ugly-numbers" class="headerlink" title="ugly-numbers"></a>ugly-numbers</h1><p>Ugly numbers are numbers whose only prime factors are 2, 3 or 5. The sequence</p>
+<p>1, 2, 3, 4, 5, 6, 8, 9, 10, 12, 15, …</p>
+<p>shows the first 11 ugly numbers. By convention, 1 is included.</p>
+<p>Write a program to find and print the 1500’th ugly number.</p>
+<p>Input and Output<br>There is noinput to this program. Output should consist of a single line asshown below, with &#60;number&gt; replaced by the number computed.</p>
+<p>Sample output<br>The 1500’th ugly number is &#60;number&gt;.</p>
+<p>法1</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;set&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="built_in">set</span>&lt;<span class="keyword">int</span>&gt; s&#123;<span class="number">1</span>&#125;;</span><br><span class="line">    <span class="keyword">for</span>(<span class="built_in">set</span>&lt;<span class="keyword">int</span>&gt;::iterator i = s.<span class="built_in">begin</span>();i!=s.<span class="built_in">end</span>();i++)</span><br><span class="line">    &#123;</span><br><span class="line">        s.insert((*i)*<span class="number">2</span>);</span><br><span class="line">        s.insert((*i)*<span class="number">3</span>);</span><br><span class="line">        s.insert((*i)*<span class="number">5</span>);</span><br><span class="line">        <span class="keyword">if</span>(s.<span class="built_in">size</span>()&gt;=<span class="number">1670</span>)</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">set</span>&lt;<span class="keyword">int</span>&gt;::iterator i = s.<span class="built_in">begin</span>();</span><br><span class="line">    advance(i,<span class="number">1499</span>);</span><br><span class="line">    <span class="built_in">cout</span>&lt;&lt;<span class="string">"The 1500'th ugly number is "</span>&lt;&lt;*i&lt;&lt;<span class="string">'.'</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2018-12-08</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/STL/" rel="tag">STL</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2025
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

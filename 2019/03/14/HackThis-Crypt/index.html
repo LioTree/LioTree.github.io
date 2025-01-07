@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>HackThis-Crypt - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=writeup>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">HackThis-Crypt</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Level-1"><span class="toc-text">Level 1</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level2"><span class="toc-text">level2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level3"><span class="toc-text">level3</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level4"><span class="toc-text">level4</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level5"><span class="toc-text">level5</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level6"><span class="toc-text">level6</span></a></li></ol>
+
+  <div class="post-content">
+    <h2 id="Level-1"><a href="#Level-1" class="headerlink" title="Level 1"></a>Level 1</h2><p>显然是倒着看-_-<br>我懒得自己倒着看，于是用python把密码反了过来</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">a=<span class="string">'tpyrcoow :ssap siht retne level siht etelpmoc oT .rewop niarb fo tol a yolpme ot deen lliw uoy ,cigol dna noitpyrced tuoba lla era slevel esehT .sihtkcah no slevel tpyrc eht ot emoclew ,olleH'</span></span><br><span class="line">a[::<span class="number">-1</span>]</span><br></pre></td></tr></table></figure>
+<h2 id="level2"><a href="#level2" class="headerlink" title="level2"></a>level2</h2><p>从 </p>
+<blockquote>
+<p>teww: wlmjxxlexpixxiv </p>
+</blockquote>
+<p>可以猜出这是pass: xxx的意思，可以推测出这是<a href="https://zh.wikipedia.org/zh-hans/%E5%87%B1%E6%92%92%E5%AF%86%E7%A2%BC" target="_blank" rel="noopener">凯撒密码</a></p>
+<p>直接用网上的工具解出来<br><a href="http://www.zjslove.com/3.decode/kaisa/index.html" target="_blank" rel="noopener">http://www.zjslove.com/3.decode/kaisa/index.html</a></p>
+<h2 id="level3"><a href="#level3" class="headerlink" title="level3"></a>level3</h2><p>看着.和-就想到了莫尔斯电码，可以猜测/是分隔符，还是用<br>网上的工具解出来<br><a href="http://ctf.ssleye.com/morse.html" target="_blank" rel="noopener">http://ctf.ssleye.com/morse.html</a></p>
+<p>可以解出来</p>
+<h2 id="level4"><a href="#level4" class="headerlink" title="level4"></a>level4</h2><p>还是由</p>
+<blockquote>
+<p>Jhll: cdhwqancqmkl</p>
+</blockquote>
+<p>可以猜出这次应该是单表替换密码<br>用<br><a href="https://quipqiup.com/" target="_blank" rel="noopener">https://quipqiup.com/</a></p>
+<p>解出来</p>
+<h2 id="level5"><a href="#level5" class="headerlink" title="level5"></a>level5</h2><p>level1和level5的结合<br>仔细观察密码，由</p>
+<blockquote>
+<p>qoymlNlpY :ccdf</p>
+</blockquote>
+<p>可以推测这是pass:xxxx倒过来,于是把整个密码倒过来再用quipqiup去解，</p>
+<h2 id="level6"><a href="#level6" class="headerlink" title="level6"></a>level6</h2><p>隐写术和密码学的结合</p>
+<p>所给的wav文件下下来后，按照<br><a href="https://www.sqlsec.com/2018/01/ctfwav.html#comments" target="_blank" rel="noopener">https://www.sqlsec.com/2018/01/ctfwav.html#comments</a><br>中提到的方法用audacity打开后，在右边切换到频谱图，可以看到一些奇怪的点和线还有Hackthis的图标</p>
+<p>这里让我懵了很久，这个密码根本无从下手，看了论坛的一些帖子后知道这应该是一个类似于莫尔斯码的数字系统，于是在google上疯狂搜索，最后发现这些是<a href="https://en.wikipedia.org/wiki/Maya_numerals" target="_blank" rel="noopener">玛雅数字</a><br>译出来的数字是十六进制的ascii字符，转成字符形式就ok了</p>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2019-03-14</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2025
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

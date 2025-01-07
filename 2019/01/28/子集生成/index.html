@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>子集生成 - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=暴力求解法>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">子集生成</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#增量构造法"><span class="toc-text">增量构造法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#位向量法"><span class="toc-text">位向量法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二进制法"><span class="toc-text">二进制法</span></a></li></ol>
+
+  <div class="post-content">
+    <h2 id="增量构造法"><a href="#增量构造法" class="headerlink" title="增量构造法"></a>增量构造法</h2><p>还是递归的方法，通过每次添加一个元素到集合里来直接构造子集</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print_subset</span><span class="params">(<span class="keyword">int</span> n,<span class="keyword">int</span>* A,<span class="keyword">int</span> cur)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> A[<span class="number">8</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    print_subset(<span class="number">5</span>,A,<span class="number">0</span>);   </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print_subset</span><span class="params">(<span class="keyword">int</span> n,<span class="keyword">int</span>* A,<span class="keyword">int</span> cur)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;cur;i++) <span class="built_in">printf</span>(<span class="string">"%d"</span>,A[i]); <span class="comment">//输出当前A集合中的元素</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"\n"</span>);</span><br><span class="line">    <span class="comment">/*定序的技巧，让A中的元素从小到大排列*/</span></span><br><span class="line">    <span class="keyword">int</span> s = cur?A[cur<span class="number">-1</span>]+<span class="number">1</span> : <span class="number">0</span>; <span class="comment">/*如果cur为0,则从0开始往A中添加元素，否则从A的最后一个元素+1开始添加*/</span></span><br><span class="line">    <span class="keyword">for</span>(i=s;i&lt;n;i++)&#123;</span><br><span class="line">        A[cur]=i;</span><br><span class="line">        print_subset(n,A,cur+<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="位向量法"><a href="#位向量法" class="headerlink" title="位向量法"></a>位向量法</h2><p>不再是直接构造集合，而是通过数组B来标记某个数是否存在于子集之中</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print_subset</span><span class="params">(<span class="keyword">int</span> n,<span class="keyword">int</span>* B,<span class="keyword">int</span> cur)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> B[<span class="number">8</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    print_subset(<span class="number">5</span>,B,<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print_subset</span><span class="params">(<span class="keyword">int</span> n,<span class="keyword">int</span>* B,<span class="keyword">int</span> cur)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(cur==n)&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;cur;i++)</span><br><span class="line">            <span class="keyword">if</span>(B[i]) <span class="built_in">printf</span>(<span class="string">"%d"</span>,i);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"\n"</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    B[cur]=<span class="number">1</span>;   <span class="comment">//标记cur存在于子集中</span></span><br><span class="line">    print_subset(n,B,cur+<span class="number">1</span>);</span><br><span class="line">    B[cur]=<span class="number">0</span>;   <span class="comment">//取消标记，将cur踢出子集...</span></span><br><span class="line">    print_subset(n,B,cur+<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="二进制法"><a href="#二进制法" class="headerlink" title="二进制法"></a>二进制法</h2><p>二进制法也和位向量法一样是去标记一个元素是否存在于子集之中而不是直接去构造子集，但它使用的是二进制位来标记</p>
+<p>比如0100011000110111（最右边是0）表示的是0存在，1存在，2存在，3不存在，4存在…14存在，15不存在这样,所以此时集合就是{0,1,2,4,5,9,10,14}</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print_subset</span><span class="params">(<span class="keyword">int</span> n,<span class="keyword">int</span> s)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> A[<span class="number">8</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> n=<span class="number">5</span>;<span class="comment">//求&#123;0,1,2,3,4&#125;的子集</span></span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;(<span class="number">1</span>&lt;&lt;n);i++) &#123; <span class="comment">//1&lt;&lt;n是100000</span></span><br><span class="line">        print_subset(n, i);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print_subset</span><span class="params">(<span class="keyword">int</span> n,<span class="keyword">int</span> s)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;n;i++)</span><br><span class="line">        <span class="keyword">if</span>(s&amp;(<span class="number">1</span>&lt;&lt;i)) <span class="built_in">printf</span>(<span class="string">"%d "</span>,i);<span class="comment">/*这里是通过与运算逐位去看该位是否为1,如果是1则输出*/</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"\n"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2019-01-28</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E6%9A%B4%E5%8A%9B%E6%B1%82%E8%A7%A3%E6%B3%95/" rel="tag">暴力求解法</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2025
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

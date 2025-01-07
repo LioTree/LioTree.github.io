@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>XNUCA 2018 hardphp - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=反序列化,writeup,sql注入,文件包含>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">XNUCA 2018 hardphp</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#预期解"><span class="toc-text">预期解</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#session反序列化字符串逃逸"><span class="toc-text">session反序列化字符串逃逸</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PHP动态调用静态方法"><span class="toc-text">PHP动态调用静态方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#类自动加载getshell"><span class="toc-text">类自动加载getshell</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#攻击流程"><span class="toc-text">攻击流程</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#非预期解"><span class="toc-text">非预期解</span></a></li></ol>
+
+  <div class="post-content">
+    <p>简单说下题目的情况：</p>
+<ul>
+<li>能够上传任意后缀文件，但存在.htaccess无法执行php</li>
+<li>session会被写入到mysql中</li>
+<li>登录时会写入<code>$_SESSION[&#39;data&#39;]</code>和<code>$_SESSION[&#39;username&#39;]</code><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$session = <span class="keyword">new</span> Session($res[<span class="number">0</span>][<span class="string">"id"</span>],time(),$ip,$userAgent);</span><br><span class="line">$_SESSION[<span class="string">'data'</span>] = serialize($session);</span><br><span class="line">$_SESSION[<span class="string">'username'</span>] = $username;</span><br></pre></td></tr></table></figure></li>
+<li>使用session时会对<code>$_SESSION[&#39;data&#39;]</code>进行反序列化<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$session = unserialize($_SESSION[<span class="string">"data"</span>],[<span class="string">"allowed_classes"</span> =&gt; [<span class="string">"Session"</span>]]);</span><br><span class="line"><span class="comment">//反序列化出的对象只能是Session类的实例</span></span><br></pre></td></tr></table></figure></li>
+<li>存在一个全局过滤<code>escape()</code>，无法直接注入（非预期解情况除外）<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">escape</span><span class="params">(&amp;$arg)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (is_array($arg)) &#123;</span><br><span class="line">		<span class="keyword">foreach</span> ($arg <span class="keyword">as</span> &amp;$value) &#123;</span><br><span class="line">			escape($value);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		$arg = str_replace([<span class="string">"'"</span>, <span class="string">'\\'</span>, <span class="string">'('</span>, <span class="string">')'</span>], [<span class="string">"‘"</span>, <span class="string">'\\\\'</span>, <span class="string">'（'</span>, <span class="string">'）'</span>], $arg);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="预期解"><a href="#预期解" class="headerlink" title="预期解"></a>预期解</h1><h2 id="session反序列化字符串逃逸"><a href="#session反序列化字符串逃逸" class="headerlink" title="session反序列化字符串逃逸"></a>session反序列化字符串逃逸</h2><p>之前见到的反序列化字符逃逸都是有一个字符串替换的的过滤函数的，这题则是利用mysql中<code>\\</code>写入后变为<code>\</code>进行字符逃逸</p>
+<p>在<code>$_SESSION[&#39;data&#39;]</code>注入多个<code>\</code>,当session序列从mysql中取出进行反序列化的时候就会发生字符逃逸，我们可以让<code>$_SESSION[&#39;username&#39;]</code>中的内容暴露出来，从而伪造想要的<code>$_SESSION[&#39;data&#39;]</code>（后面的data能够覆盖前面的data）</p>
+<p>控制了<code>$_SESSION[&#39;data&#39;]</code>就可以用<code>unserialize</code>进行反序列化了</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$session = unserialize($_SESSION[<span class="string">"data"</span>],[<span class="string">"allowed_classes"</span> =&gt; [<span class="string">"Session"</span>]]);</span><br><span class="line"><span class="comment">//反序列化出的对象只能是Session类的实例</span></span><br></pre></td></tr></table></figure>
+<p>问题在于<code>allowed_classes</code>限制了只能是Session类的实例</p>
+<h2 id="PHP动态调用静态方法"><a href="#PHP动态调用静态方法" class="headerlink" title="PHP动态调用静态方法"></a>PHP动态调用静态方法</h2><p>在后面调用了<code>$session</code>的一个静态方法</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">$this</span>-&gt;now = $session::getTime(time());</span><br></pre></td></tr></table></figure>
+<p>php可以通过字符串动态调用静态方法</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span>  <span class="function"><span class="keyword">function</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">"hacked"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">B</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> $name = <span class="string">"i am b"</span>;</span><br><span class="line">&#125;</span><br><span class="line">unserialize(serialize(<span class="string">"A"</span>),[<span class="string">"allowed_classes"</span> =&gt; [<span class="string">"B"</span>]])::test();</span><br><span class="line"><span class="comment">// hacked</span></span><br></pre></td></tr></table></figure>
+<p>如果存在一个有静态方法<code>getTime</code>的类，我们就可以unserialize出一个内容为类名的字符串，动态调用<code>getTime</code>方法</p>
+<p>不过很遗憾，php内置类中并没有这样的类</p>
+<h2 id="类自动加载getshell"><a href="#类自动加载getshell" class="headerlink" title="类自动加载getshell"></a>类自动加载getshell</h2><p>/lib/core.php 存在一个自动类加载，用来实现路由功能</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">spl_autoload_register(<span class="string">'inner_autoload'</span>);</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">inner_autoload</span><span class="params">($class)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">global</span> $__module, $__custom;</span><br><span class="line">	$class = str_replace(<span class="string">"\\"</span>, <span class="string">"/"</span>, $class);</span><br><span class="line">	<span class="keyword">foreach</span> (<span class="keyword">array</span>(<span class="string">'model'</span>, <span class="string">'include'</span>, <span class="string">'controller'</span> . (<span class="keyword">empty</span>($__module) ? <span class="string">''</span> : DS . $__module), $__custom) <span class="keyword">as</span> $dir) &#123;</span><br><span class="line">		$file = APP_DIR . DS . $dir . DS . $class . <span class="string">'.php'</span>;</span><br><span class="line">		<span class="keyword">if</span> (file_exists($file)) &#123;</span><br><span class="line">			<span class="keyword">include</span> $file;</span><br><span class="line">			<span class="keyword">return</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当php在原文件中没有找到使用的类时就会调用这个<code>inner_autoload</code>去包含对应的php文件</p>
+<p>并且可以通过get参数s控制<code>$__custom</code>，从而控制文件包含的目录</p>
+<p>所以我们可以上传一个webshell，反序列化webshell文件名的字符串，使<code>inner_autoload</code>去包含webshell</p>
+<h2 id="攻击流程"><a href="#攻击流程" class="headerlink" title="攻击流程"></a>攻击流程</h2><ul>
+<li>上传webshell，记录文件名，如<code>ud3fzhlbc8vdggy2p4p3xv3g66v1nw3u.php</code></li>
+<li>注册一个名为<code>;data|s:40:&quot;s:32:&quot;ud3fzhlbc8vdggy2p4p3xv3g66v1nw3u&quot;;</code>的用户</li>
+<li>登录该用户时把user-agent改为<code>\\\\\\\\\\\\\\\\</code>，这时session会存入数据库</li>
+<li>这时会跳转到/main/index，抓包修改跳转到<code>/main/index?s=img/upload/</code>,同时user-agent要改成空（因为session反序列化后里面记录的user-agent会是空，要求user-agent与session里面的一致）</li>
+</ul>
+<h1 id="非预期解"><a href="#非预期解" class="headerlink" title="非预期解"></a>非预期解</h1><p>非预期解没有利用反序列化字符逃逸，而是直接sql注入修改session</p>
+<ul>
+<li><p>waf并没有对数组的key进行过滤</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">escape</span><span class="params">(&amp;$arg)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (is_array($arg)) &#123;</span><br><span class="line">		<span class="keyword">foreach</span> ($arg <span class="keyword">as</span> &amp;$value) &#123;</span><br><span class="line">			escape($value);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		$arg = str_replace([<span class="string">"'"</span>, <span class="string">'\\'</span>, <span class="string">'('</span>, <span class="string">')'</span>], [<span class="string">"‘"</span>, <span class="string">'\\\\'</span>, <span class="string">'（'</span>, <span class="string">'）'</span>], $arg);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>serialize会把数组的key和value一起序列化，如果能传入数组就可以在key的位置注入<code>&#39;</code></p>
+</li>
+<li><p>写入session的时候ip和user-agent使用了<code>arg()</code>来获取</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">arg</span><span class="params">($name, $default = null, $trim = false)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (<span class="keyword">isset</span>($_REQUEST[$name])) &#123;</span><br><span class="line">		$arg = $_REQUEST[$name];</span><br><span class="line">	&#125; <span class="keyword">elseif</span> (<span class="keyword">isset</span>($_SERVER[$name])) &#123;</span><br><span class="line">		$arg = $_SERVER[$name];</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		$arg = $default;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> ($trim) &#123;</span><br><span class="line">		$arg = trim($arg);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> $arg;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到如果post或者get一个User-Agent是可以覆盖掉http headers中的User-Agent的，而且post和get是可以传入一个数组的</p>
+</li>
+</ul>
+<p>登陆的时候会调用<code>MySessionHandler</code>类的<code>write</code>方法将session写入mysql</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">write</span><span class="params">($session_id,$data)</span></span>&#123;</span><br><span class="line"></span><br><span class="line">      $time = time();</span><br><span class="line">      $res = <span class="keyword">$this</span>-&gt;dbsession-&gt;query(<span class="string">"SELECT * FROM `&#123;$this-&gt;dbsession-&gt;table_name&#125;` where `sessionid` = '&#123;$session_id&#125;' "</span>);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span>($res)&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;dbsession-&gt;execute(<span class="string">"UPDATE `&#123;$this-&gt;dbsession-&gt;table_name&#125;` SET `data` = '&#123;$data&#125;',`lastvisit` = '&#123;$time&#125;' where `sessionid` = '&#123;$session_id&#125;'"</span>);</span><br><span class="line">      &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        </span><br><span class="line">        $res = <span class="keyword">$this</span>-&gt;dbsession-&gt;create(</span><br><span class="line">            [<span class="string">"data"</span>=&gt;$data,</span><br><span class="line">            <span class="string">"sessionid"</span>=&gt;$session_id,</span><br><span class="line">            <span class="string">"lastvisit"</span>=&gt;$time]);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+<p>可以得到一个update型的注入，从而伪造session，后面和预期解一样</p>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2020-03-12</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/sql%E6%B3%A8%E5%85%A5/" rel="tag">sql注入</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">反序列化</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/" rel="tag">文件包含</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2025
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

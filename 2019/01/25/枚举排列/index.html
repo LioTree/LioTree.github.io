@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>枚举排列 - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=暴力求解法>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">枚举排列</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#递归法"><span class="toc-text">递归法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-n的排列"><span class="toc-text">1~n的排列</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#生成可重排的数列"><span class="toc-text">生成可重排的数列</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#下一个排列"><span class="toc-text">下一个排列</span></a></li></ol>
+
+  <div class="post-content">
+    <p>枚举排列总的有两种方法:递归和求下一个排列</p>
+<h1 id="递归法"><a href="#递归法" class="headerlink" title="递归法"></a>递归法</h1><h2 id="1-n的排列"><a href="#1-n的排列" class="headerlink" title="1~n的排列"></a>1~n的排列</h2><p>利用递归来实现，思路是先输出1开头的排列，再输出2开头的排列，一直到输出n开头的排列,代码如下:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print_permutation</span><span class="params">(<span class="keyword">int</span> n,<span class="keyword">int</span> * A,<span class="keyword">int</span> cur)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> A[<span class="number">5</span>];<span class="comment">//这里的A如果放在main里面n一大就会爆栈</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    print_permutation(<span class="number">8</span>,A,<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print_permutation</span><span class="params">(<span class="keyword">int</span> n,<span class="keyword">int</span>* A,<span class="keyword">int</span> cur)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i,ok;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(cur==n)&#123; <span class="comment">//此时A的长度等于n，输出A</span></span><br><span class="line">        <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;cur;i++)</span><br><span class="line">            <span class="built_in">cout</span>&lt;&lt;A[i];</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span>(i=<span class="number">1</span>;i&lt;=n;i++)&#123;</span><br><span class="line">        ok=<span class="number">1</span>;</span><br><span class="line">        <span class="comment">/*遍历A数组，看i是否已经在A中*/</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">0</span>;j&lt;cur;j++)&#123; </span><br><span class="line">            <span class="keyword">if</span>(A[j]==i)</span><br><span class="line">                ok=<span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(ok==<span class="number">1</span>)&#123;</span><br><span class="line">            A[cur]=i;<span class="comment">//把i添加到A数组末尾</span></span><br><span class="line">            print_permutation(n,A,cur+<span class="number">1</span>);<span class="comment">//递归调用</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>但是这样对每个i都要遍历整个A数组，效率比较低，我们可以先用一个数组把当前A已经有的i存起来，对每个i只用判断一下就ok了</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print_permutation</span><span class="params">(<span class="keyword">int</span> n,<span class="keyword">int</span>* A,<span class="keyword">int</span> cur)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    <span class="keyword">int</span> memo[<span class="number">13</span>]=&#123;<span class="number">0</span>&#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(cur==n)&#123; <span class="comment">//此时A的长度等于n,输出A</span></span><br><span class="line">        <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;cur;i++)</span><br><span class="line">            <span class="built_in">cout</span>&lt;&lt;A[i];</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">/*先遍历A数组，用memo数组来标记哪些数是A中已有的*/</span></span><br><span class="line">    <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;cur;i++)</span><br><span class="line">        memo[A[i]]++;</span><br><span class="line">    <span class="keyword">for</span>(i=<span class="number">1</span>;i&lt;=n;i++)&#123;</span><br><span class="line">        <span class="keyword">if</span>(memo[i]==<span class="number">0</span>)&#123;</span><br><span class="line">            A[cur]=i;  <span class="comment">//把i添加到A数组末尾</span></span><br><span class="line">            print_permutation(n,A,cur+<span class="number">1</span>);<span class="comment">//递归调用</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="生成可重排的数列"><a href="#生成可重排的数列" class="headerlink" title="生成可重排的数列"></a>生成可重排的数列</h2><p>如果把问题改成输出数组P元素的全排列，上面的方法就有问题了，因为1~n是没有重复的元素的，可是数组P却是可能存在相同的数的。<br>解决方案:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print_permutation</span><span class="params">(<span class="keyword">int</span> n,<span class="keyword">int</span> p[], <span class="keyword">int</span>* A, <span class="keyword">int</span> cur)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> A[<span class="number">5</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> p[<span class="number">3</span>]=&#123;<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>&#125;;<span class="comment">/*p中有重复的数，应该只输出一个111*/</span></span><br><span class="line">    <span class="comment">//这里p要是排序好的数组</span></span><br><span class="line">    print_permutation(<span class="number">3</span>,p,A,<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print_permutation</span><span class="params">(<span class="keyword">int</span> n, <span class="keyword">int</span> p[],<span class="keyword">int</span>* A, <span class="keyword">int</span> cur)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    <span class="keyword">if</span>(cur==n)&#123;  <span class="comment">//此时A的长度等于n,输出A</span></span><br><span class="line">        <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;n;i++)</span><br><span class="line">            <span class="built_in">cout</span>&lt;&lt;A[i];</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;n;i++) &#123;</span><br><span class="line">            <span class="comment">/*</span></span><br><span class="line"><span class="comment">            这个if用来防止输出多个相同的数，比如p为&#123;1,1,1&#125;时</span></span><br><span class="line"><span class="comment">            如果没有这个if判断的话会把三个1都做为不同的数进行排列，输出多个111,因此要求p是按顺序排列过的，通过这个if</span></span><br><span class="line"><span class="comment">            使的只有第一个1作为A的开头</span></span><br><span class="line"><span class="comment">            */</span></span><br><span class="line">            <span class="keyword">if</span> (!i || p[i] != p[i - <span class="number">1</span>]) &#123; </span><br><span class="line">                <span class="comment">/*c2是p中某个相同元素的个数，c1是A中已有的该元素的个数*/</span></span><br><span class="line">                <span class="keyword">int</span> c1 = <span class="number">0</span>, c2 = <span class="number">0</span>;</span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; cur; j++) </span><br><span class="line">                    <span class="keyword">if</span> (A[j] ==p[i]) c1++;</span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; n; j++) </span><br><span class="line">                    <span class="keyword">if</span> (p[i] == p[j]) c2++;</span><br><span class="line">                <span class="keyword">if</span> (c1 &lt; c2) &#123;</span><br><span class="line">                    A[cur] = p[i];</span><br><span class="line">                    print_permutation(n, p, A, cur + <span class="number">1</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="下一个排列"><a href="#下一个排列" class="headerlink" title="下一个排列"></a>下一个排列</h1><p>枚举排列还可以利用next_permutation函数来实现，其原理是不断的“求下一个排列”,贴上刘汝佳紫书上的代码</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;algorithm&gt; //包含next_permutation</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">( )</span> </span>&#123;</span><br><span class="line"><span class="keyword">int</span> n, p[<span class="number">10</span>];</span><br><span class="line"><span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;n);</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;p[i]);</span><br><span class="line">sort(p, p+n);</span><br><span class="line"><span class="comment">//排序,得到p的最小排列</span></span><br><span class="line"><span class="keyword">do</span> &#123;</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) <span class="built_in">printf</span>(<span class="string">"%d "</span>, p[i]);</span><br><span class="line"><span class="comment">//输出排列p</span></span><br><span class="line"><span class="built_in">printf</span>(<span class="string">"\n"</span>);</span><br><span class="line">&#125; <span class="keyword">while</span>(next_permutation(p, p+n));</span><br><span class="line"><span class="comment">//求下一个排列</span></span><br><span class="line"><span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可重集也是ok的</p>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2019-01-25</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E6%9A%B4%E5%8A%9B%E6%B1%82%E8%A7%A3%E6%B3%95/" rel="tag">暴力求解法</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2025
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

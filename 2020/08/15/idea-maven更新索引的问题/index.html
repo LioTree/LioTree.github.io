@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>idea maven更新索引的问题 - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=java>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">idea maven更新索引的问题</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  
+
+  <div class="post-content">
+    <p>忽然发现idea的maven没有依赖补全，搜索也找不到包。搜索下发现需要更新索引</p>
+<p><img src="/images/maven%E6%9B%B4%E6%96%B0%E7%B4%A2%E5%BC%95.JPG" alt=""></p>
+<p>然而Remote索引更新的时候永远会Error（图里已经更新成功了）</p>
+<p>试验并搜索了下发现：</p>
+<ul>
+<li><p>idea显示的url永远都是<code>https://repo.maven.apache.org/maven2</code>，但实际上连接的是settings.xml里指定的源</p>
+</li>
+<li><p>更新索引实际上就是下载两个文件</p>
+</li>
+</ul>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">https://repo1.maven.org/maven2/.index/nexus-maven-repository-index.properties</span></span><br><span class="line"><span class="attribute">https://repo1.maven.org/maven2/.index/nexus-maven-repository-index.gz</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>如果settings.xml中没有添加镜像源，直接使用默认源的话会因为网络问题导致更新失败，即使挂了代理也会下一半断掉，然后又要重新来，试了很多次都没成功</p>
+</li>
+<li><p>国内的maven镜像源似乎只剩阿里了，然而神奇的阿里镜像居然没有索引文件…所以会直接更新失败</p>
+</li>
+</ul>
+<p><img src="/images/%E9%98%BF%E9%87%8C%E4%BA%91maven.JPG" alt=""></p>
+<p>解决方法，参考<a href="http://codepub.cn/2015/12/09/IntelliJ-IDEA-in-Maven-plugin-could-not-update-the-index-of-the-solution/" target="_blank" rel="noopener">IntelliJ IDEA中Maven插件无法更新索引之解决办法</a>里利用本地Tomcat作为索引下载服务器的思路，因为现在官方源使用https了，所以文章里的方法没法直接用，但思路是通用的：</p>
+<ul>
+<li><p>先用浏览器将上面的两个文件下载下来（可以断点续传），扔到apache或者tomcat根目录下的<code>/maven/.index/</code>中。本地起一个服务器</p>
+</li>
+<li><p>设置镜像源为</p>
+</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;/<span class="name">mirrors</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">mirror</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">id</span>&gt;</span>localhost<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">mirrorOf</span>&gt;</span>*<span class="tag">&lt;/<span class="name">mirrorOf</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>my maven<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">url</span>&gt;</span>http://127.0.0.1/maven<span class="tag">&lt;/<span class="name">url</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">mirror</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mirrors</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>这时重启idea再update就可以很快的下载了。<code>nexus-maven-repository-index.gz</code>解压后有足足6G，所以下载完成后更新索引也需要等一段时间</li>
+</ul>
+<p>好了水文完毕…</p>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2020-08-15</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2025
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

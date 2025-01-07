@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>HackThis-Intermediate - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=writeup>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">HackThis-Intermediate</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#level-1"><span class="toc-text">level 1</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level2"><span class="toc-text">level2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level3"><span class="toc-text">level3</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level4"><span class="toc-text">level4</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level-5"><span class="toc-text">level 5</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level-6"><span class="toc-text">level 6</span></a></li></ol>
+
+  <div class="post-content">
+    <h2 id="level-1"><a href="#level-1" class="headerlink" title="level 1"></a>level 1</h2><p>访问<a href="https://www.hackthis.co.uk/levels/intermediate/1?password=flubergump即可" target="_blank" rel="noopener">https://www.hackthis.co.uk/levels/intermediate/1?password=flubergump即可</a></p>
+<h2 id="level2"><a href="#level2" class="headerlink" title="level2"></a>level2</h2><p>方法很多，我用的是hackbar，添加一个password参数即可</p>
+<h2 id="level3"><a href="#level3" class="headerlink" title="level3"></a>level3</h2><p>cookie中有一个restricted_login=false;用hackbar改成restricted_login=true;即可</p>
+<h2 id="level4"><a href="#level4" class="headerlink" title="level4"></a>level4</h2><p>这题光是弹窗还不行，一定要是过滤后剩下</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;alert(<span class="string">'HackThis!!'</span>);&lt;<span class="regexp">/script&gt;</span></span><br></pre></td></tr></table></figure>
+<p>所以像</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;scrIPt&gt;alert(<span class="string">'HackThis!!'</span>);&lt;<span class="regexp">/scriPt&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这样的是不行的<br>我用的是</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;scri&lt;script&gt;pt&gt;alert(<span class="string">'HackThis!!'</span>);&lt;<span class="regexp">/scri&lt;/</span>script&gt;pt&gt;</span><br></pre></td></tr></table></figure>
+<h2 id="level-5"><a href="#level-5" class="headerlink" title="level 5"></a>level 5</h2><p>题目说了The script works by parsing log files for failed login attempts</p>
+<p>所以这题是要晃飞日志解析程序，从底下的日志中可以看出每条记录都会换行,<br>可以推断出日志解析程序是根据换行来区分每条记录的，<br>因此用户名填\n就ok了</p>
+<h2 id="level-6"><a href="#level-6" class="headerlink" title="level 6"></a>level 6</h2><p>这题长知识了，原来还可以用xml文件来充当数据库<br>参考了forum里php操控xml文件的代码，</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Preparation stuff */</span></span><br><span class="line">$doc = <span class="keyword">new</span> DOMDocument;</span><br><span class="line">$doc-&gt;preserveWhiteSpace = <span class="keyword">false</span>;</span><br><span class="line">$file = file_get_contents(<span class="string">"users.xml"</span>); <span class="comment">//users.xml contains users' data</span></span><br><span class="line">$doc-&gt;loadXML($file);</span><br><span class="line"><span class="comment">/* End Preparation stuff */</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* XPath query */</span></span><br><span class="line">$xpath = <span class="keyword">new</span> DOMXPath($doc);</span><br><span class="line"></span><br><span class="line">$username = <span class="string">"place_your_username_here"</span>;</span><br><span class="line">$password = <span class="string">"place_your_password_here"</span>;</span><br><span class="line">$query = <span class="string">"//user[username/text() = '"</span> . $username . <span class="string">"' and password/text() = '"</span> . $password . <span class="string">"']"</span>;</span><br><span class="line"></span><br><span class="line">$users = $xpath-&gt;query($query);</span><br><span class="line"><span class="comment">/* End XPath query */</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* Print */</span></span><br><span class="line"><span class="keyword">foreach</span>($users <span class="keyword">as</span> $user) &#123;</span><br><span class="line">    <span class="keyword">foreach</span>($user-&gt;childNodes <span class="keyword">as</span> $node) &#123;</span><br><span class="line">        <span class="keyword">echo</span> $node-&gt;nodeName.<span class="string">" - "</span>.$node-&gt;nodeValue.<span class="string">"&lt;br /&gt;"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/* End Print */</span></span><br></pre></td></tr></table></figure>
+<p>发现类似于sql注入万能密码，用户名随意,密码填</p>
+<blockquote>
+<p>bullshit’ or realname/text() = ‘Sandra Murphy</p>
+</blockquote>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2019-02-06</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2025
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

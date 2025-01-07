@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>文件上传_js、mime、黑名单校验以及相关例题 - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=文件上传,ctf从入门到放弃>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">文件上传_js、mime、黑名单校验以及相关例题</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#客户端校验-javascript校验"><span class="toc-text">客户端校验(javascript校验)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#服务端校验"><span class="toc-text">服务端校验</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-content-type字段校验-MIME类型检测"><span class="toc-text">1.content-type字段校验(MIME类型检测)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-后缀名黑名单校验"><span class="toc-text">2.后缀名黑名单校验</span></a></li></ol></li></ol>
+
+  <div class="post-content">
+    <h2 id="客户端校验-javascript校验"><a href="#客户端校验-javascript校验" class="headerlink" title="客户端校验(javascript校验)"></a>客户端校验(javascript校验)</h2><p>例题:<a href="http://106.12.37.37:10001/" target="_blank" rel="noopener">http://106.12.37.37:10001/</a><br>绕过方法:</p>
+<ul>
+<li>抓包改包</li>
+<li>禁用js<h2 id="服务端校验"><a href="#服务端校验" class="headerlink" title="服务端校验"></a>服务端校验</h2><h3 id="1-content-type字段校验-MIME类型检测"><a href="#1-content-type字段校验-MIME类型检测" class="headerlink" title="1.content-type字段校验(MIME类型检测)"></a>1.content-type字段校验(MIME类型检测)</h3>例题:<a href="http://106.12.37.37:10002/" target="_blank" rel="noopener">http://106.12.37.37:10002/</a></li>
+<li>检测content-type的代码示例:<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>($_FILES[<span class="string">"upfile"</span>][<span class="string">"type"</span>]!=<span class="string">"image/gif"</span>)&#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">"只允许上传GIF图片"</span>;</span><br><span class="line">    <span class="keyword">exit</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+绕过方法:</li>
+<li>抓包改content-type字段</li>
+<li>改文件名后上传抓包后再改回文件名</li>
+<li>长传正常文件改文件内容<h3 id="2-后缀名黑名单校验"><a href="#2-后缀名黑名单校验" class="headerlink" title="2.后缀名黑名单校验"></a>2.后缀名黑名单校验</h3>例题:<a href="http://106.12.37.37:10003/" target="_blank" rel="noopener">http://106.12.37.37:10003/</a></li>
+<li>判断后缀名示例代码:<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$uptypes = <span class="keyword">array</span>(<span class="string">"php"</span>,<span class="string">"php3"</span>);</span><br><span class="line">$filename=$_FILES[<span class="string">"upfile"</span>][<span class="string">"name"</span>];</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getFileExt</span><span class="params">($file_name)</span></span>&#123;</span><br><span class="line">    <span class="keyword">while</span>($dot = strpos($file_name,<span class="string">"."</span>))&#123;</span><br><span class="line">        $file_name = substr($file_name,$dot+<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> $file_name;</span><br><span class="line">&#125;</span><br><span class="line">$filetype = strtolower(getFileExt($filename));</span><br><span class="line"><span class="keyword">if</span>(in_array($filetype,$uptypes))&#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">"非法文件禁止上传"</span>;</span><br><span class="line">    <span class="keyword">exit</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+绕过方法:</li>
+<li>大小写绕过，例如Php,PhP</li>
+<li>利用黑名单中没有但是能够被解析的后缀名，例如php3,php4,php5,php7,pht,phtml,phps(在/etc/apache2/mods-enabled/phpxxx.conf查看可解析的后缀名)</li>
+<li>配合apache的.htaccess文件上传解析<br>前提:/etc/apache2/apache2.conf中的AllowOverride设为ALL<br>.htaccess文件示例:<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;FilesMatch &quot;jpg&quot;&gt;</span><br><span class="line">SetHandler application&#x2F;x-httpd-php</span><br><span class="line">&lt;&#x2F;FilesMatch&gt;</span><br></pre></td></tr></table></figure></li>
+<li>使用00截断<br>详见:<a href="https://blog.csdn.net/Fly_hps/article/details/79658059" target="_blank" rel="noopener">https://blog.csdn.net/Fly_hps/article/details/79658059</a><br>和<br><a href="http://www.admintony.com/%E5%85%B3%E4%BA%8E%E4%B8%8A%E4%BC%A0%E4%B8%AD%E7%9A%8400%E6%88%AA%E6%96%AD%E5%88%86%E6%9E%90.html" target="_blank" rel="noopener">http://www.admintony.com/%E5%85%B3%E4%BA%8E%E4%B8%8A%E4%BC%A0%E4%B8%AD%E7%9A%8400%E6%88%AA%E6%96%AD%E5%88%86%E6%9E%90.html</a><br>例题:<a href="http://ctf5.shiyanbar.com/web/upload/" target="_blank" rel="noopener">http://ctf5.shiyanbar.com/web/upload/</a></li>
+<li>超长文件名截断上传<br>windows 258byte | linux4096byte</li>
+</ul>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2019-06-01</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/ctf%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83/" rel="tag">ctf从入门到放弃</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/" rel="tag">文件上传</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2025
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>

