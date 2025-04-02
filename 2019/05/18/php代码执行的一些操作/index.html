@@ -61,16 +61,29 @@
   <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#php列目录"><span class="toc-text">php列目录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#php读文件"><span class="toc-text">php读文件</span></a></li></ol>
 
   <div class="post-content">
-    <h2 id="php列目录"><a href="#php列目录" class="headerlink" title="php列目录"></a>php列目录</h2><ul>
-<li>利用glob函数<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">foreach</span> (glob(<span class="string">"./*"</span>) <span class="keyword">as</span> $filename) &#123;  <span class="keyword">echo</span> $filename.<span class="string">"&lt;br&gt;"</span>; &#125;</span><br></pre></td></tr></table></figure>
-The glob() function searches for all the pathnames matching pattern according to the rules used by the libc glob() function, which is similar to the rules used by common shells.</li>
-<li>利用DirectoryIterator对象<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$d=<span class="keyword">new</span> DirectoryIterator(<span class="string">"glob:///var/www/html/f*"</span>);var_dump($d);</span><br></pre></td></tr></table></figure></li>
-<li>使用scandir()<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$dir=<span class="string">"./"</span>;$file=scandir($dir);print_r($file);</span><br></pre></td></tr></table></figure>
-<h2 id="php读文件"><a href="#php读文件" class="headerlink" title="php读文件"></a>php读文件</h2></li>
-<li>highlight_file()<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$a = highlight_file(<span class="string">'flag'</span>);</span><br><span class="line"><span class="keyword">echo</span> $a;</span><br></pre></td></tr></table></figure></li>
-<li>show_source()<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show_source(<span class="string">"flag.txt"</span>);</span><br></pre></td></tr></table></figure></li>
+    <h2 id="php列目录">php列目录</h2>
+<ul>
+<li>利用glob函数</li>
 </ul>
-
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">foreach</span> (glob(<span class="string">"./*"</span>) <span class="keyword">as</span> $filename) &#123;  <span class="keyword">echo</span> $filename.<span class="string">"&lt;br&gt;"</span>; &#125;</span><br></pre></td></tr></table></figure>
+<p>The glob() function searches for all the pathnames matching pattern according to the rules used by the libc glob() function, which is similar to the rules used by common shells.</p>
+<ul>
+<li>利用DirectoryIterator对象</li>
+</ul>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$d=<span class="keyword">new</span> DirectoryIterator(<span class="string">"glob:///var/www/html/f*"</span>);var_dump($d);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>使用scandir()</li>
+</ul>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$dir=<span class="string">"./"</span>;$file=scandir($dir);print_r($file);</span><br></pre></td></tr></table></figure>
+<h2 id="php读文件">php读文件</h2>
+<ul>
+<li>highlight_file()</li>
+</ul>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$a = highlight_file(<span class="string">'flag'</span>);</span><br><span class="line"><span class="keyword">echo</span> $a;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>show_source()</li>
+</ul>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show_source(<span class="string">"flag.txt"</span>);</span><br></pre></td></tr></table></figure>
   </div>
   <div class="post-meta">
     <span class="post-time" style="color:#646060;font-size:13px">2019-05-18</span>

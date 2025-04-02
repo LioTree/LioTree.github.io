@@ -61,7 +61,8 @@
   
 
   <div class="post-content">
-    <p>注:<br>1.本文是对安全牛《CTF从入门到提升》课程课时2第一部分约束条件的安全测试的记录</p>
+    <p>注:<br>
+1.本文是对安全牛《CTF从入门到提升》课程课时2第一部分约束条件的安全测试的记录</p>
 <p>首先新建一张用于记录用户登录信息的表</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> <span class="keyword">user</span>(</span><br><span class="line">    <span class="keyword">id</span> <span class="built_in">int</span> <span class="keyword">not</span> <span class="literal">null</span> auto_increment, </span><br><span class="line">    username <span class="built_in">varchar</span>(<span class="number">30</span>) <span class="keyword">not</span> <span class="literal">null</span>,</span><br><span class="line">    <span class="keyword">password</span> <span class="built_in">varchar</span>(<span class="number">30</span>) <span class="keyword">not</span> <span class="literal">null</span>,</span><br><span class="line">    primary <span class="keyword">key</span>(<span class="keyword">id</span>);</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
 <p>然后用户注册时会插入数据</p>

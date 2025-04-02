@@ -58,114 +58,121 @@
   </div>
 
   <!-- 文章目录 -->
-  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#linux0-11组成"><span class="toc-text">linux0.11组成</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#打开电源"><span class="toc-text">打开电源</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#boot-bootsect-s"><span class="toc-text">boot&#x2F;bootsect.s</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#boot-setup-s"><span class="toc-text">boot&#x2F;setup.s</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#boot-head-s"><span class="toc-text">boot&#x2F;head.s</span></a></li></ol>
+  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#"><span class="toc-text">linux0.11组成</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#"><span class="toc-text">打开电源</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#"><span class="toc-text">boot&#x2F;bootsect.s</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#"><span class="toc-text">boot&#x2F;setup.s</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#"><span class="toc-text">boot&#x2F;head.s</span></a></li></ol>
 
   <div class="post-content">
     <ul>
-<li><p><a href="https://www.icourse163.org/course/HIT-1002531008" target="_blank" rel="noopener">哈工大操作系统</a></p>
+<li>
+<p><a href="https://www.icourse163.org/course/HIT-1002531008" target="_blank" rel="noopener">哈工大操作系统</a></p>
 </li>
-<li><p>《linux0.11完全注释》</p>
+<li>
+<p>《linux0.11完全注释》</p>
 </li>
 </ul>
 <p>以x86上的linux0.11为例，简单记录下</p>
-<h1 id="linux0-11组成"><a href="#linux0-11组成" class="headerlink" title="linux0.11组成"></a>linux0.11组成</h1><p>linux0.11在磁盘上的分布情况如图：</p>
+<h1>linux0.11组成</h1>
+<p>linux0.11在磁盘上的分布情况如图：</p>
 <p><img src="/images/linux0.11%E7%A3%81%E7%9B%98.JPG" alt=""></p>
-<h1 id="打开电源"><a href="#打开电源" class="headerlink" title="打开电源"></a>打开电源</h1><ul>
-<li><p>此时CPU仍处于实模式，所以依旧使用16位下的<code>CS:IP</code>方式寻址</p>
+<h1>打开电源</h1>
+<ul>
+<li>
+<p>此时CPU仍处于实模式，所以依旧使用16位下的<code>CS:IP</code>方式寻址</p>
 </li>
-<li><p>开机后<code>CS:IP</code>会被设为<code>0xFFFF:0x0000</code>，也就是执行<code>0xFFFF0</code>处的指令。该区域存放的是ROM BIOS的映射区</p>
+<li>
+<p>开机后<code>CS:IP</code>会被设为<code>0xFFFF:0x0000</code>，也就是执行<code>0xFFFF0</code>处的指令。该区域存放的是ROM BIOS的映射区</p>
 </li>
-<li><p>ROM BIOS会检查硬件是否正常，然后将磁盘0磁道0扇区的内容（512字节）读入<code>0x7c00</code>。接着将<code>CS:IP</code>设为<code>0x07c0:0x0000</code>跳转过去执行</p>
+<li>
+<p>ROM BIOS会检查硬件是否正常，然后将磁盘0磁道0扇区的内容（512字节）读入<code>0x7c00</code>。接着将<code>CS:IP</code>设为<code>0x07c0:0x0000</code>跳转过去执行</p>
 <ul>
 <li>为什么放到<code>0x7c00</code>？因为前面的内存需要存放一些其他的数据，比如中断向量表</li>
 </ul>
 </li>
 </ul>
-<h1 id="boot-bootsect-s"><a href="#boot-bootsect-s" class="headerlink" title="boot/bootsect.s"></a>boot/bootsect.s</h1><ul>
-<li><p>磁盘0磁道0扇区上的512字节是<code>boot/bootsect.s</code>编译后的机器码，负责磁盘的引导工作，类似于现在的<code>MBR</code>。它的主要工作其实就是把操作系统读到内存里</p>
+<h1>boot/bootsect.s</h1>
+<ul>
+<li>
+<p>磁盘0磁道0扇区上的512字节是<code>boot/bootsect.s</code>编译后的机器码，负责磁盘的引导工作，类似于现在的<code>MBR</code>。它的主要工作其实就是把操作系统读到内存里</p>
 </li>
-<li><p><code>bootsect</code>做的第一件事是把自己移到<code>0x9000:0x0000</code>，然后跳转过去执行</p>
+<li>
+<p><code>bootsect</code>做的第一件事是把自己移到<code>0x9000:0x0000</code>，然后跳转过去执行</p>
 <ul>
 <li>之所以要移过去是为了给后面的<code>system</code>模块腾位置</li>
 </ul>
 </li>
 </ul>
 <figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">BOOTSEG  = <span class="number">0x07c0</span>			! original address of boot-sector</span><br><span class="line">INITSEG  = <span class="number">0x9000</span>			! we move boot here - <span class="keyword">out</span> of the way</span><br><span class="line">...</span><br><span class="line">entry _start</span><br><span class="line"><span class="symbol">_start:</span></span><br><span class="line">	<span class="keyword">mov</span>	<span class="built_in">ax</span>,#BOOTSEG         ! 当前bootsect所处段地址，也就是<span class="number">0x07c0</span></span><br><span class="line">	<span class="keyword">mov</span>	<span class="built_in">ds</span>,<span class="built_in">ax</span></span><br><span class="line">	<span class="keyword">mov</span>	<span class="built_in">ax</span>,#INITSEG         ! 目标段地址<span class="number">0x9000</span></span><br><span class="line">	<span class="keyword">mov</span>	<span class="built_in">es</span>,<span class="built_in">ax</span></span><br><span class="line">	<span class="keyword">mov</span>	<span class="built_in">cx</span>,#<span class="number">256</span>             ! 移动<span class="number">256</span>个字</span><br><span class="line">	<span class="keyword">sub</span>	<span class="built_in">si</span>,<span class="built_in">si</span>               ! 将源偏移地址和目标偏移地址清零</span><br><span class="line">	<span class="keyword">sub</span>	<span class="built_in">di</span>,<span class="built_in">di</span></span><br><span class="line">	<span class="keyword">rep</span></span><br><span class="line">	movw                    ! 移动</span><br><span class="line">	jmpi	go,INITSEG      ! 跳转到<span class="number">0x9000</span>:go执行，跳过前面移动自身的代码</span><br><span class="line"><span class="symbol">go:</span>	<span class="keyword">mov</span>	<span class="built_in">ax</span>,<span class="built_in">cs</span>               ! 从这继续执行</span><br><span class="line">	<span class="keyword">mov</span>	<span class="built_in">ds</span>,<span class="built_in">ax</span></span><br><span class="line">	<span class="keyword">mov</span>	<span class="built_in">es</span>,<span class="built_in">ax</span></span><br></pre></td></tr></table></figure>
-
 <ul>
 <li>接着<code>bootsect</code>会使用<code>int 0x13</code>将<code>setup</code>模块读入到<code>0x90200</code>中</li>
 </ul>
 <figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">SETUPLEN = <span class="number">4</span>				! nr of setup-sectors</span><br><span class="line">...</span><br><span class="line"><span class="symbol">go:</span>	<span class="keyword">mov</span>	<span class="built_in">ax</span>,<span class="built_in">cs</span></span><br><span class="line">	<span class="keyword">mov</span>	<span class="built_in">ds</span>,<span class="built_in">ax</span></span><br><span class="line">	<span class="keyword">mov</span>	<span class="built_in">es</span>,<span class="built_in">ax</span>           ! 把<span class="built_in">es</span>设为<span class="number">0x9000</span>，为读取setup做准备</span><br><span class="line">! put stack <span class="meta">at</span> <span class="number">0x9ff00</span>.</span><br><span class="line">	<span class="keyword">mov</span>	<span class="built_in">ss</span>,<span class="built_in">ax</span></span><br><span class="line">	<span class="keyword">mov</span>	<span class="built_in">sp</span>,#<span class="number">0xFF00</span>		! arbitrary value &gt;&gt;<span class="number">512</span></span><br><span class="line"></span><br><span class="line">! load the setup-sectors directly after the bootblock.</span><br><span class="line">! Note that <span class="string">'es'</span> is already set <span class="meta">up</span>.</span><br><span class="line"></span><br><span class="line"><span class="symbol">load_setup:</span></span><br><span class="line">	<span class="keyword">mov</span>	<span class="built_in">dx</span>,#<span class="number">0x0000</span>		! drive <span class="number">0</span>, head <span class="number">0</span></span><br><span class="line">	<span class="keyword">mov</span>	<span class="built_in">cx</span>,#<span class="number">0x0002</span>		! sector <span class="number">2</span>, track <span class="number">0</span></span><br><span class="line">	<span class="keyword">mov</span>	<span class="built_in">bx</span>,#<span class="number">0x0200</span>		! address = <span class="number">512</span>, <span class="keyword">in</span> INITSEG</span><br><span class="line">	<span class="keyword">mov</span>	<span class="built_in">ax</span>,#<span class="number">0x0200</span>+SETUPLEN	! service <span class="number">2</span>, nr of sectors</span><br><span class="line">	<span class="keyword">int</span>	<span class="number">0x13</span>			! read it</span><br><span class="line">	<span class="keyword">jnc</span>	ok_load_setup		! ok - continue</span><br><span class="line">	<span class="keyword">mov</span>	<span class="built_in">dx</span>,#<span class="number">0x0000</span></span><br><span class="line">	<span class="keyword">mov</span>	<span class="built_in">ax</span>,#<span class="number">0x0000</span>		! reset the diskette</span><br><span class="line">	<span class="keyword">int</span>	<span class="number">0x13</span>            </span><br><span class="line">	j	load_setup</span><br></pre></td></tr></table></figure>
-
 <ul>
 <li>读入成功后获取磁盘参数</li>
 </ul>
 <figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">ok_load_setup:</span></span><br><span class="line"></span><br><span class="line">! Get disk drive parameters, specifically nr of sectors/track</span><br><span class="line"></span><br><span class="line">	<span class="keyword">mov</span>	<span class="built_in">dl</span>,#<span class="number">0x00</span></span><br><span class="line">	<span class="keyword">mov</span>	<span class="built_in">ax</span>,#<span class="number">0x0800</span>		! <span class="number">AH</span>=<span class="number">8</span> is get drive parameters</span><br><span class="line">	<span class="keyword">int</span>	<span class="number">0x13</span></span><br><span class="line">	<span class="keyword">mov</span>	<span class="number">ch</span>,#<span class="number">0x00</span></span><br><span class="line">	<span class="built_in">seg</span> <span class="built_in">cs</span></span><br><span class="line">	<span class="keyword">mov</span>	sectors,<span class="built_in">cx</span>      ! 把获取到的信息保存到sectors处</span><br><span class="line">	<span class="keyword">mov</span>	<span class="built_in">ax</span>,#INITSEG</span><br><span class="line">	<span class="keyword">mov</span>	<span class="built_in">es</span>,<span class="built_in">ax</span>           ! 将<span class="built_in">es</span>恢复</span><br><span class="line">...</span><br><span class="line"><span class="symbol">sectors:</span>                ! 存放磁盘信息</span><br><span class="line"><span class="meta">	.word</span> <span class="number">0</span></span><br></pre></td></tr></table></figure>
-
 <ul>
 <li>显示<code>Loading system ...</code></li>
 </ul>
 <figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">! Print some inane message</span><br><span class="line"></span><br><span class="line">	<span class="keyword">mov</span>	<span class="number">ah</span>,#<span class="number">0x03</span>		! read cursor pos</span><br><span class="line">	<span class="keyword">xor</span>	<span class="number">bh</span>,<span class="number">bh</span></span><br><span class="line">	<span class="keyword">int</span>	<span class="number">0x10</span></span><br><span class="line">	</span><br><span class="line">	<span class="keyword">mov</span>	<span class="built_in">cx</span>,#<span class="number">24</span>          ! msg1的长度，共<span class="number">24</span>个字节</span><br><span class="line">	<span class="keyword">mov</span>	<span class="built_in">bx</span>,#<span class="number">0x0007</span>		! page <span class="number">0</span>, attribute <span class="number">7</span> (normal)</span><br><span class="line">	<span class="keyword">mov</span>	<span class="built_in">bp</span>,#msg1</span><br><span class="line">	<span class="keyword">mov</span>	<span class="built_in">ax</span>,#<span class="number">0x1301</span>		! write string, move cursor</span><br><span class="line">	<span class="keyword">int</span>	<span class="number">0x10</span>            ! 显示msg1</span><br><span class="line">...</span><br><span class="line"><span class="symbol">msg1:</span></span><br><span class="line"><span class="meta">	.byte</span> <span class="number">13</span>,<span class="number">10</span>         ! \r\n</span><br><span class="line"><span class="meta">	.ascii</span> <span class="string">"Loading system ..."</span></span><br><span class="line"><span class="meta">	.byte</span> <span class="number">13</span>,<span class="number">10</span>,<span class="number">13</span>,<span class="number">10</span></span><br></pre></td></tr></table></figure>
-
 <ul>
-<li><p>载入<code>system</code>模块，放置到<code>0x10000</code></p>
+<li>
+<p>载入<code>system</code>模块，放置到<code>0x10000</code></p>
 <ul>
 <li>后面的<code>setup</code>模块又会把<code>system</code>放到<code>0x00000</code>去，之所以这么麻烦还是因为<code>0x00000-0x10000</code>存放了中断向量表等信息，后面<code>setup</code>依然需要用到它们</li>
 </ul>
 </li>
 </ul>
 <figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">SYSSIZE = <span class="number">0x3000</span></span><br><span class="line">...</span><br><span class="line">SYSSEG   = <span class="number">0x1000</span>			! system loaded <span class="meta">at</span> <span class="number">0x10000</span> (<span class="number">65536</span>).</span><br><span class="line">ENDSEG   = SYSSEG + SYSSIZE		! where to stop loading</span><br><span class="line">...</span><br><span class="line">! ok, we<span class="string">'ve written the message, now</span></span><br><span class="line"><span class="string">! we want to load the system (at 0x10000)</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">	mov	ax,#SYSSEG</span></span><br><span class="line"><span class="string">	mov	es,ax		! segment of 0x010000</span></span><br><span class="line"><span class="string">	call	read_it 	! 读入system模块，es为参数</span></span><br><span class="line"><span class="string">...</span></span><br><span class="line"><span class="string">read_it:</span></span><br><span class="line"><span class="string">	mov ax,es</span></span><br><span class="line"><span class="string">	test ax,#0x0fff</span></span><br><span class="line"><span class="string">die:	jne die			! es must be at 64kB boundary</span></span><br><span class="line"><span class="string">	xor bx,bx		! bx is starting address within segment</span></span><br><span class="line"><span class="string">rp_read:</span></span><br><span class="line"><span class="string">	mov ax,es</span></span><br><span class="line"><span class="string">	cmp ax,#ENDSEG		! have we loaded all yet?</span></span><br><span class="line"><span class="string">	jb ok1_read</span></span><br><span class="line"><span class="string">	ret</span></span><br><span class="line"><span class="string">ok1_read:				! 这里计算要读的磁道数</span></span><br><span class="line"><span class="string">...</span></span><br><span class="line"><span class="string">ok2_read:</span></span><br><span class="line"><span class="string">	call read_track     ! 真正的读磁道在这里</span></span><br></pre></td></tr></table></figure>
-
 <ul>
 <li><code>bootsect</code>结束，跳转到<code>0x90200</code>上的<code>setup</code>模块</li>
 </ul>
 <figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">! after that (everyting loaded), we jump to</span><br><span class="line">! the setup-routine loaded directly after</span><br><span class="line">! the bootblock:</span><br><span class="line"></span><br><span class="line">	jmpi	<span class="number">0</span>,SETUPSEG</span><br></pre></td></tr></table></figure>
-
 <ul>
 <li>代码最后还有一个<code>.org</code>指令，用于填充字节，保证<code>bootsect</code>一定是512字节</li>
 </ul>
 <figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">.org</span> <span class="number">508</span></span><br><span class="line"><span class="symbol">root_dev:</span></span><br><span class="line"><span class="meta">	.word</span> ROOT_DEV</span><br><span class="line"><span class="symbol">boot_flag:</span></span><br><span class="line"><span class="meta">	.word</span> <span class="number">0xAA55</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="boot-setup-s"><a href="#boot-setup-s" class="headerlink" title="boot/setup.s"></a>boot/setup.s</h1><ul>
-<li><p><code>setup</code>模块顾名思义，负责OS启动前的设置</p>
+<h1>boot/setup.s</h1>
+<ul>
+<li>
+<p><code>setup</code>模块顾名思义，负责OS启动前的设置</p>
 </li>
-<li><p><code>setup</code>第一步获取一些硬件的参数并做一些检查，并将获取的参数保存到内存中，提供给操作系统使用</p>
+<li>
+<p><code>setup</code>第一步获取一些硬件的参数并做一些检查，并将获取的参数保存到内存中，提供给操作系统使用</p>
 </li>
 </ul>
 <figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">! Get memory size (extended mem, kB)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">mov</span>	<span class="number">ah</span>,#<span class="number">0x88</span></span><br><span class="line">	<span class="keyword">int</span>	<span class="number">0x15</span></span><br><span class="line">	<span class="keyword">mov</span>	[<span class="number">2</span>],<span class="built_in">ax</span></span><br><span class="line"></span><br><span class="line">! Get video-card data:</span><br><span class="line">...</span><br><span class="line">! check for EGA/VGA <span class="keyword">and</span> some config parameters</span><br><span class="line">...</span><br><span class="line">! Get hd0 data</span><br><span class="line">...</span><br><span class="line">! Get hd1 data</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-
 <ul>
-<li><p>接着<code>setup</code>将<code>system</code>模块从<code>0x10000</code>移到<code>0x00000</code></p>
+<li>
+<p>接着<code>setup</code>将<code>system</code>模块从<code>0x10000</code>移到<code>0x00000</code></p>
 <ul>
 <li>中断向量表咋办？后面要进入保护模式了，可以向它说再见了…</li>
 </ul>
 </li>
 </ul>
 <figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">! first we move the system to it<span class="string">'s rightful place</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">	mov	ax,#0x0000</span></span><br><span class="line"><span class="string">	cld			! '</span>direction<span class="string">'=0, movs moves forward</span></span><br><span class="line"><span class="string">do_move:</span></span><br><span class="line"><span class="string">	mov	es,ax		! destination segment</span></span><br><span class="line"><span class="string">	add	ax,#0x1000</span></span><br><span class="line"><span class="string">	cmp	ax,#0x9000</span></span><br><span class="line"><span class="string">	jz	end_move</span></span><br><span class="line"><span class="string">	mov	ds,ax		! source segment</span></span><br><span class="line"><span class="string">	sub	di,di</span></span><br><span class="line"><span class="string">	sub	si,si</span></span><br><span class="line"><span class="string">	mov 	cx,#0x8000</span></span><br><span class="line"><span class="string">	rep</span></span><br><span class="line"><span class="string">	movsw</span></span><br><span class="line"><span class="string">	jmp	do_move</span></span><br></pre></td></tr></table></figure>
-
 <ul>
-<li><p>设置中断描述符表<code>idt</code>和全局描述符表<code>gdt</code></p>
+<li>
+<p>设置中断描述符表<code>idt</code>和全局描述符表<code>gdt</code></p>
 <ul>
 <li><code>gdt</code>下面会用到，<code>idt</code>以后再说</li>
 </ul>
 </li>
 </ul>
 <figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">! then we load the <span class="meta">segment</span> descriptors</span><br><span class="line"></span><br><span class="line"><span class="symbol">end_move:</span></span><br><span class="line">	<span class="keyword">mov</span>	<span class="built_in">ax</span>,#SETUPSEG	! right, forgot this <span class="meta">at</span> first. didn<span class="string">'t work :-)</span></span><br><span class="line"><span class="string">	mov	ds,ax</span></span><br><span class="line"><span class="string">	lidt	idt_48		! load idt with 0,0</span></span><br><span class="line"><span class="string">	lgdt	gdt_48		! load gdt with whatever appropriate</span></span><br><span class="line"><span class="string">...</span></span><br><span class="line"><span class="string">gdt:</span></span><br><span class="line"><span class="string">	.word	0,0,0,0		! dummy 第一个描述符不用</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">	! 内核代码段选择符</span></span><br><span class="line"><span class="string">	.word	0x07FF		! 8Mb - limit=2047 (2048*4096=8Mb)</span></span><br><span class="line"><span class="string">	.word	0x0000		! base address=0</span></span><br><span class="line"><span class="string">	.word	0x9A00		! code read/exec</span></span><br><span class="line"><span class="string">	.word	0x00C0		! granularity=4096, 386</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">	! 内核数据段选择符</span></span><br><span class="line"><span class="string">	.word	0x07FF		! 8Mb - limit=2047 (2048*4096=8Mb)</span></span><br><span class="line"><span class="string">	.word	0x0000		! base address=0</span></span><br><span class="line"><span class="string">	.word	0x9200		! data read/write</span></span><br><span class="line"><span class="string">	.word	0x00C0		! granularity=4096, 386</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">idt_48				!这个时候的idt还是个空表</span></span><br><span class="line"><span class="string">	.word	0			! idt limit=0</span></span><br><span class="line"><span class="string">	.word	0,0			! idt base=0L</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">gdt_48:</span></span><br><span class="line"><span class="string">	.word	0x800		! gdt limit=2048, 256 GDT entries</span></span><br><span class="line"><span class="string">	.word	512+gdt,0x9	! gdt base = 0X9xxxx</span></span><br></pre></td></tr></table></figure>
-
 <ul>
 <li>进入保护模式，和<code>1MB</code>的寻址说再见</li>
 </ul>
 <figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">! Well, now<span class="string">'s the time to actually move into protected mode. To make</span></span><br><span class="line"><span class="string">! things as simple as possible, we do no register set-up or anything,</span></span><br><span class="line"><span class="string">! we let the gnu-compiled 32-bit programs do that. We just jump to</span></span><br><span class="line"><span class="string">! absolute address 0x00000, in 32-bit protected mode.</span></span><br><span class="line"><span class="string">! 下面这两句会将cr0寄存器的第0位设为1，启动保护模式</span></span><br><span class="line"><span class="string">	mov	ax,#0x0001	! protected mode (PE) bit</span></span><br><span class="line"><span class="string">	lmsw	ax		! This is it!</span></span><br><span class="line"><span class="string">	! 0是偏移，8是gdt表项的第8个字节，也就是内核代码段选择符。合起来会跳到0x0000执行system模块</span></span><br><span class="line"><span class="string">	jmpi	0,8		! jmp offset 0 of segment 8 (cs)</span></span><br></pre></td></tr></table></figure>
-
 <p>这个<code>0x0000</code>是咋算的呢…保护模式寻址的玩法是<code>根据cs查gdt表+ip</code></p>
 <figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">! 内核代码段选择符</span><br><span class="line"><span class="meta">	.word</span>	<span class="number">0x07FF</span>		! 8Mb - limit=<span class="number">2047</span> (<span class="number">2048</span>*<span class="number">4096</span>=8Mb)</span><br><span class="line"><span class="meta">	.word</span>	<span class="number">0x0000</span>		! base address=<span class="number">0</span></span><br><span class="line"><span class="meta">	.word</span>	<span class="number">0x9A00</span>		! code read/exec</span><br><span class="line"><span class="meta">	.word</span>	<span class="number">0x00C0</span>		! granularity=<span class="number">4096</span>, <span class="number">386</span></span><br></pre></td></tr></table></figure>
-
 <p><img src="/images/GDT.JPG" alt=""></p>
 <p>把段基址的三个部分合起来就是<code>0x00000000</code>，<code>ip</code>代表的偏移还是<code>0x0</code>，<code>0x00000000+0x0</code>合起来还是0地址，也就是<code>system</code>模块的起始代码<code>head.s</code></p>
-<h1 id="boot-head-s"><a href="#boot-head-s" class="headerlink" title="boot/head.s"></a>boot/head.s</h1><ul>
-<li><p>前面<code>setup</code>似乎做了一些初始化的工作，但实际上还有很多事情没做，比如<code>idt</code>表还是空的。因此需要<code>head</code>来做一些进入操作系统后的初始化工作</p>
+<h1>boot/head.s</h1>
+<ul>
+<li>
+<p>前面<code>setup</code>似乎做了一些初始化的工作，但实际上还有很多事情没做，比如<code>idt</code>表还是空的。因此需要<code>head</code>来做一些进入操作系统后的初始化工作</p>
 </li>
-<li><p><code>head.s</code>工作在保护模式之下，所以换成了32位的<code>AT&amp;T</code>语法</p>
+<li>
+<p><code>head.s</code>工作在保护模式之下，所以换成了32位的<code>AT&amp;T</code>语法</p>
 </li>
 </ul>
 

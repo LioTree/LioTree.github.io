@@ -62,13 +62,28 @@
 
   <div class="post-content">
     <ul>
-<li>Attempt1:<br>直接打开b1.txt看到一个BM6，把后缀名改成.bmp搞定</li>
-<li>Attempt2:<br>用hackbar加一个secure_user_agent的User Agent</li>
-<li>Attempt3:<br>用burpsuite或者其他工具把post参数score改成194175以上的数</li>
-<li>Attemp4:<br>下载b4.jpg后，在windows下右键详细信息那里可以看到作者是james，备注是i like chocolate,所以用户名是james,密码试chocolate</li>
-<li>Attemp5:<br>用binwalk可以看到这个图片藏了一个zip文件，用binwalk –d “zip” b5.jpg分离出zip文件或者直接把图片后缀名改成zip搞定</li>
-<li>Attemp6:<br>问我们三个问题<br>What is the IP of the server hosting this page:<br>What company hosts our server:<br>X-B6-Key header:<br>第一个问题ping <a href="http://www.hackthis.co.uk就可以得到ip地址，" target="_blank" rel="noopener">www.hackthis.co.uk就可以得到ip地址，</a><br>第二个问题可以通过whois查询来查询hackthis服务器公司，<br>第三个真的不知道X-B6-Key header 是什么东西。。google后发现是个email的头，于是去hackthis那里修改密码，<br>它会给你的邮箱发一封邮件，我用的是163的邮箱，点击更多，然后查看信头就可以看到X-B6-Key header </li>
-<li>attempts 7<br>题目说<br>We are running a suspicious looking service. Maybe it will give you the answer.</li>
+<li>Attempt1:<br>
+直接打开b1.txt看到一个BM6，把后缀名改成.bmp搞定</li>
+<li>Attempt2:<br>
+用hackbar加一个secure_user_agent的User Agent</li>
+<li>Attempt3:<br>
+用burpsuite或者其他工具把post参数score改成194175以上的数</li>
+<li>Attemp4:<br>
+下载b4.jpg后，在windows下右键详细信息那里可以看到作者是james，备注是i like chocolate,所以用户名是james,密码试chocolate</li>
+<li>Attemp5:<br>
+用binwalk可以看到这个图片藏了一个zip文件，用binwalk --d “zip” b5.jpg分离出zip文件或者直接把图片后缀名改成zip搞定</li>
+<li>Attemp6:<br>
+问我们三个问题<br>
+What is the IP of the server hosting this page:<br>
+What company hosts our server:<br>
+X-B6-Key header:<br>
+第一个问题ping www.hackthis.co.uk就可以得到ip地址，<br>
+第二个问题可以通过whois查询来查询hackthis服务器公司，<br>
+第三个真的不知道X-B6-Key header 是什么东西。。google后发现是个email的头，于是去hackthis那里修改密码，<br>
+它会给你的邮箱发一封邮件，我用的是163的邮箱，点击更多，然后查看信头就可以看到X-B6-Key header</li>
+<li>attempts 7<br>
+题目说<br>
+We are running a suspicious looking service. Maybe it will give you the answer.</li>
 </ul>
 <p>因此可以猜到是要找到一个可疑的service,于是用一顿狂扫</p>
 <p>然后…</p>
@@ -84,7 +99,8 @@
 </blockquote>
 <p>等了一万年后终于发现6776端口是unknown的，于是netcat连上去</p>
 <blockquote>
-<p>netcat 85.159.213.101 6776<br>搞定</p>
+<p>netcat 85.159.213.101 6776<br>
+搞定</p>
 </blockquote>
 
   </div>

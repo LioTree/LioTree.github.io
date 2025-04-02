@@ -62,23 +62,29 @@
 
   <div class="post-content">
     <ul>
-<li><p>attempts 1<br>日常看代码</p>
+<li>attempts 1<br>
+日常看代码</li>
+</ul>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;script type=<span class="string">'text/javascript'</span>&gt; $(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123; $(<span class="string">'.level-form'</span>).submit(<span class="function"><span class="keyword">function</span>(<span class="params">e</span>)</span>&#123; e.preventDefault(); <span class="keyword">if</span>(<span class="built_in">document</span>.getElementById(<span class="string">'pass'</span>).value == correct) &#123; <span class="built_in">document</span>.location = <span class="string">'?pass='</span> + correct; &#125; <span class="keyword">else</span> &#123; alert(<span class="string">'Incorrect password'</span>) &#125; &#125;)&#125;)&lt;<span class="regexp">/script&gt;</span></span><br></pre></td></tr></table></figure>
 <p>然后去搜索correct变量是啥</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;script type=<span class="string">'text/javascript'</span>&gt; <span class="keyword">var</span> correct = <span class="string">'jrules'</span> &lt;<span class="regexp">/script&gt;</span></span><br></pre></td></tr></table></figure></li>
-<li><p>attempts 2<br>继续欢乐翻代码</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;script type=<span class="string">'text/javascript'</span>&gt; <span class="keyword">var</span> correct = <span class="string">'jrules'</span> &lt;<span class="regexp">/script&gt;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>attempts 2<br>
+继续欢乐翻代码</li>
+</ul>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&lt;script type=<span class="string">'text/javascript'</span>&gt;</span><br><span class="line">              <span class="keyword">var</span> length = <span class="number">5</span>;</span><br><span class="line">              <span class="keyword">var</span> x = <span class="number">3</span>;</span><br><span class="line">              <span class="keyword">var</span> y = <span class="number">2</span>;</span><br><span class="line">              y = <span class="built_in">Math</span>.sin(<span class="number">118.13</span>);</span><br><span class="line">              y = -y;</span><br><span class="line">              x = <span class="built_in">Math</span>.ceil(y);</span><br><span class="line">              y++;</span><br><span class="line">              y = y+x+x;</span><br><span class="line">              y *= (y/<span class="number">2</span>);</span><br><span class="line">              y++;</span><br><span class="line">              y++;</span><br><span class="line">              length = <span class="built_in">Math</span>.floor(y);</span><br><span class="line">          &lt;<span class="regexp">/script&gt;</span></span><br></pre></td></tr></table></figure>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;script type=<span class="string">'text/javascript'</span>&gt; $(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123; $(<span class="string">'.level-form'</span>).submit(<span class="function"><span class="keyword">function</span>(<span class="params">e</span>)</span>&#123; e.preventDefault(); <span class="keyword">if</span> ($(<span class="string">'.level-form #pass'</span>)[<span class="number">0</span>].value.length == length) &#123; <span class="built_in">document</span>.location = <span class="string">"2?x="</span> + length; &#125; <span class="keyword">else</span> &#123; alert(<span class="string">'Incorrect Password'</span>); &#125; &#125;); &#125;); &lt;<span class="regexp">/script&gt;</span></span><br></pre></td></tr></table></figure>
 <p>注意这个</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ($(<span class="string">'.level-form #pass'</span>)[<span class="number">0</span>].value.length == length)</span><br></pre></td></tr></table></figure>
 <p>只要密码的长度等于length就ok了,所以我们按着上面算下length是多少就ok了，如果懒的话也可以改改js代码然后直接把length alert出来</p>
-</li>
-<li><p>attempts 3<br>看到这里</p>
+<ul>
+<li>attempts 3<br>
+看到这里</li>
+</ul>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;script type=<span class="string">'text/javascript'</span>&gt; <span class="keyword">var</span> thecode = <span class="string">'code123'</span>; $(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123; $(<span class="string">'.level-form'</span>).submit(<span class="function"><span class="keyword">function</span>(<span class="params">e</span>)</span>&#123; e.preventDefault(); <span class="keyword">if</span> ($(<span class="string">'.level-form #pass'</span>)[<span class="number">0</span>].value == thecode) &#123; <span class="built_in">document</span>.location = <span class="string">"?pass="</span> + thecode; &#125; <span class="keyword">else</span> &#123; alert(<span class="string">'Incorrect Password'</span>); &#125; &#125;); &#125;); &lt;<span class="regexp">/script&gt;</span></span><br></pre></td></tr></table></figure>
 <p>以为密码就是code123,可是居然不对…找了很久也没看到有其他的地方修改了thecode变量，于是直接改代码alert出thecode就ok了</p>
-</li>
-<li><p>attempt 4</p>
-</li>
+<ul>
+<li>attempt 4</li>
 </ul>
 <p>在网页源代码中没有找到任何信息，结合hint所说可以猜到是要找到另一个页面，试图用google去找没有找到,这时注意到url里带了个?input,发现访问</p>
 <blockquote>
@@ -94,18 +100,19 @@
 </blockquote>
 <p>的响应，可以在源代码中找到密码</p>
 <ul>
-<li>attempt 5<br>首先是要看到网页的源代码，这个不难只要<blockquote>
+<li>attempt 5<br>
+首先是要看到网页的源代码，这个不难只要</li>
+</ul>
+<blockquote>
 <p>view-source:<a href="https://www.hackthis.co.uk/levels/javascript/5" target="_blank" rel="noopener">https://www.hackthis.co.uk/levels/javascript/5</a></p>
 </blockquote>
-</li>
-</ul>
 <p>就可以看到，但是一开始并没有找到什么有价值的东西，仔细查看网页包含的其他js代码可以发现</p>
 <blockquote>
 <p>view-source:<a href="https://www.hackthis.co.uk/files/js/min/extra_48d468a93b.js?1510507123" target="_blank" rel="noopener">https://www.hackthis.co.uk/files/js/min/extra_48d468a93b.js?1510507123</a></p>
 </blockquote>
 <p>就是我们要找的</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">a=<span class="built_in">window</span>.location.host+<span class="string">""</span>;</span><br><span class="line">b=a.length;c=<span class="number">4</span>+((<span class="number">5</span>*<span class="number">10</span>)*<span class="number">2</span>);</span><br><span class="line">d=<span class="built_in">String</span>.fromCharCode(c,-(<span class="number">41</span>-<span class="built_in">Math</span>.floor(<span class="number">1806</span>/<span class="number">13</span>)),<span class="built_in">Math</span>.sqrt(b<span class="number">-2</span>)*<span class="number">29</span>,(b*<span class="number">8</span>)<span class="number">-29</span>;</span><br><span class="line">p=prompt(<span class="string">"Password:"</span>,<span class="string">""</span>);</span><br><span class="line"><span class="keyword">if</span>(p==d)&#123;</span><br><span class="line"><span class="built_in">window</span>.location=<span class="string">"?pass="</span>+p;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span>&#123;</span><br><span class="line"><span class="built_in">window</span>.location=<span class="string">"/levels/"</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这里有个要注意的地方就是我们自己执行这段代码时要把a的值换成<a href="http://www.hackthis.co.uk，我一开始没注意这个折腾了好久" target="_blank" rel="noopener">www.hackthis.co.uk，我一开始没注意这个折腾了好久</a>…</p>
+<p><a href="http://xn--awww-kf5fi2b1bv1nvux9yl3uer7kxldia60kbqq2j18nk7ao6aw5jcq6aqjg5w8dna610h8y3ejmwbxkhra7341cqa465n.hackthis.co.uk" target="_blank" rel="noopener">这里有个要注意的地方就是我们自己执行这段代码时要把a的值换成www.hackthis.co.uk</a>，我一开始没注意这个折腾了好久…</p>
 
   </div>
   <div class="post-meta">
