@@ -239,7 +239,7 @@
 <p>因为不同的应用和框架可能存在不同的封装方式，无法统一建模，Su 等人在 Splendor中使用了基于模糊匹配（Fuzzy Matching）的方法来获取一次数据库操作对应的数据库三元组（表名，列名，操作），其中的操作包括读取和写入[24]。其工作流程如下：</p>
 <ul>
 <li>与RIPS拓展版类似，分析SQL文件获取数据库模式</li>
-<li>锚点 API（Anchor Point API）收集: Splendor 在 CPG 上分别对source 和 sink进行正向和反向的数据流切片。它发现 <code>QueryMaster</code> 类的方法，如 <code>table()</code>, <code>data()</code>,<code>insert()</code>, <code>fields()</code>, <code>select()</code> 在这些路径上被频繁地以链式结构调用。基于高频调用和链式结构特征，他们被识别为潜在锚点API集合。</li>
+<li>锚点 API（Anchor Point API）收集: Splendor 在 CPG 上分别从source 和 sink进行正向和反向的遍历，收集污点路径上调用的API。它发现 <code>QueryMaster</code> 类的方法，如 <code>table()</code>, <code>data()</code>,<code>insert()</code>, <code>fields()</code>, <code>select()</code> 在这些路径上被频繁地以链式结构调用。基于高频调用和链式结构特征，他们被识别为潜在锚点API集合。</li>
 <li>识别数据库写入操作:
 <ul>
 <li>收集与解析: SPLENDOR首先分析链式调用，收集令牌 <code>QueryMaster</code>, <code>table</code>, <code>'users'</code>, <code>data</code>, <code>$insertData</code>, <code>insert</code>。追踪 <code>$insertData</code> 发现键 <code>'nickname'</code>和<code>'username'</code>。</li>
